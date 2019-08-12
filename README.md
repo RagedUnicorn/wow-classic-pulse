@@ -1,8 +1,96 @@
 # Pulse
 
+![](/docs/p_ragedunicorn_love_classic.png)
+
 > Pulse aims to give a visual interpretation of when the next resources tick happens. This can be used by multiple classes but the most prominent one might be rogue and his energy regeneration.
 
+![](/docs/badge_wow_classic.png)
+
 ## Installation
+
+WoW-Addons are installed directly into your WoW directory:
+
+`[WoW-installation-directory]\Interface\AddOns`
+
+Make sure to get the newest version of the Addon from the releases tab:
+
+[Pulse-Releases](https://github.com/RagedUnicorn/wow-classic-pulse/releases)
+
+> Note: If the Addon is not showing up in your ingame Addonlist make sure that the Addon is named `Pulse` in your Addons folder
+
+## What is Pulse
+
+Pulse is a simple addon that tracks the energy-regen tickrate and the current amount of energy. The energybar will showup once the player spent some energy.
+
+## FAQ
+
+#### The Addon is not showing up in WoW. What can I do?
+
+Make sure to recheck the installation part of this Readme and check that the Addon is placed inside `[WoW-installation-directory]\Interface\AddOns` and is correctly named as `Pulse`.
+
+#### I get a red error (Lua Error) on my screen. What is this?
+
+This is what we call a Lua error and it usually happens because of an oversight or error by the developer (in this case me). Take a screenshot off the error and create a Github Issue with it and I will see if I can resolve it. It also helps if you can add any additional information of what you we're doing at the time and what other addons you have active. Also if you are able to reproduce the error make sure to check if it still happens if you disable all others addons.
+
+## Development
+
+### Switching between Environments
+
+Switching between development and release can be achieved with maven.
+
+```
+mvn generate-resources -Dgenerate.sources.overwrite=true -P development
+```
+
+This generates and overwrites `P_Environment.lua` and `Pulse.toc`. You need to specifically specify that you want to overwrite to files to prevent data loss. It is also possible to omit the profile because development is the default profile that will be used.
+
+Switching to release can be done as such:
+
+```
+mvn generate-resources -Dgenerate.sources.overwrite=true -P release
+```
+
+In this case it is mandatory to add the release profile.
+
+**Note:** Switching environments has the effect changing certain files to match an expected value depending on the environment. To be more specific this means that as an example test and debug files are not included when switching to release. It also means that variables such as loglevel change to match the environment.
+
+As to not change those files all the time the repository should always stay in the development environment. Do not commit `Pulse.toc` and `P_Environment.lua` in their release state. Changes to those files should always be done inside `build-resources` and their respective template files marked with `.tpl`.
+
+### Packaging the Addon
+
+To package the addon use the `package` phase.
+
+```
+mvn package -Dgenerate.sources.overwrite=true -P development
+```
+
+This generates an addon package for development. For generating a release package the release profile can be used.
+
+```
+mvn package -Dgenerate.sources.overwrite=true -P release
+```
+
+**Note:** This packaging and switching resources can also be done one after another.
+
+```
+# switch environment to release
+mvn generate-resources -Dgenerate.sources.overwrite=true -P release
+# package release
+mvn package -P release
+```
+
+### Deploy a Release
+
+Before creating a new release update `addon.tag.version` in `pom.xml`. Afterwards to create a new release and deploy to GitHub the `deploy` profile has to be used.
+
+```
+# switch environment to release
+mvn generate-resources -Dgenerate.sources.overwrite=true -P release
+# deploy release to GitHub
+mvn package -P deploy
+```
+
+For this to work an oauth token for GitHub is required and has to be configured in your `.m2` settings file.
 
 ## License
 
