@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals CreateFrame UIParent STANDARD_TEXT_FONT GetTime UnitPower
+
 local mod = rgp
 local me = {}
 
@@ -75,24 +77,36 @@ function me.BuildUi()
   energyBarFrame:Hide()
 end
 
-function me.CreateStatusBarFrame(energyBarFrame)
-  local energyStatusBar = CreateFrame("StatusBar", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR, energyBarFrame)
-  energyStatusBar:SetPoint("CENTER", energyBarFrame, 0, 0)
+--[[
+  @param {table} frame
+]]--
+function me.CreateStatusBarFrame(frame)
+  local energyStatusBar = CreateFrame("StatusBar", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR, frame)
+  energyStatusBar:SetPoint("CENTER", frame, 0, 0)
   energyStatusBar:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH)
   energyStatusBar:SetHeight(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT)
   energyStatusBar:SetStatusBarTexture("Interface\\AddOns\\Pulse\\assets\\ui_statusbar")
   energyStatusBar:SetStatusBarColor(0, 1, 0.68, 1)
   energyStatusBar:SetFrameLevel(energyStatusBar:GetFrameLevel() - 1)
-  energyStatusBar:SetMinMaxValues(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MIN, RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MAX)
+  energyStatusBar:SetMinMaxValues(
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MIN,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MAX
+  )
 
   return energyStatusBar
 end
 
-function me.CreateEnergyAmountFontString(energyBarFrame)
-  local energyAmountFontString = energyBarFrame:CreateFontString(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT, "OVERLAY")
+--[[
+  @param {table} frame
+]]--
+function me.CreateEnergyAmountFontString(frame)
+  local energyAmountFontString = frame:CreateFontString(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT, "OVERLAY")
   energyAmountFontString:SetFont(STANDARD_TEXT_FONT, 14)
   energyAmountFontString:SetPoint("LEFT", 5, 0)
-  energyAmountFontString:SetSize(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT_WIDTH, RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT_HEIGHT)
+  energyAmountFontString:SetSize(
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT_WIDTH,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT_HEIGHT
+  )
 
   return energyAmountFontString
 end
@@ -144,7 +158,7 @@ function me.StopDragFrame(self)
 end
 
 --[[
-
+  Ticker callback for updating the tickerbar
 ]]--
 function me.UpdateTickerBar()
   if lastTick == nil then

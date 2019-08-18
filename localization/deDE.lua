@@ -1,3 +1,6 @@
+
+-- luacheck: globals GetLocale GetAddOnMetadata
+
 if (GetLocale() == "deDE") then
   rgp = rgp or {}
   rgp.L = {}
@@ -5,7 +8,8 @@ if (GetLocale() == "deDE") then
   rgp.L["addon_name"] = "Pulse"
 
   -- console
-  rgp.L["help"] = "|cFFFFC300(%s)|r: Benutze |cFFFFC300/rgp|r oder |cFFFFC300/pulse|r für eine Liste der verfügbaren Optionen"
+  rgp.L["help"] = "|cFFFFC300(%s)|r: Benutze |cFFFFC300/rgp|r oder |cFFFFC300/pulse|r "
+    .. "für eine Liste der verfügbaren Optionen"
   rgp.L["opt"] = "|cFFFFC300opt|r - zeige Optionsmenu an"
   rgp.L["reload"] = "|cFFFFC300reload|r - UI neu laden"
   rgp.L["info_title"] = "|cFF00FFB0Pulse:|r"

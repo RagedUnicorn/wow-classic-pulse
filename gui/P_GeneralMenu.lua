@@ -22,6 +22,8 @@
   SOFTWARE.
 ]]--
 
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT
+
 local mod = rgp
 local me = {}
 mod.generalMenu = me
@@ -77,7 +79,10 @@ end
 ]]--
 function me.BuildCheckButtonOption(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
   local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "UICheckButtonTemplate")
-  checkButtonOptionFrame:SetSize(RGP_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE, RGP_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE)
+  checkButtonOptionFrame:SetSize(
+    RGP_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE,
+    RGP_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE
+  )
   checkButtonOptionFrame:SetPoint("TOPLEFT", posX, posY)
 
   for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do

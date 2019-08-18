@@ -1,3 +1,6 @@
+
+-- luacheck: globals GetAddOnMetadata
+
 rgp = rgp or {}
 rgp.L = {}
 

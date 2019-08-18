@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals CreateFrame UIParent InterfaceOptions_AddCategory InterfaceOptionsFrame_OpenToCategory
+
 local mod = rgp
 local me = {}
 
@@ -36,9 +38,12 @@ me.tag = "AddonConfiguration"
 function me.SetupAddonConfiguration()
   local panel = {}
   panel.main = me.BuildCategory(RGP_CONSTANTS.ELEMENT_ADDON_PANEL, nil, rgp.L["addon_name"])
-  me.BuildCategory(RGP_CONSTANTS.ELEMENT_GENERAL_SUB_OPTION_FRAME, panel.main, rgp.L["general_category_name"], function(self)
-    mod.generalMenu.BuildUi(self)
-  end)
+  me.BuildCategory(
+    RGP_CONSTANTS.ELEMENT_GENERAL_SUB_OPTION_FRAME,
+    panel.main,
+    rgp.L["general_category_name"],
+    mod.generalMenu.BuildUi
+  )
   --[[
     For development purpose the InterfaceOptionsFrame_OpenToCategory function can be used to directly
     open a specific category. Because of a blizzard bug this usually has to be called twice to actually work.

@@ -23,6 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+-- luacheck: globals GetAddOnMetadata
+
 local mod = rgp
 local me = {}
 mod.configuration = me
