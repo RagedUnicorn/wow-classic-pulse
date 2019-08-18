@@ -30,6 +30,6 @@
 RGP_ENVIRONMENT = {
   ADDON_IDENTIFIER = "com.ragedunicorn.wow.classic.pulse-addon",
   LOG_LEVEL = 4,
-  LOG_EVENT = false,
-  DEBUG = false
+  LOG_EVENT = true,
+  DEBUG = true
 }
