@@ -18,15 +18,21 @@ Make sure to get the newest version of the Addon from the releases tab:
 
 > Note: If the Addon is not showing up in your ingame Addonlist make sure that the Addon is named `Pulse` in your Addons folder
 
-## What is Pulse
+## What is Pulse?
 
 Pulse is a simple addon that tracks the energy-regen tickrate and the current amount of energy. The energybar will showup once the player spent some energy.
+
+![](/docs/pulse_example.jpg)
 
 ## FAQ
 
 #### The Addon is not showing up in WoW. What can I do?
 
 Make sure to recheck the installation part of this Readme and check that the Addon is placed inside `[WoW-installation-directory]\Interface\AddOns` and is correctly named as `Pulse`.
+
+#### The Addon is spamming my chat with messages. Why is it doing this?
+
+Chances are you downloaded a development version of the addon. If you directly download the master branch you will get a development version that is printing a lot of debug message to the chat. Make sure that you download a release version of the addon here - [Pulse-Releases](https://github.com/RagedUnicorn/wow-classic-pulse/releases)
 
 #### I get a red error (Lua Error) on my screen. What is this?
 
