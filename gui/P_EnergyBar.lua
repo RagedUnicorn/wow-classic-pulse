@@ -38,6 +38,10 @@ local energyBarFrame
   Time when the last energyTick happened
 ]]--
 local lastTick
+--[[
+  Last saved energyValue
+]]--
+local lastEnergyValue = 0
 
 function me.BuildUi()
   energyBarFrame = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME, UIParent)
@@ -161,17 +165,16 @@ end
   Ticker callback for updating the tickerbar
 ]]--
 function me.UpdateTickerBar()
-  if lastTick == nil then
-    lastTick = GetTime()
+  local currentEnergy = UnitPower(RGP_CONSTANTS.UNIT_ID_PLAYER, RGP_CONSTANTS.POWERTYPE_ENERGY[2])
+  local currentTime = GetTime()
+
+  if currentEnergy > lastEnergyValue or currentTime >= lastTick + RGP_CONSTANTS.TICK_RATE then
+      lastTick = currentTime
   end
 
-  local difference = GetTime() - lastTick
-
-  if difference >= 2 then
-    lastTick = GetTime()
-    difference = 0
-  end
-
+  local difference = currentTime - lastTick
   energyBarFrame.energyStatusBar:SetValue(difference)
-  energyBarFrame.energyAmount:SetText(UnitPower(RGP_CONSTANTS.UNIT_ID_PLAYER, RGP_CONSTANTS.POWERTYPE_ENERGY[2]))
+  energyBarFrame.energyAmount:SetText(currentEnergy)
+
+  lastEnergyValue = currentEnergy
 end

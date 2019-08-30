@@ -38,6 +38,10 @@ RGP_CONSTANTS = {
   ]]--
   ENERGY_BAR_UPDATE_INTERVAL = 0.01,
   --[[
+    Energy tickrate every 2 seconds
+  ]]--
+  TICK_RATE = 2,
+  --[[
     EnergyBar
   ]]--
   ELEMENT_ENERGY_BAR_FRAME = "P_EnergyBar",
