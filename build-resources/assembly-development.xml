@@ -24,14 +24,6 @@
   </fileSets>
   <files>
     <file>
-      <source>docs/TESTING.md</source>
-      <outputDirectory>./</outputDirectory>
-    </file>
-    <file>
-      <source>docs/DEVELOPMENT.md</source>
-      <outputDirectory>./</outputDirectory>
-    </file>
-    <file>
       <source>build-resources/pulse-development.toc.tpl</source>
       <outputDirectory>./</outputDirectory>
       <filtered>true</filtered>
