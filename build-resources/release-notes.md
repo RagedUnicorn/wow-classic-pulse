@@ -1,2 +1,1 @@
-* Fix proper syncing of energy ticks
-  * Pulse sometimes went out of sync with actual energy ticks
+* Update Interface Version to 11303(1.13.3)
