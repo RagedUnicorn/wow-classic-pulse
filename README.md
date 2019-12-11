@@ -4,7 +4,8 @@
 
 > Pulse aims to give a visual interpretation of when the next resources tick happens. This can be used by multiple classes but the most prominent one might be rogue and his energy regeneration.
 
-![](/docs/badge_wow_classic.png)
+![](/docs/wow_badge.png)
+![](/docs/license_mit.png)
 
 ## Installation
 
