@@ -5,7 +5,7 @@
 --[[
   MIT License
 
-  Copyright (c) 2019 Michael Wiesendanger
+  Copyright (c) 2020 Michael Wiesendanger
 
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
@@ -29,7 +29,7 @@
 
 RGP_ENVIRONMENT = {
   ADDON_IDENTIFIER = "com.ragedunicorn.wow.classic.pulse-addon",
-  LOG_LEVEL = 4,
-  LOG_EVENT = true,
-  DEBUG = true
+  LOG_LEVEL = 1,
+  LOG_EVENT = false,
+  DEBUG = false
 }
