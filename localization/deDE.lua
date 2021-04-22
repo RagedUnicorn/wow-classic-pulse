@@ -22,7 +22,7 @@ if (GetLocale() == "deDE") then
   rgp.L["issues"] = "Probleme: https://github.com/RagedUnicorn/wow-classic-pulse/issues"
 
   -- general
-  rgp.L["general_category_name"] = "Allgemein"
+  rgp.L["general_category_name"] = "Pulse Optionen"
   rgp.L["general_title"] = "Allgemeine Konfiguration"
   rgp.L["window_lock_energy_bar"] = "Sperre Energiebalken"
   rgp.L["window_lock_energy_bar_tooltip"] = "Verhindert das bewegen des Energiebalken"

@@ -20,7 +20,7 @@ rgp.L["version"] = "Version: " .. GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Ve
 rgp.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-pulse/issues"
 
 -- general
-rgp.L["general_category_name"] = "General"
+rgp.L["general_category_name"] = "Pulse Options"
 rgp.L["general_title"] = "General Configuration"
 rgp.L["window_lock_energy_bar"] = "Lock EnergyBar"
 rgp.L["window_lock_energy_bar_tooltip"] = "Prevents EnergyBar from being moved"
