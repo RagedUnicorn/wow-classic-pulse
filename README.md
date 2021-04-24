@@ -80,6 +80,8 @@ mvn package -Dgenerate.sources.overwrite=true -P release
 
 **Note:** This packaging and switching resources can also be done one after another.
 
+**Note:** The packaging is not fit to be used for curseforge because curseforge expects a specific packaging
+
 ```
 # switch environment to release
 mvn generate-resources -Dgenerate.sources.overwrite=true -P release
