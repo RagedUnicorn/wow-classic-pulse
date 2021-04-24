@@ -18,6 +18,7 @@
     <addon.tag.version>v${project.version}</addon.tag.version>
     <addon.interface>11307</addon.interface>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
+    <addon.project.categories>PVP Combat</addon.project.categories>
   </properties>
 
   <profiles>
