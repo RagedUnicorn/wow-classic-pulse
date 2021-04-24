@@ -95,10 +95,21 @@ Before creating a new release update `addon.tag.version` in `pom.xml`. Afterward
 # switch environment to release
 mvn generate-resources -Dgenerate.sources.overwrite=true -P release
 # deploy release to GitHub
-mvn package -P deploy
+mvn package -P deploy-github
 ```
 
 For this to work an oauth token for GitHub is required and has to be configured in your `.m2` settings file.
+
+### Deploy CurseForge Release
+
+**Note:** Its best to create the release for GitHub first and only afterwards the curseforge release. That way the tag was already created.
+
+```
+# switch environment to release
+mvn generate-resources -Dgenerate.sources.overwrite=true -P release
+# deploy release
+mvn package -P deploy-curseforge
+```
 
 ## License
 
