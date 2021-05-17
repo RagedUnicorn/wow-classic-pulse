@@ -8,6 +8,12 @@
 ![](/docs/license_mit.svg)
 [![](/docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=339160)
 
+**WoW Burning Crusade Classic Support**
+
+> This Addon supports WoW Burning Crusade Classic see - [bcc-Pulse](https://github.com/RagedUnicorn/wow-bcc-pulse/)
+
+<a href="https://github.com/RagedUnicorn/wow-bcc-pulse/"><img src="/docs/the_burning_crusade_logo.png" width="40%"></img></a>
+
 ## Installation
 
 WoW-Addons are installed directly into your WoW directory:
