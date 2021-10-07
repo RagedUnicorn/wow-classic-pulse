@@ -6,7 +6,7 @@
 
 ![](/docs/wow_badge.svg)
 ![](/docs/license_mit.svg)
-[![](/docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=339160)
+[![](/docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=339160&fileId=3484210)
 
 **WoW Burning Crusade Classic Support**
 
