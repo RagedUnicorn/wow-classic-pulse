@@ -44,7 +44,7 @@ local lastTick
 local lastEnergyValue = 0
 
 function me.BuildUi()
-  energyBarFrame = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME, UIParent)
+  energyBarFrame = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME, UIParent, "BackdropTemplate")
   energyBarFrame:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH)
   energyBarFrame:SetHeight(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT)
   energyBarFrame:SetBackdrop({
