@@ -4,9 +4,9 @@
 
 > Pulse aims to give a visual interpretation of when the next resources tick happens. This can be used by multiple classes but the most prominent one might be rogue and his energy regeneration.
 
-![](/docs/wow_badge.svg)
-![](/docs/license_mit.svg)
-[![](/docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=339160&fileId=3484210)
+![](docs/wow_badge.svg)
+![](docs/license_mit.svg)
+[![](docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=339160&fileId=3484210)
 ![Lint](https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/lint.yaml/badge.svg?branch=master)
 
 **WoW Burning Crusade Classic Support**
@@ -31,7 +31,7 @@ Make sure to get the newest version of the Addon from the releases tab:
 
 Pulse is a simple addon that tracks the energy-regen tickrate and the current amount of energy. The energybar will showup once the player spent some energy.
 
-![](/docs/pulse_example.jpg)
+![](docs/pulse_example.jpg)
 
 ## FAQ
 
@@ -54,7 +54,7 @@ This is what we call a Lua error and it usually happens because of an oversight 
 Switching between development and release can be achieved with maven.
 
 ```
-mvn generate-resources -Dgenerate.sources.overwrite=true -P development
+mvn generate-resources -D generate.sources.overwrite=true -P development
 ```
 
 This generates and overwrites `P_Environment.lua` and `Pulse.toc`. You need to specifically specify that you want to overwrite to files to prevent data loss. It is also possible to omit the profile because development is the default profile that will be used.
@@ -62,7 +62,7 @@ This generates and overwrites `P_Environment.lua` and `Pulse.toc`. You need to s
 Switching to release can be done as such:
 
 ```
-mvn generate-resources -Dgenerate.sources.overwrite=true -P release
+mvn generate-resources -D generate.sources.overwrite=true -P release
 ```
 
 In this case it is mandatory to add the release profile.
@@ -76,13 +76,13 @@ As to not change those files all the time the repository should always stay in t
 To package the addon use the `package` phase.
 
 ```
-mvn package -Dgenerate.sources.overwrite=true -P development
+mvn package -D generate.sources.overwrite=true -P development
 ```
 
 This generates an addon package for development. For generating a release package the release profile can be used.
 
 ```
-mvn package -Dgenerate.sources.overwrite=true -P release
+mvn package -D generate.sources.overwrite=true -P release
 ```
 
 **Note:** This packaging and switching resources can also be done one after another.
@@ -91,7 +91,7 @@ mvn package -Dgenerate.sources.overwrite=true -P release
 
 ```
 # switch environment to release
-mvn generate-resources -Dgenerate.sources.overwrite=true -P release
+mvn generate-resources -D generate.sources.overwrite=true -P release
 # package release
 mvn package -P release
 ```
@@ -102,7 +102,7 @@ Before creating a new release update `addon.tag.version` in `pom.xml`. Afterward
 
 ```
 # switch environment to release
-mvn generate-resources -Dgenerate.sources.overwrite=true -P release
+mvn generate-resources -D generate.sources.overwrite=true -P release
 # deploy release to GitHub
 mvn package -P deploy-github
 ```
@@ -115,7 +115,7 @@ For this to work an oauth token for GitHub is required and has to be configured 
 
 ```
 # switch environment to release
-mvn generate-resources -Dgenerate.sources.overwrite=true -P release
+mvn generate-resources -D generate.sources.overwrite=true -P release
 # deploy release
 mvn package -P deploy-curseforge
 ```
