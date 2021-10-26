@@ -4,6 +4,7 @@
 
 * Push all commits before proceeding
 * Make sure `build-resources/release-notes.md` are up-to-date
+* Make sure Metadata https://github.com/RagedUnicorn/wow-pulse-meta is up-to-date
 * Create a GitHub deployment
   * mvn generate-resources -D generate.sources.overwrite=true -P release
   * mvn package -P deploy-github
