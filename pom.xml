@@ -16,7 +16,7 @@
     <addon.curseforge.projectid>339160</addon.curseforge.projectid>
     <addon.name.short>P</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
-    <addon.interface>11400</addon.interface>
+    <addon.interface>11401</addon.interface>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
     <addon.project.categories>PVP Combat</addon.project.categories>
   </properties>
