@@ -6,7 +6,7 @@
 
 ![](docs/wow_badge.svg)
 ![](docs/license_mit.svg)
-[![](docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=339160&fileId=3521563)
+[![](docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=339160&fileId=3651935)
 ![Lint](https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/lint.yaml/badge.svg?branch=master)
 
 **WoW Burning Crusade Classic Support**
