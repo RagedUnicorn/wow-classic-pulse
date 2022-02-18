@@ -1,1 +1,2 @@
-* Update Interface Version to 11401(1.14.1) - Ready for Classic Season of Mastery
+* Update Interface Version to 11402(1.14.2)
+* Update licensing year to 2022
