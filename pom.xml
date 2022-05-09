@@ -13,7 +13,8 @@
     <addon.description>Watch Tickrate for drinking, energy regen and similar</addon.description>
     <addon.name>Pulse</addon.name>
     <addon.curseforge.displayName>pulse</addon.curseforge.displayName>
-    <addon.curseforge.projectid>339160</addon.curseforge.projectid>
+    <addon.curseforge.projectId>339160</addon.curseforge.projectId>
+    <addon.curseforge.gameVersion>9094</addon.curseforge.gameVersion>
     <addon.name.short>P</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
     <addon.interface>11403</addon.interface>
@@ -161,12 +162,12 @@
                 </goals>
                 <configuration>
                   <game>wow</game>
-                  <projectId>${addon.curseforge.projectid}</projectId>
+                  <projectId>${addon.curseforge.projectId}</projectId>
                   <displayName>${addon.curseforge.displayName}-${addon.tag.version}-classic.zip</displayName>
                   <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
                   <changelogType>markdown</changelogType>
                   <gameVersions>
-                    <gameVersion>9094</gameVersion>
+                    <gameVersion>${addon.curseforge.gameVersion}</gameVersion>
                   </gameVersions>
                   <releaseType>release</releaseType>
                   <file>${basedir}/target/${addon.name}.zip</file>
@@ -204,12 +205,12 @@
                 </goals>
                 <configuration>
                   <game>wow</game>
-                  <projectId>${addon.curseforge.projectid}</projectId>
+                  <projectId>${addon.curseforge.projectId}</projectId>
                   <displayName>${addon.curseforge.displayName}-${addon.tag.version}-classic.zip</displayName>
                   <changelogFile>${basedir}/build-resources/release-notes.md</changelogFile>
                   <changelogType>markdown</changelogType>
                   <gameVersions>
-                    <gameVersion>9094</gameVersion>
+                    <gameVersion>${addon.curseforge.gameVersion}</gameVersion>
                   </gameVersions>
                   <releaseType>release</releaseType>
                   <file>${basedir}/target/${addon.name}.zip</file>
@@ -223,7 +224,6 @@
       </build>
     </profile>
   </profiles>
-
   <build>
     <plugins>
       <plugin>
