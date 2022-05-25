@@ -6,10 +6,18 @@
 * Make sure `build-resources/release-notes.md` are up-to-date
 * Make sure Metadata https://github.com/RagedUnicorn/wow-pulse-meta is up-to-date
 * Create a GitHub deployment
-  * mvn generate-resources -D generate.sources.overwrite=true -P release
-  * mvn package -P deploy-github
+  * Invoke GitHub action
+    * https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/release_github.yaml
 * Create a CurseForge deployment
-  * mvn generate-resources -D generate.sources.overwrite=true -P release
-  * mvn package -P deploy-curseforge
-* Update curseforge file id in `README.md`
-  * [![](docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=[addon-id]&fileId=[file-id])
+  * Invoke CurseForge action
+    * https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/release_curseforge.yaml
+    * Update CurseForge file id in `README.md`
+      * [![](docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=[addon-id]&fileId=[file-id])
+* Create a Wago.io deployment
+  * Invoke GitHub action
+    * https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/release_wago.yaml
+
+> Note: When updating the addon for a new WoW release the following properties have to be updated in `pom.xml`
+> * addon.curseforge.gameVersion
+> * addon.interface
+> * addon.supported.patch
