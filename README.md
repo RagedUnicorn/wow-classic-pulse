@@ -117,8 +117,10 @@ For this to work an oauth token for GitHub is required and has to be configured 
 # switch environment to release
 mvn generate-resources -D generate.sources.overwrite=true -P release
 # deploy release
-mvn package -P deploy-curseforge
+mvn package -P deploy-curseforge -D curseforge.auth-token=[token]
 ```
+
+**Note:** This is only intended for manual deployment to CurseForge. With GitHub actions the token is supplied as a secret to the build process
 
 ### Deploy Wago.io Release
 
