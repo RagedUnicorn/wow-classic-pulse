@@ -11,8 +11,6 @@
 * Create a CurseForge deployment
   * Invoke CurseForge action
     * https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/release_curseforge.yaml
-    * Update CurseForge file id in `README.md`
-      * [![](docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=[addon-id]&fileId=[file-id])
 * Create a Wago.io deployment
   * Invoke GitHub action
     * https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/release_wago.yaml

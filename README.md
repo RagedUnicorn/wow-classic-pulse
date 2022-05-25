@@ -6,8 +6,12 @@
 
 ![](docs/wow_badge.svg)
 ![](docs/license_mit.svg)
-[![](docs/curseforge.svg)](https://curseforge.overwolf.com/?addonId=339160&fileId=3767332)
 ![Lint](https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/lint.yaml/badge.svg?branch=master)
+
+## Providers
+
+[![](docs/curseforge.svg)](https://www.curseforge.com/wow/addons/pulse)
+[![](docs/wago.svg)](https://addons.wago.io/addons/pulse)
 
 **WoW Burning Crusade Classic Support**
 
