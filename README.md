@@ -29,7 +29,7 @@ Make sure to get the newest version of the Addon from the releases tab:
 
 ## What is Pulse?
 
-Pulse is a simple addon that tracks the energy-regen tickrate and the current amount of energy. The energybar will showup once the player spent some energy.
+Pulse is a simple addon that tracks the energy-regen tickrate and the current amount of energy. The energybar will show once the player spent some energy.
 
 ![](docs/pulse_example.jpg)
 
@@ -45,7 +45,7 @@ Chances are you downloaded a development version of the addon. If you directly d
 
 #### I get a red error (Lua Error) on my screen. What is this?
 
-This is what we call a Lua error and it usually happens because of an oversight or error by the developer (in this case me). Take a screenshot off the error and create a Github Issue with it and I will see if I can resolve it. It also helps if you can add any additional information of what you we're doing at the time and what other addons you have active. Also if you are able to reproduce the error make sure to check if it still happens if you disable all others addons.
+This is what we call a Lua error, and it usually happens because of an oversight or error by the developer (in this case me). Take a screenshot off the error and create a GitHub Issue with it, and I will see if I can resolve it. It also helps if you can add any additional information of what you were doing at the time and what other addons you have active. Additionally, if you are able to reproduce the error make sure to check if it still happens if you disable all others addons.
 
 ## Development
 
@@ -57,7 +57,7 @@ Switching between development and release can be achieved with maven.
 mvn generate-resources -D generate.sources.overwrite=true -P development
 ```
 
-This generates and overwrites `P_Environment.lua` and `Pulse.toc`. You need to specifically specify that you want to overwrite to files to prevent data loss. It is also possible to omit the profile because development is the default profile that will be used.
+This generates and overwrites `P_Environment.lua` and `Pulse.toc`. You need to specifically specify that you want to overwrite the files to prevent data loss. It is also possible to omit the profile because development is the default profile that will be used.
 
 Switching to release can be done as such:
 
@@ -87,7 +87,7 @@ mvn package -D generate.sources.overwrite=true -P release
 
 **Note:** This packaging and switching resources can also be done one after another.
 
-**Note:** The packaging is not fit to be used for curseforge because curseforge expects a specific packaging
+**Note:** The packaging is not fit to be used for CurseForge because CurseForge expects a specific packaging
 
 ```
 # switch environment to release
@@ -111,7 +111,7 @@ For this to work an oauth token for GitHub is required and has to be configured 
 
 ### Deploy CurseForge Release
 
-**Note:** Its best to create the release for GitHub first and only afterwards the curseforge release. That way the tag was already created.
+**Note:** It's best to create the release for GitHub first and only afterwards the CurseForge release. That way the tag was already created.
 
 ```
 # switch environment to release
@@ -119,9 +119,23 @@ mvn generate-resources -D generate.sources.overwrite=true -P release
 # deploy release
 mvn package -P deploy-curseforge
 ```
+
+### Deploy Wago.io Release
+
+**Note:** It's best to create the release for GitHub first and only afterwards the Wago.io release. That way the tag was already created.
+
+```
+# switch environment to release
+mvn generate-resources -D generate.sources.overwrite=true -P release
+# deploy release
+mvn package -P deploy-wago -D wago.auth-token=[token]
+```
+
+**Note:** This is only intended for manual deployment to Wago.io. With GitHub actions the token is supplied as a secret to the build process
+
 ### GitHub Action Profiles
 
-Both `deploy-github-action` and `deploy-curseforge-action` should not be deployed manually. They are solely intended for being used by GitHub actions
+This project has GitHub action profiles for different Devops related work such as linting and deployments to different providers. See `.github` folder for details.
 
 ## License
 
