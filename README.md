@@ -111,6 +111,8 @@ mvn generate-resources -D generate.sources.overwrite=true -P release
 mvn package -P deploy-github -D github.auth-token=[token]
 ```
 
+**Note:** This is only intended for manual deployment to GitHub. With GitHub actions the token is supplied as a secret to the build process
+
 ### Deploy CurseForge Release
 
 **Note:** It's best to create the release for GitHub first and only afterwards the CurseForge release. That way the tag was already created.
