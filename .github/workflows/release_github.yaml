@@ -3,11 +3,11 @@ on: [workflow_dispatch]
 
 jobs:
   github-release-job:
-    runs-on: ubuntu-latest
     name: GitHub Release
+    runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Set up Java and Maven
         uses: actions/setup-java@v2
         with:
@@ -15,7 +15,7 @@ jobs:
           distribution: 'adopt'
           cache: 'maven'
       - name: Cache Local Maven Repository
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
