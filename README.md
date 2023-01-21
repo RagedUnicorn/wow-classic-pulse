@@ -21,9 +21,9 @@
 
 **WoW Wrath of The Lich King Classic Support**
 
-> This Addon supports WoW Wrath of The Lich King Classic see - [wotlkc-Pulse](https://github.com/RagedUnicorn/wow-wotlkc-pulse/)
+> This Addon supports WoW Wrath of The Lich King Classic see - [wotlkc-GearMenu](https://github.com/RagedUnicorn/wow-wotlkc-gearmenu/)
 
-<a href="https://github.com/RagedUnicorn/wow-wotlkc-pulse/"><img src="/docs/wrath_of_the_lich_king_logo.png" width="40%"></img></a>
+<a href="https://github.com/RagedUnicorn/wow-wotlkc-gearmenu/"><img src="/docs/wrath_of_the_lich_king_logo.png" width="40%"></img></a>
 
 ## Installation
 
