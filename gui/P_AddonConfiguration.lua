@@ -69,6 +69,8 @@ function me.SetupAddonConfiguration()
 end
 
 --[[
+  Builds main and subcategories
+
   @param {string} frameName
   @param {table} parent
   @param {string} panelText
