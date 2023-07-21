@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame UIParent InterfaceOptions_AddCategory InterfaceOptionsFrame_OpenToCategory
+-- luacheck: globals CreateFrame UIParent Settings
 
 local mod = rgp
 local me = {}
