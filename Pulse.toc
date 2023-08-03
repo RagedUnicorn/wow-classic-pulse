@@ -2,7 +2,7 @@
 ## Title: Pulse
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Watch Tickrate for drinking, energy regen and similar
-## Version: v1.0.10
+## Version: v1.0.11
 ## SavedVariablesPerCharacter: PulseConfiguration
 
 # constant values
