@@ -1,3 +1,3 @@
-# Updates
+# Update
 
-* Add Wago.io as new provider
+* Implement Settings Panel changes required for 11404(1.14.4) release
