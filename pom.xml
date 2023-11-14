@@ -14,7 +14,7 @@
     <addon.name>Pulse</addon.name>
     <addon.displayName>pulse</addon.displayName>
     <addon.curseforge.projectId>339160</addon.curseforge.projectId>
-    <addon.curseforge.gameVersion>9895</addon.curseforge.gameVersion>
+    <addon.curseforge.gameVersion>10341</addon.curseforge.gameVersion>
     <addon.wago.projectId>LvNAj96o</addon.wago.projectId>
     <addon.name.short>P</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
