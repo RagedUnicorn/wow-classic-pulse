@@ -37,7 +37,7 @@ local energyBarFrame
 --[[
   Time when the last energyTick happened
 ]]--
-local lastTick
+local lastTick = 0
 --[[
   Last saved energyValue
 ]]--
