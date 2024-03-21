@@ -1,3 +1,3 @@
-# Update
+# Fix
 
-* Update Interface Version 11501(1.15.1)
+* Fix 'attempt to perform arithmetic on upvalue' when a player did not trigger a 'UNIT_POWER_UPDATE' event before dying
