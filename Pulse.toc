@@ -1,4 +1,4 @@
-## Interface: 11505
+## Interface: 11506
 ## Title: Pulse
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Watch Tickrate for drinking, energy regen and similar
