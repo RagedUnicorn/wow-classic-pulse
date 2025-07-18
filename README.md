@@ -53,95 +53,15 @@ This is what we call a Lua error, and it usually happens because of an oversight
 
 ## Development
 
-### Switching between Environments
+For detailed development documentation including:
+- Environment setup and switching
+- Debugging and log filtering
+- Code style guidelines
+- Building and packaging
+- Deployment procedures
+- Common development tasks
 
-Switching between development and release can be achieved with maven.
-
-```
-mvn generate-resources -D generate.sources.overwrite=true -P development
-```
-
-This generates and overwrites `Environment.lua` and `Pulse.toc`. You need to specifically specify that you want to overwrite the files to prevent data loss. It is also possible to omit the profile because development is the default profile that will be used.
-
-Switching to release can be done as such:
-
-```
-mvn generate-resources -D generate.sources.overwrite=true -P release
-```
-
-In this case it is mandatory to add the release profile.
-
-**Note:** Switching environments has the effect changing certain files to match an expected value depending on the environment. To be more specific this means that as an example test and debug files are not included when switching to release. It also means that variables such as loglevel change to match the environment.
-
-As to not change those files all the time the repository should always stay in the development environment. Do not commit `Pulse.toc` and `Environment.lua` in their release state. Changes to those files should always be done inside `build-resources` and their respective template files marked with `.tpl`.
-
-### Packaging the Addon
-
-To package the addon use the `package` phase.
-
-```
-mvn package -D generate.sources.overwrite=true -P development
-```
-
-This generates an addon package for development. For generating a release package the release profile can be used.
-
-```
-mvn package -D generate.sources.overwrite=true -P release
-```
-
-**Note:** This packaging and switching resources can also be done one after another.
-
-**Note:** The packaging is not fit to be used for CurseForge because CurseForge expects a specific packaging
-
-```
-# switch environment to release
-mvn generate-resources -D generate.sources.overwrite=true -P release
-# package release
-mvn package -P release
-```
-
-### Deploy GitHub Release
-
-Before creating a new release update `addon.tag.version` in `pom.xml`. Afterwards to create a new release and deploy to GitHub the `deploy-github` profile has to be used.
-
-```
-# switch environment to release
-mvn generate-resources -D generate.sources.overwrite=true -P release
-# deploy release to GitHub
-mvn package -P deploy-github -D github.auth-token=[token]
-```
-
-**Note:** This is only intended for manual deployment to GitHub. With GitHub actions the token is supplied as a secret to the build process
-
-### Deploy CurseForge Release
-
-**Note:** It's best to create the release for GitHub first and only afterwards the CurseForge release. That way the tag was already created.
-
-```
-# switch environment to release
-mvn generate-resources -D generate.sources.overwrite=true -P release
-# deploy release
-mvn package -P deploy-curseforge -D curseforge.auth-token=[token]
-```
-
-**Note:** This is only intended for manual deployment to CurseForge. With GitHub actions the token is supplied as a secret to the build process
-
-### Deploy Wago.io Release
-
-**Note:** It's best to create the release for GitHub first and only afterwards the Wago.io release. That way the tag was already created.
-
-```
-# switch environment to release
-mvn generate-resources -D generate.sources.overwrite=true -P release
-# deploy release
-mvn package -P deploy-wago -D wago.auth-token=[token]
-```
-
-**Note:** This is only intended for manual deployment to Wago.io. With GitHub actions the token is supplied as a secret to the build process
-
-### GitHub Action Profiles
-
-This project has GitHub action profiles for different Devops related work such as linting and deployments to different providers. See `.github` folder for details.
+See [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## License
 
