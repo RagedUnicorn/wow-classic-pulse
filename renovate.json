@@ -17,33 +17,47 @@
   "automerge": false,
   "packageRules": [
     {
-      "matchManagers": ["maven"],
-      "matchPackagePatterns": ["^com.ragedunicorn.tools.maven"],
+      "matchManagers": [
+        "maven"
+      ],
       "groupName": "ragedunicorn maven plugins",
-      "description": "Group all ragedunicorn Maven plugin updates"
+      "description": "Group all ragedunicorn Maven plugin updates",
+      "matchPackageNames": [
+        "/^com.ragedunicorn.tools.maven/"
+      ]
     },
     {
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "groupName": "github actions",
       "description": "Group all GitHub Actions updates"
     },
     {
-      "matchDepTypes": ["devDependencies"],
+      "matchDepTypes": [
+        "devDependencies"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "description": "Automerge dev dependencies"
     }
   ],
   "maven": {
-    "fileMatch": ["^pom\\.xml$"]
+    "managerFilePatterns": [
+      "/^pom\\.xml$/"
+    ]
   },
   "github-actions": {
-    "fileMatch": ["^\\.github/workflows/.*\\.ya?ml$"]
+    "managerFilePatterns": [
+      "/^\\.github/workflows/.*\\.ya?ml$/"
+    ]
   },
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^pom\\.xml$"],
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
       "matchStrings": [
         "<addon\\.interface>(?<currentValue>\\d+)</addon\\.interface>"
       ],
