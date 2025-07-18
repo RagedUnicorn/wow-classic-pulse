@@ -38,7 +38,7 @@ me.tag = "AboutContent"
   @param {table} frame
 ]]--
 function me.BuildAboutContent(frame)
-  local ragedUnicornLogo  = frame:CreateTexture(RGP_CONSTANTS.ELEMENT_ABOUT_LOGO, "ARTWORK")
+  local ragedUnicornLogo = frame:CreateTexture(RGP_CONSTANTS.ELEMENT_ABOUT_LOGO, "ARTWORK")
   ragedUnicornLogo:SetPoint("TOP", 0, -20)
   ragedUnicornLogo:SetSize(256, 256)
   ragedUnicornLogo:SetTexture("Interface\\AddOns\\Pulse\\assets\\logo_ragedunicorn")
