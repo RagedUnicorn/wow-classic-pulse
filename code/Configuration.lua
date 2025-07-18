@@ -31,6 +31,9 @@ mod.configuration = me
 
 me.tag = "Configuration"
 
+-- forward declarations for local functions
+local SetAddonVersion
+
 PulseConfiguration = {
   ["addonVersion"] = nil,
   --[[
@@ -71,14 +74,14 @@ function me.SetupConfiguration()
     Set saved variables with addon version. This can be used later to determine whether
     a migration path applies to the current saved variables or not
   ]]--
-  me.SetAddonVersion()
+  SetAddonVersion()
 end
 
 --[[
   Set addon version on addon options. Before setting a new version make sure
   to run through migration paths.
 ]]--
-function me.SetAddonVersion()
+SetAddonVersion = function()
   -- if no version set so far make sure to set the current one
   if PulseConfiguration.addonVersion == nil then
     PulseConfiguration.addonVersion = GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
