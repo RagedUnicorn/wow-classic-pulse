@@ -38,29 +38,19 @@ me.tag = "AddonConfiguration"
 ]]--
 local mainCategoryId
 
---[[
-  Retrieve a reference to the main category of the addon
-  @return {table | nil}
-    The main category of the addon or nil if not found
-]]--
-function me.GetMainCategory()
-  if mainCategoryId ~= nil then
-    return Settings.GetCategory(mainCategoryId)
-  end
-
-  return nil
-end
+-- forward declarations for local functions
+local BuildCategory
 
 --[[
   Create addon configuration menu(s)
 ]]--
 function me.SetupAddonConfiguration()
   -- initialize the main addon category
-  local category, menu = me.BuildCategory(RGP_CONSTANTS.ELEMENT_ADDON_PANEL, nil, rgp.L["addon_name"])
+  local category, menu = BuildCategory(RGP_CONSTANTS.ELEMENT_ADDON_PANEL, nil, rgp.L["addon_name"])
   -- add about content into main category
   mod.aboutContent.BuildAboutContent(menu)
 
-  me.BuildCategory(
+  BuildCategory(
     RGP_CONSTANTS.ELEMENT_GENERAL_SUB_OPTION_FRAME,
     category,
     rgp.L["general_category_name"],
@@ -79,7 +69,7 @@ end
   @return {table}, {table}
     category, menu
 ]]--
-function me.BuildCategory(frameName, parent, panelText, onShowCallback)
+BuildCategory = function(frameName, parent, panelText, onShowCallback)
   local category
   local menu
 
