@@ -30,19 +30,24 @@ local me = rgp
 
 me.tag = "Core"
 
+-- forward declarations for local functions
+local RegisterEvents
+local Initialize
+local ShowWelcomeMessage
+
 --[[
   Addon load
 
   @param {table} self
 ]]--
 function me.OnLoad(self)
-  me.RegisterEvents(self)
+  RegisterEvents(self)
 end
 
 --[[
   Register addon events
 ]]--
-function me.RegisterEvents(self)
+RegisterEvents = function(self)
   -- register to player login event also fires on /reload
   self:RegisterEvent("PLAYER_LOGIN")
   -- Fired when a unit's current power
@@ -58,7 +63,7 @@ end
 function me.OnEvent(event, ...)
   if event == "PLAYER_LOGIN" then
     me.logger.LogEvent(me.tag, "PLAYER_LOGIN")
-    me.Initialize()
+    Initialize()
   elseif event == "UNIT_POWER_UPDATE" then
     me.logger.LogEvent(me.tag, "UNIT_POWER_UPDATE")
     local unitTarget, powerType = ...
@@ -73,7 +78,7 @@ end
 --[[
   Initialize addon
 ]]--
-function me.Initialize()
+Initialize = function()
   me.logger.LogDebug(me.tag, "Initialize addon")
   -- setup slash commands
   me.cmd.SetupSlashCmdList()
@@ -84,13 +89,13 @@ function me.Initialize()
   -- setup ui
   me.energyBar.BuildUi()
 
-  me.ShowWelcomeMessage()
+  ShowWelcomeMessage()
 end
 
 --[[
   Show welcome message to user
 ]]--
-function me.ShowWelcomeMessage()
+ShowWelcomeMessage = function()
   print(
     string.format("|cFF00FFB0" .. RGP_CONSTANTS.ADDON_NAME .. rgp.L["help"],
     GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version"))
