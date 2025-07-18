@@ -30,14 +30,9 @@ mod.cmd = me
 
 me.tag = "Cmd"
 
---[[
-  Print cmd options for addon
-]]--
-local function ShowInfoMessage()
-  print(rgp.L["info_title"])
-  print(rgp.L["reload"])
-  print(rgp.L["opt"])
-end
+-- forward declarations for functions
+local ShowInfoMessage
+local HandleSlashCommand
 
 --[[
   Setup slash command handler
@@ -46,24 +41,41 @@ function me.SetupSlashCmdList()
   SLASH_PULSE1 = "/rgp"
   SLASH_PULSE2 = "/pulse"
 
-  SlashCmdList["PULSE"] = function(msg)
-    local args = {}
+  SlashCmdList["PULSE"] = HandleSlashCommand
+end
 
-    mod.logger.LogDebug(me.tag, "/rgp passed argument: " .. msg)
+--[[
+  Handle slash command parsing and execution
 
-    -- parse arguments by whitespace
-    for arg in string.gmatch(msg, "%S+") do
-      table.insert(args, arg)
-    end
+  @param {string} msg
+    The message passed to the slash command
+]]--
+HandleSlashCommand = function(msg)
+  local args = {}
 
-    if args[1] == "" or args[1] == "help" or table.getn(args) == 0 then
-      ShowInfoMessage()
-    elseif args[1] == "rl" or args[1] == "reload" then
-      ReloadUI()
-    elseif args[1] == "opt" then
-      mod.addonConfiguration.OpenMainCategory()
-    else
-      mod.logger.PrintUserError(rgp.L["invalid_argument"])
-    end
+  mod.logger.LogDebug(me.tag, "/rgp passed argument: " .. msg)
+
+  -- parse arguments by whitespace
+  for arg in string.gmatch(msg, "%S+") do
+    table.insert(args, arg)
   end
+
+  if args[1] == "" or args[1] == "help" or table.getn(args) == 0 then
+    ShowInfoMessage()
+  elseif args[1] == "rl" or args[1] == "reload" then
+    ReloadUI()
+  elseif args[1] == "opt" then
+    mod.addonConfiguration.OpenMainCategory()
+  else
+    mod.logger.PrintUserError(rgp.L["invalid_argument"])
+  end
+end
+
+--[[
+  Print cmd options for addon
+]]--
+ShowInfoMessage = function()
+  print(rgp.L["info_title"])
+  print(rgp.L["reload"])
+  print(rgp.L["opt"])
 end
