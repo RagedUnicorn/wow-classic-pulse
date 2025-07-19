@@ -59,7 +59,11 @@
   },
   "customDatasources": {
     "wow-versions": {
-      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json"
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
+      "format": "json",
+      "transformTemplates": [
+        "{\"releases\": $.classicEra}"
+      ]
     }
   },
   "customManagers": [
@@ -67,10 +71,10 @@
       "customType": "regex",
       "fileMatch": ["^pom\\.xml$"],
       "matchStrings": [
-        "<!-- renovate: datasource=custom.wow-versions depName=classic-era versioning=loose -->\\n\\s*<addon\\.interface>(?<currentValue>\\d+)</addon\\.interface>"
+        "<!-- renovate: datasource=custom.wow-versions depName=wow-interface versioning=loose -->\\n\\s*<addon\\.interface>(?<currentValue>\\d+)</addon\\.interface>"
       ],
       "datasourceTemplate": "custom.wow-versions",
-      "depNameTemplate": "classic-era"
+      "depNameTemplate": "wow-interface"
     }
   ],
   "prBodyDefinitions": {

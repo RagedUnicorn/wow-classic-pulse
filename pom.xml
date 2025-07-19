@@ -18,7 +18,7 @@
     <addon.wago.projectId>LvNAj96o</addon.wago.projectId>
     <addon.name.short>P</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
-    <!-- renovate: datasource=custom.wow-versions depName=classic-era versioning=loose -->
+    <!-- renovate: datasource=custom.wow-versions depName=wow-interface versioning=loose -->
     <addon.interface>11507</addon.interface>
     <addon.supported.patch>1.15.7</addon.supported.patch>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
