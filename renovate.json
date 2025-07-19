@@ -111,7 +111,7 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
-        "<!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion -->\\n\\s*<addon\\.curseforge\\.gameVersion>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersion>"
+        "<!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion versioning=loose -->\\n\\s*<addon\\.curseforge\\.gameVersion>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersion>"
       ],
       "datasourceTemplate": "custom.wow-game-versions",
       "depNameTemplate": "wow-gameversion",
