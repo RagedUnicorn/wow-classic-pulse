@@ -78,7 +78,7 @@
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/game-versions.json",
       "format": "json",
       "transformTemplates": [
-        "{\"releases\": $.releases[variant = 'classic_era'].{\"version\": gameVersionId}}"
+        "{ \"releases\": $.releases[variant = 'classic_era'].{ \"version\": version, \"gameVersionId\": gameVersionId } }"
       ]
     }
   },
@@ -114,7 +114,9 @@
         "<!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion versioning=loose -->\\n\\s*<addon\\.curseforge\\.gameVersion>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersion>"
       ],
       "datasourceTemplate": "custom.wow-game-versions",
-      "depNameTemplate": "wow-gameversion"
+      "depNameTemplate": "wow-gameversion",
+      "versioningTemplate": "loose",
+      "currentValueTemplate": "{{{gameVersionId}}}"
     }
   ],
   "prBodyDefinitions": {
