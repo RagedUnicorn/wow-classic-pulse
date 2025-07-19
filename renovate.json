@@ -42,19 +42,21 @@
       "description": "Automerge dev dependencies"
     },
     {
-      "matchDatasources": ["custom.wow-versions"],
+      "matchDatasources": [
+        "custom.wow-versions"
+      ],
       "groupName": "WoW Classic Era Updates",
       "description": "Update WoW Classic Era interface version"
     }
   ],
   "maven": {
-    "fileMatch": [
-      "^pom\\.xml$"
+    "managerFilePatterns": [
+      "/^pom\\.xml$/"
     ]
   },
   "github-actions": {
-    "fileMatch": [
-      "^\\.github/workflows/.*\\.ya?ml$"
+    "managerFilePatterns": [
+      "/^\\.github/workflows/.*\\.ya?ml$/"
     ]
   },
   "customDatasources": {
@@ -69,7 +71,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^pom\\.xml$"],
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
       "matchStrings": [
         "<!-- renovate: datasource=custom.wow-versions depName=wow-interface versioning=loose -->\\n\\s*<addon\\.interface>(?<currentValue>\\d+)</addon\\.interface>"
       ],
