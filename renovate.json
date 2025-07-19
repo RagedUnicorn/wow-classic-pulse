@@ -40,35 +40,37 @@
       "automerge": true,
       "automergeType": "pr",
       "description": "Automerge dev dependencies"
+    },
+    {
+      "matchDatasources": ["custom.wow-versions"],
+      "groupName": "WoW Classic Era Updates",
+      "description": "Update WoW Classic Era interface version"
     }
   ],
   "maven": {
-    "managerFilePatterns": [
-      "/^pom\\.xml$/"
+    "fileMatch": [
+      "^pom\\.xml$"
     ]
   },
   "github-actions": {
-    "managerFilePatterns": [
-      "/^\\.github/workflows/.*\\.ya?ml$/"
+    "fileMatch": [
+      "^\\.github/workflows/.*\\.ya?ml$"
     ]
+  },
+  "customDatasources": {
+    "wow-versions": {
+      "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json"
+    }
   },
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/^pom\\.xml$/"
-      ],
+      "fileMatch": ["^pom\\.xml$"],
       "matchStrings": [
-        "<addon\\.interface>(?<currentValue>\\d+)</addon\\.interface>"
+        "<!-- renovate: datasource=custom.wow-versions depName=classic-era versioning=loose -->\\n\\s*<addon\\.interface>(?<currentValue>\\d+)</addon\\.interface>"
       ],
-      "depNameTemplate": "WoW Interface Version",
-      "datasourceTemplate": "custom",
-      "versioningTemplate": "loose",
-      "description": "Track WoW interface version"
+      "datasourceTemplate": "custom.wow-versions"
     }
-  ],
-  "ignoreDeps": [
-    "WoW Interface Version"
   ],
   "prBodyDefinitions": {
     "Package": "{{depName}}",
@@ -81,7 +83,5 @@
     "Passing": "{{passing}}",
     "Confidence": "{{confidence}}"
   },
-  "postUpdateOptions": [
-    "pnpmDedupe"
-  ]
+  "postUpdateOptions": []
 }
