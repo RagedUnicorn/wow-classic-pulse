@@ -95,7 +95,9 @@
     },
     {
       "customType": "regex",
-      "fileMatch": ["^pom\\.xml$"],
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
       "matchStrings": [
         "<!-- renovate: datasource=custom.wow-patch-versions depName=wow-patch versioning=loose -->\\n\\s*<addon\\.supported\\.patch>(?<currentValue>[\\d\\.]+)</addon\\.supported\\.patch>"
       ],
@@ -104,7 +106,9 @@
     },
     {
       "customType": "regex",
-      "fileMatch": ["^pom\\.xml$"],
+      "managerFilePatterns": [
+        "/^pom\\.xml$/"
+      ],
       "matchStrings": [
         "<!-- renovate: datasource=custom.wow-game-versions-classic depName=wow-gameversion -->\\n\\s*<addon\\.curseforge\\.gameVersion>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersion>"
       ],
