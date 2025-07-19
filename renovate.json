@@ -69,7 +69,8 @@
       "matchStrings": [
         "<!-- renovate: datasource=custom.wow-versions depName=classic-era versioning=loose -->\\n\\s*<addon\\.interface>(?<currentValue>\\d+)</addon\\.interface>"
       ],
-      "datasourceTemplate": "custom.wow-versions"
+      "datasourceTemplate": "custom.wow-versions",
+      "depNameTemplate": "classic-era"
     }
   ],
   "prBodyDefinitions": {
