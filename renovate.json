@@ -62,7 +62,7 @@
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/versions.json",
       "format": "json",
       "transformTemplates": [
-        "{\"releases\": $[versions[variant = 'classic_era']]}"
+        "{ \"releases\": $.versions[variant = 'classic_era'].{ \"version\": version } }"
       ]
     }
   },
