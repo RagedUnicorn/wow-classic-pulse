@@ -14,6 +14,7 @@
     <addon.name>Pulse</addon.name>
     <addon.displayName>pulse</addon.displayName>
     <addon.curseforge.projectId>339160</addon.curseforge.projectId>
+    <!-- renovate: datasource=custom.wow-game-versions-classic depName=wow-gameversion -->
     <addon.curseforge.gameVersion>12919</addon.curseforge.gameVersion>
     <addon.wago.projectId>LvNAj96o</addon.wago.projectId>
     <addon.name.short>P</addon.name.short>
