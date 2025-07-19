@@ -43,7 +43,8 @@
     },
     {
       "matchDatasources": [
-        "custom.wow-versions"
+        "custom.wow-versions",
+        "custom.wow-game-versions"
       ],
       "groupName": "WoW Classic Era Updates",
       "description": "Update WoW Classic Era interface version"
@@ -78,7 +79,7 @@
       "defaultRegistryUrlTemplate": "https://raw.githubusercontent.com/RagedUnicorn/wow-renovate-data/master/game-versions.json",
       "format": "json",
       "transformTemplates": [
-        "{ \"releases\": $.releases[variant = 'classic_era'].{ \"version\": version, \"newVersion\": $string(gameVersionId) } }"
+        "{ \"releases\": $.releases[variant = 'classic_era'] }"
       ]
     }
   },
@@ -111,13 +112,10 @@
         "/^pom\\.xml$/"
       ],
       "matchStrings": [
-        "<!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion versioning=loose -->\\n\\s*<addon\\.curseforge\\.gameVersion>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersion>"
+        "<!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion -->\\n\\s*<addon\\.curseforge\\.gameVersion>(?<currentValue>\\d+)</addon\\.curseforge\\.gameVersion>"
       ],
       "datasourceTemplate": "custom.wow-game-versions",
-      "depNameTemplate": "wow-gameversion",
-      "versioningTemplate": "loose",
-      "extractVersion": "^(?<version>.+)$",
-      "autoReplaceStringTemplate": "<!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion versioning=loose -->\\n    <addon.curseforge.gameVersion>{{{newVersion}}}</addon.curseforge.gameVersion>"
+      "depNameTemplate": "wow-gameversion"
     }
   ],
   "prBodyDefinitions": {
