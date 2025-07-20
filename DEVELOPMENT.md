@@ -160,9 +160,9 @@ mvn package -D generate.sources.overwrite=true -P release
 2. Add the file reference to the template files:
    - `build-resources/pulse-development.toc.tpl`
    - `build-resources/pulse-release.toc.tpl`
-   
+
    **Note:** Do not modify `Pulse.toc` directly as it's generated from the templates when running Maven commands.
-   
+
 3. Initialize the module structure:
    ```lua
    local mod = rgp
@@ -171,7 +171,7 @@ mvn package -D generate.sources.overwrite=true -P release
 
    me.tag = "NewModule"
    ```
-   
+
 4. Generate the new `Pulse.toc` file:
    ```bash
    mvn generate-resources -D generate.sources.overwrite=true -P development
@@ -254,3 +254,16 @@ mvn package -P deploy-wago -D wago.auth-token=[token]
 ### GitHub Action Profiles
 
 This project has GitHub action profiles for different DevOps related work such as linting and deployments to different providers. See `.github` folder for details.
+
+## Dependency Management
+
+This repository uses [Renovate](https://renovatebot.com/) for automated dependency updates. Renovate monitors and updates:
+
+- Maven dependencies (plugins and libraries)
+- GitHub Actions versions
+- World of Warcraft interface versions and related properties
+  - `addon.interface` - WoW interface version
+  - `addon.supported.patch` - WoW patch version
+  - `addon.curseforge.gameVersion` - CurseForge game version ID
+
+The configuration can be found in `renovate.json`. Renovate runs on a weekly schedule and creates pull requests for available updates.
