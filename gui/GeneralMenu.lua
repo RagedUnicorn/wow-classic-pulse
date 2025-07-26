@@ -40,6 +40,14 @@ local options = {
 -- track whether the menu was already built
 local builtMenu = false
 
+-- forward declarations
+local BuildCheckButtonOption
+local GetLabelText
+local OptTooltipOnEnter
+local OptTooltipOnLeave
+local LockWindowEnergyBarOnShow
+local LockWindowEnergyBarOnClick
+
 --[[
   Build the ui for the general menu
 
@@ -55,13 +63,13 @@ function me.BuildUi(frame)
   titleFontString:SetSize(frame:GetWidth(), 20)
   titleFontString:SetText(rgp.L["general_title"])
 
-  me.BuildCheckButtonOption(
+  BuildCheckButtonOption(
     frame,
     RGP_CONSTANTS.ELEMENT_GENERAL_OPT_WINDOW_LOCK_ENERGY_BAR,
     20,
     -80,
-    me.LockWindowEnergyBarOnShow,
-    me.LockWindowEnergyBarOnClick
+    LockWindowEnergyBarOnShow,
+    LockWindowEnergyBarOnClick
   )
 
   builtMenu = true
@@ -77,7 +85,7 @@ end
   @param {function} onShowCallback
   @param {function} onClickCallback
 ]]--
-function me.BuildCheckButtonOption(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
+BuildCheckButtonOption = function(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
   local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "UICheckButtonTemplate")
   checkButtonOptionFrame:SetSize(
     RGP_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE,
@@ -89,13 +97,13 @@ function me.BuildCheckButtonOption(parentFrame, optionFrameName, posX, posY, onS
     if string.find(region:GetName() or "", "Text$") and region:IsObjectType("FontString") then
       region:SetFont(STANDARD_TEXT_FONT, 15)
       region:SetTextColor(.95, .95, .95)
-      region:SetText(me.GetLabelText(checkButtonOptionFrame))
+      region:SetText(GetLabelText(checkButtonOptionFrame))
       break
     end
   end
 
-  checkButtonOptionFrame:SetScript("OnEnter", me.OptTooltipOnEnter)
-  checkButtonOptionFrame:SetScript("OnLeave", me.OptTooltipOnLeave)
+  checkButtonOptionFrame:SetScript("OnEnter", OptTooltipOnEnter)
+  checkButtonOptionFrame:SetScript("OnLeave", OptTooltipOnLeave)
   checkButtonOptionFrame:SetScript("OnShow", onShowCallback)
   checkButtonOptionFrame:SetScript("OnClick", onClickCallback)
   -- load initial state
@@ -110,7 +118,7 @@ end
   @return {string}
     The text for the label
 ]]--
-function me.GetLabelText(frame)
+GetLabelText = function(frame)
   local name = frame:GetName()
 
   if not name then return end
@@ -127,7 +135,7 @@ end
 
   @param {table} self
 ]]--
-function me.OptTooltipOnEnter(self)
+OptTooltipOnEnter = function(self)
   local name = self:GetName()
 
   if not name then return end
@@ -143,7 +151,7 @@ end
 --[[
   OnEnter callback for checkbuttons - hide tooltip
 ]]--
-function me.OptTooltipOnLeave()
+OptTooltipOnLeave = function()
   _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
 end
 
@@ -152,7 +160,7 @@ end
 
   @param {table} self
 ]]--
-function me.LockWindowEnergyBarOnShow(self)
+LockWindowEnergyBarOnShow = function(self)
   if mod.configuration.IsEnergyBarLocked() then
     self:SetChecked(true)
   else
@@ -165,7 +173,7 @@ end
 
   @param {table} self
 ]]--
-function me.LockWindowEnergyBarOnClick(self)
+LockWindowEnergyBarOnClick = function(self)
   local enabled = self:GetChecked()
 
   if enabled then

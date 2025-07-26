@@ -34,6 +34,13 @@ me.tag = "EnergyBar"
 
 local energyBarFrame
 
+-- forward declarations
+local CreateStatusBarFrame
+local CreateEnergyAmountFontString
+local SetupDragFrame
+local StartDragFrame
+local StopDragFrame
+
 --[[
   Time when the last energyTick happened
 ]]--
@@ -74,9 +81,9 @@ function me.BuildUi()
     energyBarFrame:SetPoint("CENTER", 0, 0)
   end
 
-  me.SetupDragFrame(energyBarFrame)
-  energyBarFrame.energyStatusBar = me.CreateStatusBarFrame(energyBarFrame)
-  energyBarFrame.energyAmount = me.CreateEnergyAmountFontString(energyBarFrame)
+  SetupDragFrame(energyBarFrame)
+  energyBarFrame.energyStatusBar = CreateStatusBarFrame(energyBarFrame)
+  energyBarFrame.energyAmount = CreateEnergyAmountFontString(energyBarFrame)
 
   energyBarFrame:Hide()
 end
@@ -84,7 +91,7 @@ end
 --[[
   @param {table} frame
 ]]--
-function me.CreateStatusBarFrame(frame)
+CreateStatusBarFrame = function(frame)
   local energyStatusBar = CreateFrame("StatusBar", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR, frame)
   energyStatusBar:SetPoint("CENTER", frame, 0, 0)
   energyStatusBar:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH)
@@ -103,7 +110,7 @@ end
 --[[
   @param {table} frame
 ]]--
-function me.CreateEnergyAmountFontString(frame)
+CreateEnergyAmountFontString = function(frame)
   local energyAmountFontString = frame:CreateFontString(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT, "OVERLAY")
   energyAmountFontString:SetFont(STANDARD_TEXT_FONT, 14)
   energyAmountFontString:SetPoint("LEFT", 5, 0)
@@ -123,9 +130,9 @@ end
   @param {table} frame
     the frame to attach drag handlers
 ]]--
-function me.SetupDragFrame(frame)
-  frame:SetScript("OnMouseDown", me.StartDragFrame)
-  frame:SetScript("OnMouseUp", me.StopDragFrame)
+SetupDragFrame = function(frame)
+  frame:SetScript("OnMouseDown", StartDragFrame)
+  frame:SetScript("OnMouseUp", StopDragFrame)
 end
 
 --[[
@@ -133,7 +140,7 @@ end
 
   @param {table} self
 ]]--
-function me.StartDragFrame(self)
+StartDragFrame = function(self)
   if mod.configuration.IsEnergyBarLocked() then return end
 
   self:StartMoving()
@@ -144,7 +151,7 @@ end
 
   @param {table} self
 ]]--
-function me.StopDragFrame(self)
+StopDragFrame = function(self)
   if mod.configuration.IsEnergyBarLocked() then return end
 
   self:StopMovingOrSizing()
