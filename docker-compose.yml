@@ -5,4 +5,4 @@ services:
     volumes:
       - ./:/workspace:ro
     working_dir: /workspace
-    command: ["--formatter", "JUnit", "."]
+    command: ["."]
