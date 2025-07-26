@@ -130,15 +130,39 @@ InternalHelper = function()
 end
 ```
 
+## Code Quality
+
+### Running Luacheck
+
+The project includes a Docker Compose configuration for running [Luacheck](https://github.com/lunarmodules/luacheck), a static analyzer and linter for Lua. This ensures code quality and catches common issues.
+
+**To run Luacheck:**
+
+```bash
+docker compose up
+```
+
+This will:
+- Mount the project directory as read-only
+- Run Luacheck on all Lua files
+- Output results in JUnit XML format
+
+**Configuration:**
+- `.luacheckrc` - Contains Luacheck configuration, including:
+  - Global variables specific to WoW addons
+  - Lua 5.1 standard for compatibility
+  - Excluded directories (e.g., `target/`)
+
 ## Testing
 
 Before committing changes:
 
-1. Test in development mode
-2. Switch to release mode and test again
-3. Verify no debug logs appear in release mode
-4. Test with `/reload` to ensure saved variables work correctly
-5. Test the main functionality (energy tick tracking)
+1. Run Luacheck to ensure code quality: `docker compose up`
+2. Test in development mode
+3. Switch to release mode and test again
+4. Verify no debug logs appear in release mode
+5. Test with `/reload` to ensure saved variables work correctly
+6. Test the main functionality (energy tick tracking)
 
 ## Build and Package
 
