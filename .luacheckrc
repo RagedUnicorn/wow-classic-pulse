@@ -12,6 +12,6 @@ files = {
 }
 
 exclude_files = {
-        ".luacheckrc",
-        "target/"
+  ".luacheckrc",
+  "target/"
 }
