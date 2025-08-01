@@ -52,8 +52,8 @@ local lastEnergyValue = 0
 
 function me.BuildUi()
   energyBarFrame = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME, UIParent, "BackdropTemplate")
-  energyBarFrame:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH)
-  energyBarFrame:SetHeight(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT)
+  energyBarFrame:SetWidth(mod.configuration.GetEnergyBarWidth())
+  energyBarFrame:SetHeight(mod.configuration.GetEnergyBarHeight())
   energyBarFrame:SetBackdrop({
     bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
     edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -98,8 +98,8 @@ end
 CreateStatusBarFrame = function(frame)
   local energyStatusBar = CreateFrame("StatusBar", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR, frame, "BackdropTemplate")
   energyStatusBar:SetPoint("CENTER", frame, 0, 0)
-  energyStatusBar:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH - 4)
-  energyStatusBar:SetHeight(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT - 4)
+  energyStatusBar:SetWidth(mod.configuration.GetEnergyBarWidth() - 4)
+  energyStatusBar:SetHeight(mod.configuration.GetEnergyBarHeight() - 4)
   energyStatusBar:SetStatusBarTexture("Interface\\AddOns\\Pulse\\assets\\ui_statusbar")
   energyStatusBar:SetStatusBarColor(1, 0.95, 0, 1)
   energyStatusBar:SetFrameLevel(energyStatusBar:GetFrameLevel() - 1)
@@ -127,8 +127,8 @@ CreateEnergyAmountFontString = function(frame)
   energyAmountFontString:SetFont(STANDARD_TEXT_FONT, 16, "OUTLINE")
   energyAmountFontString:SetPoint("CENTER", 0, 0)
   energyAmountFontString:SetSize(
-    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT_WIDTH,
-    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT_HEIGHT
+    mod.configuration.GetEnergyBarWidth(),
+    mod.configuration.GetEnergyBarHeight()
   )
 
   return energyAmountFontString
@@ -196,4 +196,22 @@ function me.UpdateTickerBar()
   energyBarFrame.energyAmount:SetText(currentEnergy)
 
   lastEnergyValue = currentEnergy
+end
+
+--[[
+  Update the energy bar size when configuration changes
+]]--
+function me.UpdateEnergyBarSize()
+  if not energyBarFrame then return end
+  
+  local width = mod.configuration.GetEnergyBarWidth()
+  local height = mod.configuration.GetEnergyBarHeight()
+  
+  energyBarFrame:SetWidth(width)
+  energyBarFrame:SetHeight(height)
+  
+  energyBarFrame.energyStatusBar:SetWidth(width - 4)
+  energyBarFrame.energyStatusBar:SetHeight(height - 4)
+  
+  energyBarFrame.energyAmount:SetSize(width, height)
 end

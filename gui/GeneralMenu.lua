@@ -42,11 +42,16 @@ local builtMenu = false
 
 -- forward declarations
 local BuildCheckButtonOption
+local CreateSizeSlider
 local GetLabelText
 local OptTooltipOnEnter
 local OptTooltipOnLeave
 local LockWindowEnergyBarOnShow
 local LockWindowEnergyBarOnClick
+local EnergyBarWidthSliderOnShow
+local EnergyBarWidthSliderOnValueChanged
+local EnergyBarHeightSliderOnShow
+local EnergyBarHeightSliderOnValueChanged
 
 --[[
   Build the ui for the general menu
@@ -70,6 +75,32 @@ function me.BuildUi(frame)
     -80,
     LockWindowEnergyBarOnShow,
     LockWindowEnergyBarOnClick
+  )
+  
+  CreateSizeSlider(
+    frame,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH_SLIDER,
+    {"TOPLEFT", 20, -140},
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_WIDTH,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_WIDTH,
+    mod.configuration.GetEnergyBarWidth(),
+    rgp.L["energy_bar_width"],
+    rgp.L["energy_bar_width_tooltip"],
+    EnergyBarWidthSliderOnShow,
+    EnergyBarWidthSliderOnValueChanged
+  )
+  
+  CreateSizeSlider(
+    frame,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT_SLIDER,
+    {"TOPLEFT", 20, -220},
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_HEIGHT,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_HEIGHT,
+    mod.configuration.GetEnergyBarHeight(),
+    rgp.L["energy_bar_height"],
+    rgp.L["energy_bar_height_tooltip"],
+    EnergyBarHeightSliderOnShow,
+    EnergyBarHeightSliderOnValueChanged
   )
 
   builtMenu = true
@@ -181,4 +212,103 @@ LockWindowEnergyBarOnClick = function(self)
   else
     mod.configuration.UnlockEnergyBar()
   end
+end
+
+--[[
+  Create a slider for changing the size of the energyBar
+
+  @param {table} parentFrame
+  @param {string} sliderName
+  @param {table} position
+    An object that can be unpacked into SetPoint
+  @param {number} sliderMinValue
+  @param {number} sliderMaxValue
+  @param {number} defaultValue
+  @param {string} sliderTitle
+  @param {string} sliderTooltip
+  @param {function} onShowCallback
+  @param {function} OnValueChangedCallback
+]]--
+CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
+    sliderTitle, sliderTooltip, onShowCallback, OnValueChangedCallback)
+
+  local sliderFrame = CreateFrame(
+    "Slider",
+    sliderName,
+    parentFrame,
+    "UISliderTemplateWithLabels"
+  )
+  sliderFrame:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_WIDTH)
+  sliderFrame:SetHeight(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_HEIGHT)
+  sliderFrame:SetOrientation('HORIZONTAL')
+  sliderFrame:SetPoint(unpack(position))
+  sliderFrame:SetMinMaxValues(
+    sliderMinValue,
+    sliderMaxValue
+  )
+  sliderFrame:SetValueStep(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP)
+  sliderFrame:SetObeyStepOnDrag(true)
+  sliderFrame:SetValue(defaultValue)
+
+  -- Update slider texts
+  _G[sliderFrame:GetName() .. "Low"]:SetText(sliderMinValue)
+  _G[sliderFrame:GetName() .. "High"]:SetText(sliderMaxValue)
+  _G[sliderFrame:GetName() .. "Text"]:SetText(sliderTitle)
+  sliderFrame.tooltipText = sliderTooltip
+
+  local valueFontString = sliderFrame:CreateFontString(nil, "OVERLAY")
+  valueFontString:SetFont(STANDARD_TEXT_FONT, 12)
+  valueFontString:SetPoint("BOTTOM", 0, -15)
+  valueFontString:SetText(sliderFrame:GetValue())
+
+  sliderFrame.valueFontString = valueFontString
+  sliderFrame:SetScript("OnValueChanged", OnValueChangedCallback)
+  sliderFrame:SetScript("OnShow", onShowCallback)
+
+  -- load initial state
+  onShowCallback(sliderFrame)
+end
+
+--[[
+  OnShow callback for energy bar width slider
+
+  @param {table} self
+]]--
+EnergyBarWidthSliderOnShow = function(self)
+  self:SetValue(mod.configuration.GetEnergyBarWidth())
+  self.valueFontString:SetText(self:GetValue())
+end
+
+--[[
+  OnValueChanged callback for energy bar width slider
+
+  @param {table} self
+  @param {number} value
+]]--
+EnergyBarWidthSliderOnValueChanged = function(self, value)
+  self.valueFontString:SetText(value)
+  mod.configuration.SetEnergyBarWidth(value)
+  mod.energyBar.UpdateEnergyBarSize()
+end
+
+--[[
+  OnShow callback for energy bar height slider
+
+  @param {table} self
+]]--
+EnergyBarHeightSliderOnShow = function(self)
+  self:SetValue(mod.configuration.GetEnergyBarHeight())
+  self.valueFontString:SetText(self:GetValue())
+end
+
+--[[
+  OnValueChanged callback for energy bar height slider
+
+  @param {table} self
+  @param {number} value
+]]--
+EnergyBarHeightSliderOnValueChanged = function(self, value)
+  self.valueFontString:SetText(value)
+  mod.configuration.SetEnergyBarHeight(value)
+  mod.energyBar.UpdateEnergyBarSize()
 end
