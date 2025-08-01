@@ -1,3 +1,7 @@
-# Update
+# New Features
 
-* Update Interface Version 11507(1.15.7)
+### Energy Bar Customization
+
+- You can now customize the width and height of the energy bar
+- New sliders in the settings menu allow you to adjust energy bar dimensions to your preference
+- Improved tooltips provide helpful guidance when configuring settings
