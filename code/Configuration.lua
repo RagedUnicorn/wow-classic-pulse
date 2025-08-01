@@ -42,6 +42,12 @@ PulseConfiguration = {
   ["lockEnergyBar"] = false,
 
   --[[
+    Energy bar dimensions
+  ]]--
+  ["energyBarWidth"] = nil,
+  ["energyBarHeight"] = nil,
+
+  --[[
     Framepositions for user draggable Frames
     frames = {
       -- should match the actual frame name
@@ -68,6 +74,16 @@ function me.SetupConfiguration()
   if PulseConfiguration.frames == nil then
     mod.logger.LogInfo(me.tag, "frames has unexpected nil value")
     PulseConfiguration.frames = {}
+  end
+
+  if PulseConfiguration.energyBarWidth == nil then
+    mod.logger.LogInfo(me.tag, "energyBarWidth has unexpected nil value")
+    PulseConfiguration.energyBarWidth = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH
+  end
+
+  if PulseConfiguration.energyBarHeight == nil then
+    mod.logger.LogInfo(me.tag, "energyBarHeight has unexpected nil value")
+    PulseConfiguration.energyBarHeight = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT
   end
 
   --[[
@@ -156,4 +172,40 @@ function me.GetUserPlacedFramePosition(frameName)
   end
 
   return nil
+end
+
+--[[
+  Set the energy bar width
+
+  @param {number} width
+]]--
+function me.SetEnergyBarWidth(width)
+  PulseConfiguration.energyBarWidth = width
+end
+
+--[[
+  Get the energy bar width
+
+  @return {number}
+]]--
+function me.GetEnergyBarWidth()
+  return PulseConfiguration.energyBarWidth
+end
+
+--[[
+  Set the energy bar height
+
+  @param {number} height
+]]--
+function me.SetEnergyBarHeight(height)
+  PulseConfiguration.energyBarHeight = height
+end
+
+--[[
+  Get the energy bar height
+
+  @return {number}
+]]--
+function me.GetEnergyBarHeight()
+  return PulseConfiguration.energyBarHeight
 end

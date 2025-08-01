@@ -26,4 +26,8 @@ if (GetLocale() == "deDE") then
   rgp.L["general_title"] = "Allgemeine Konfiguration"
   rgp.L["window_lock_energy_bar"] = "Sperre Energiebalken"
   rgp.L["window_lock_energy_bar_tooltip"] = "Verhindert das bewegen des Energiebalken"
+  rgp.L["energy_bar_width"] = "Energiebalken Breite"
+  rgp.L["energy_bar_width_tooltip"] = "Breite des Energiebalkens anpassen"
+  rgp.L["energy_bar_height"] = "Energiebalken Höhe"
+  rgp.L["energy_bar_height_tooltip"] = "Höhe des Energiebalkens anpassen"
 end
