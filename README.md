@@ -35,7 +35,27 @@ Make sure to get the newest version of the Addon from the releases tab:
 
 Pulse is a simple addon that tracks the energy-regen tickrate and the current amount of energy. The energybar will show once the player spent some energy.
 
-![](docs/pulse_example.jpg)
+![](docs/pulse_example.png)
+
+## Configuration
+
+Pulse can be configured through the in-game interface options. Access the configuration by:
+
+1. Opening the game menu (ESC key)
+2. Selecting "Options"
+3. Navigating to "AddOns"
+4. Finding "Pulse Options" in the list
+
+Alternatively, you can use the slash command: `/pulse opt` or `/rgp opt`
+
+### Available Settings
+
+#### Energy Bar Positioning
+- **Lock Energy Bar**: When enabled, prevents the energy bar from being moved by dragging. When disabled, you can drag the energy bar to reposition it anywhere on your screen.
+
+#### Energy Bar Dimensions
+- **Energy Bar Width**: Adjust the width of the energy bar to fit your UI layout. Use the slider to increase or decrease the horizontal size.
+- **Energy Bar Height**: Adjust the height of the energy bar. Use the slider to increase or decrease the vertical size.
 
 ## FAQ
 
