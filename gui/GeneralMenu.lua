@@ -54,6 +54,9 @@ local builtMenu = false
 -- forward declarations
 local BuildCheckButtonOption
 local CreateSizeSlider
+local CreateSliderOptions
+local SetupSliderTooltips
+local CreateCheckButtonLabel
 local GetLabelText
 local OptTooltipOnEnter
 local OptTooltipOnLeave
@@ -93,7 +96,7 @@ function me.BuildUi(frame)
     mod.configuration.GetEnergyBarWidth(),
     options.EnergyBarWidth.label,
     options.EnergyBarWidth.tooltip,
-    function(value)
+    function(owner, value)
       mod.configuration.SetEnergyBarWidth(value)
       mod.energyBar.UpdateEnergyBarSize()
     end
@@ -108,13 +111,91 @@ function me.BuildUi(frame)
     mod.configuration.GetEnergyBarHeight(),
     options.EnergyBarHeight.label,
     options.EnergyBarHeight.tooltip,
-    function(value)
+    function(owner, value)
       mod.configuration.SetEnergyBarHeight(value)
       mod.energyBar.UpdateEnergyBarSize()
     end
   )
 
   builtMenu = true
+end
+
+--[[
+  Create slider options with label formatters
+
+  @param {number} minValue
+  @param {number} maxValue
+  @param {string} title
+
+  @return {table} configured slider options
+]]--
+CreateSliderOptions = function(minValue, maxValue, title)
+  local sliderOptions = Settings.CreateSliderOptions(
+    minValue,
+    maxValue,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP
+  )
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function() return maxValue end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function() return minValue end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function() return title end)
+
+  return sliderOptions
+end
+
+--[[
+  Setup tooltip handlers for slider and all its child elements
+
+  @param {table} sliderFrame
+  @param {string} title
+  @param {string} tooltip
+]]--
+SetupSliderTooltips = function(sliderFrame, title, tooltip)
+  local function ShowTooltip()
+    if tooltip then
+      mod.tooltip.BuildTooltipForOption(title, tooltip, sliderFrame)
+    end
+  end
+
+  local function HideTooltip()
+    _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
+  end
+
+  sliderFrame:SetScript("OnEnter", ShowTooltip)
+  sliderFrame:SetScript("OnLeave", HideTooltip)
+
+  local slider = sliderFrame.Slider
+  local backButton = sliderFrame.Back
+  local forwardButton = sliderFrame.Forward
+
+  if slider then
+    slider:SetScript("OnEnter", ShowTooltip)
+    slider:SetScript("OnLeave", HideTooltip)
+  end
+
+  if backButton then
+    backButton:SetScript("OnEnter", ShowTooltip)
+    backButton:SetScript("OnLeave", HideTooltip)
+  end
+
+  if forwardButton then
+    forwardButton:SetScript("OnEnter", ShowTooltip)
+    forwardButton:SetScript("OnLeave", HideTooltip)
+  end
+end
+
+--[[
+  Create and setup a label for a checkbutton
+
+  @param {table} checkButtonFrame
+]]--
+CreateCheckButtonLabel = function(checkButtonFrame)
+  local labelText = checkButtonFrame:CreateFontString(nil, "OVERLAY")
+  labelText:SetFont(STANDARD_TEXT_FONT, 15)
+  labelText:SetTextColor(.95, .95, .95)
+  labelText:SetPoint("LEFT", checkButtonFrame, "RIGHT", 5, 0)
+  labelText:SetText(GetLabelText(checkButtonFrame))
+  checkButtonFrame.labelText = labelText
 end
 
 --[[
@@ -135,12 +216,7 @@ BuildCheckButtonOption = function(parentFrame, optionFrameName, posX, posY, onSh
   )
   checkButtonOptionFrame:SetPoint("TOPLEFT", posX, posY)
 
-  local labelText = checkButtonOptionFrame:CreateFontString(nil, "OVERLAY")
-  labelText:SetFont(STANDARD_TEXT_FONT, 15)
-  labelText:SetTextColor(.95, .95, .95)
-  labelText:SetPoint("LEFT", checkButtonOptionFrame, "RIGHT", 5, 0)
-  labelText:SetText(GetLabelText(checkButtonOptionFrame))
-  checkButtonOptionFrame.labelText = labelText
+  CreateCheckButtonLabel(checkButtonOptionFrame)
 
   checkButtonOptionFrame:SetScript("OnEnter", OptTooltipOnEnter)
   checkButtonOptionFrame:SetScript("OnLeave", OptTooltipOnLeave)
@@ -240,15 +316,7 @@ end
 CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
     sliderTitle, sliderTooltip, onValueChangedCallback)
 
-  local sliderOptions = Settings.CreateSliderOptions(
-    sliderMinValue,
-    sliderMaxValue,
-    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP
-  )
-  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
-  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function() return sliderMaxValue end)
-  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function() return sliderMinValue end)
-  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function() return sliderTitle end)
+  local sliderOptions = CreateSliderOptions(sliderMinValue, sliderMaxValue, sliderTitle)
 
   local sliderFrame = CreateFrame("Frame", sliderName, parentFrame, "MinimalSliderWithSteppersTemplate")
   sliderFrame:SetWidth(250)
@@ -260,41 +328,10 @@ CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, s
     sliderOptions.steps,
     sliderOptions.formatters
   )
-  sliderFrame.tooltipText = sliderTooltip
 
   if onValueChangedCallback then
     sliderFrame:RegisterCallback("OnValueChanged", onValueChangedCallback, sliderFrame)
   end
 
-  local function ShowTooltip()
-    if sliderFrame.tooltipText then
-      mod.tooltip.BuildTooltipForOption(sliderTitle, sliderFrame.tooltipText, sliderFrame)
-    end
-  end
-
-  local function HideTooltip()
-    _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
-  end
-
-  sliderFrame:SetScript("OnEnter", ShowTooltip)
-  sliderFrame:SetScript("OnLeave", HideTooltip)
-
-  local slider = sliderFrame.Slider
-  local backButton = sliderFrame.Back
-  local forwardButton = sliderFrame.Forward
-
-  if slider then
-    slider:SetScript("OnEnter", ShowTooltip)
-    slider:SetScript("OnLeave", HideTooltip)
-  end
-
-  if backButton then
-    backButton:SetScript("OnEnter", ShowTooltip)
-    backButton:SetScript("OnLeave", HideTooltip)
-  end
-
-  if forwardButton then
-    forwardButton:SetScript("OnEnter", ShowTooltip)
-    forwardButton:SetScript("OnLeave", HideTooltip)
-  end
+  SetupSliderTooltips(sliderFrame, sliderTitle, sliderTooltip)
 end
