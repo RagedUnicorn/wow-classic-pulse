@@ -48,10 +48,6 @@ local OptTooltipOnEnter
 local OptTooltipOnLeave
 local LockWindowEnergyBarOnShow
 local LockWindowEnergyBarOnClick
-local EnergyBarWidthSliderOnShow
-local EnergyBarWidthSliderOnValueChanged
-local EnergyBarHeightSliderOnShow
-local EnergyBarHeightSliderOnValueChanged
 
 --[[
   Build the ui for the general menu
@@ -85,9 +81,7 @@ function me.BuildUi(frame)
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_WIDTH,
     mod.configuration.GetEnergyBarWidth(),
     rgp.L["energy_bar_width"],
-    rgp.L["energy_bar_width_tooltip"],
-    EnergyBarWidthSliderOnShow,
-    EnergyBarWidthSliderOnValueChanged
+    rgp.L["energy_bar_width_tooltip"]
   )
 
   CreateSizeSlider(
@@ -98,9 +92,7 @@ function me.BuildUi(frame)
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_HEIGHT,
     mod.configuration.GetEnergyBarHeight(),
     rgp.L["energy_bar_height"],
-    rgp.L["energy_bar_height_tooltip"],
-    EnergyBarHeightSliderOnShow,
-    EnergyBarHeightSliderOnValueChanged
+    rgp.L["energy_bar_height_tooltip"]
   )
 
   builtMenu = true
@@ -224,11 +216,9 @@ end
   @param {number} defaultValue
   @param {string} sliderTitle
   @param {string} sliderTooltip
-  @param {function} onShowCallback
-  @param {function} OnValueChangedCallback
 ]]--
 CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
-    sliderTitle, sliderTooltip, onShowCallback, OnValueChangedCallback)
+    sliderTitle, sliderTooltip)
 
   local options = Settings.CreateSliderOptions(sliderMinValue, sliderMaxValue, RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP)
   options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
@@ -240,13 +230,10 @@ CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, s
   sliderFrame:SetWidth(250)
   sliderFrame:SetPoint(unpack(position))
   sliderFrame:Init(defaultValue, options.minValue, options.maxValue, options.steps, options.formatters)
-  sliderFrame:RegisterCallback("OnValueChanged", OnValueChangedCallback, sliderFrame)
 
-  -- Store callbacks for compatibility
   sliderFrame.onShowCallback = onShowCallback
   sliderFrame.tooltipText = sliderTooltip
 
-  -- Add tooltip support for modern sliders - need to add to child elements
   local function ShowTooltip(self)
     if sliderFrame.tooltipText then
       mod.tooltip.BuildTooltipForOption(sliderTitle, sliderFrame.tooltipText, sliderFrame)
@@ -257,96 +244,25 @@ CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, s
     _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
   end
 
-  -- Add tooltip to the main frame
   sliderFrame:SetScript("OnEnter", ShowTooltip)
   sliderFrame:SetScript("OnLeave", HideTooltip)
 
-  -- Add tooltip to all child regions (slider bar, buttons, etc.)
-  for _, child in pairs({sliderFrame:GetChildren()}) do
-    if child:IsObjectType("Slider") or child:IsObjectType("Button") then
-      child:SetScript("OnEnter", ShowTooltip)
-      child:SetScript("OnLeave", HideTooltip)
-    end
+  local slider = sliderFrame.Slider
+  local backButton = sliderFrame.Back
+  local forwardButton = sliderFrame.Forward
+
+  if slider then
+    slider:SetScript("OnEnter", ShowTooltip)
+    slider:SetScript("OnLeave", HideTooltip)
   end
 
-  -- Also check regions (textures, fontstrings)
-  for _, region in pairs({sliderFrame:GetRegions()}) do
-    if region:IsObjectType("Texture") and region:IsMouseEnabled() then
-      region:SetScript("OnEnter", ShowTooltip)
-      region:SetScript("OnLeave", HideTooltip)
-    end
+  if backButton then
+    backButton:SetScript("OnEnter", ShowTooltip)
+    backButton:SetScript("OnLeave", HideTooltip)
   end
 
-  -- Call onShow callback
-  onShowCallback(sliderFrame)
-end
-
---[[
-  OnShow callback for energy bar width slider
-
-  @param {table} self
-]]--
-EnergyBarWidthSliderOnShow = function(self)
-  -- Check if this is a modern slider
-  if self.Init then
-    -- Modern slider - value is already set during Init
-    return
+  if forwardButton then
+    forwardButton:SetScript("OnEnter", ShowTooltip)
+    forwardButton:SetScript("OnLeave", HideTooltip)
   end
-
-  -- Old slider
-  self:SetValue(mod.configuration.GetEnergyBarWidth())
-  if self.valueFontString then
-    self.valueFontString:SetText(self:GetValue())
-  end
-end
-
---[[
-  OnValueChanged callback for energy bar width slider
-
-  @param {table} self
-  @param {number} value
-]]--
-EnergyBarWidthSliderOnValueChanged = function(self, value)
-  -- Update value display for old sliders
-  if self.valueFontString then
-    self.valueFontString:SetText(value)
-  end
-
-  mod.configuration.SetEnergyBarWidth(value)
-  mod.energyBar.UpdateEnergyBarSize()
-end
-
---[[
-  OnShow callback for energy bar height slider
-
-  @param {table} self
-]]--
-EnergyBarHeightSliderOnShow = function(self)
-  -- Check if this is a modern slider
-  if self.Init then
-    -- Modern slider - value is already set during Init
-    return
-  end
-
-  -- Old slider
-  self:SetValue(mod.configuration.GetEnergyBarHeight())
-  if self.valueFontString then
-    self.valueFontString:SetText(self:GetValue())
-  end
-end
-
---[[
-  OnValueChanged callback for energy bar height slider
-
-  @param {table} self
-  @param {number} value
-]]--
-EnergyBarHeightSliderOnValueChanged = function(self, value)
-  -- Update value display for old sliders
-  if self.valueFontString then
-    self.valueFontString:SetText(value)
-  end
-
-  mod.configuration.SetEnergyBarHeight(value)
-  mod.energyBar.UpdateEnergyBarSize()
 end
