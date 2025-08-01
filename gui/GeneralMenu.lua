@@ -76,7 +76,7 @@ function me.BuildUi(frame)
     LockWindowEnergyBarOnShow,
     LockWindowEnergyBarOnClick
   )
-  
+
   CreateSizeSlider(
     frame,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH_SLIDER,
@@ -89,7 +89,7 @@ function me.BuildUi(frame)
     EnergyBarWidthSliderOnShow,
     EnergyBarWidthSliderOnValueChanged
   )
-  
+
   CreateSizeSlider(
     frame,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT_SLIDER,
@@ -117,21 +117,19 @@ end
   @param {function} onClickCallback
 ]]--
 BuildCheckButtonOption = function(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
-  local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "UICheckButtonTemplate")
+  local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "SettingsCheckboxTemplate")
   checkButtonOptionFrame:SetSize(
     RGP_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE,
     RGP_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE
   )
   checkButtonOptionFrame:SetPoint("TOPLEFT", posX, posY)
 
-  for _, region in ipairs({checkButtonOptionFrame:GetRegions()}) do
-    if string.find(region:GetName() or "", "Text$") and region:IsObjectType("FontString") then
-      region:SetFont(STANDARD_TEXT_FONT, 15)
-      region:SetTextColor(.95, .95, .95)
-      region:SetText(GetLabelText(checkButtonOptionFrame))
-      break
-    end
-  end
+  local labelText = checkButtonOptionFrame:CreateFontString(nil, "OVERLAY")
+  labelText:SetFont(STANDARD_TEXT_FONT, 15)
+  labelText:SetTextColor(.95, .95, .95)
+  labelText:SetPoint("LEFT", checkButtonOptionFrame, "RIGHT", 5, 0)
+  labelText:SetText(GetLabelText(checkButtonOptionFrame))
+  checkButtonOptionFrame.labelText = labelText
 
   checkButtonOptionFrame:SetScript("OnEnter", OptTooltipOnEnter)
   checkButtonOptionFrame:SetScript("OnLeave", OptTooltipOnLeave)
@@ -232,101 +230,55 @@ end
 CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
     sliderTitle, sliderTooltip, onShowCallback, OnValueChangedCallback)
 
-  -- Test if modern template and Settings API are available
-  if Settings and Settings.CreateSliderOptions and MinimalSliderWithSteppersMixin then
-    -- Modern slider implementation
-    local options = Settings.CreateSliderOptions(sliderMinValue, sliderMaxValue, RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP)
-    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
-    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function(value) return sliderMaxValue end)
-    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function(value) return sliderMinValue end)
-    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function(value) return sliderTitle end)
-    
-    local sliderFrame = CreateFrame("Frame", sliderName, parentFrame, "MinimalSliderWithSteppersTemplate")
-    sliderFrame:SetWidth(250)
-    sliderFrame:SetPoint(unpack(position))
-    sliderFrame:Init(defaultValue, options.minValue, options.maxValue, options.steps, options.formatters)
-    sliderFrame:RegisterCallback("OnValueChanged", OnValueChangedCallback, sliderFrame)
-    
-    -- Store callbacks for compatibility
-    sliderFrame.onShowCallback = onShowCallback
-    sliderFrame.tooltipText = sliderTooltip
-    
-    -- Add tooltip support for modern sliders - need to add to child elements
-    local function ShowTooltip(self)
-      if sliderFrame.tooltipText then
-        mod.tooltip.BuildTooltipForOption(sliderTitle, sliderFrame.tooltipText, sliderFrame)
-      end
-    end
-    
-    local function HideTooltip(self)
-      _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
-    end
-    
-    -- Add tooltip to the main frame
-    sliderFrame:SetScript("OnEnter", ShowTooltip)
-    sliderFrame:SetScript("OnLeave", HideTooltip)
-    
-    -- Add tooltip to all child regions (slider bar, buttons, etc.)
-    for _, child in pairs({sliderFrame:GetChildren()}) do
-      if child:IsObjectType("Slider") or child:IsObjectType("Button") then
-        child:SetScript("OnEnter", ShowTooltip)
-        child:SetScript("OnLeave", HideTooltip)
-      end
-    end
-    
-    -- Also check regions (textures, fontstrings)
-    for _, region in pairs({sliderFrame:GetRegions()}) do
-      if region:IsObjectType("Texture") and region:IsMouseEnabled() then
-        region:SetScript("OnEnter", ShowTooltip)
-        region:SetScript("OnLeave", HideTooltip)
-      end
-    end
-    
-    -- Call onShow callback
-    onShowCallback(sliderFrame)
-    
-    mod.logger.LogInfo(me.tag, "Using modern MinimalSliderWithSteppersTemplate for " .. sliderName)
-    return
-  end
+  local options = Settings.CreateSliderOptions(sliderMinValue, sliderMaxValue, RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP)
+  options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
+  options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function(value) return sliderMaxValue end)
+  options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function(value) return sliderMinValue end)
+  options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function(value) return sliderTitle end)
 
-  -- Fallback to old template if modern one isn't available
-  local sliderFrame = CreateFrame(
-    "Slider",
-    sliderName,
-    parentFrame,
-    "UISliderTemplateWithLabels"
-  )
-  sliderFrame:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_WIDTH)
-  sliderFrame:SetHeight(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_HEIGHT)
-  sliderFrame:SetOrientation('HORIZONTAL')
+  local sliderFrame = CreateFrame("Frame", sliderName, parentFrame, "MinimalSliderWithSteppersTemplate")
+  sliderFrame:SetWidth(250)
   sliderFrame:SetPoint(unpack(position))
-  sliderFrame:SetMinMaxValues(
-    sliderMinValue,
-    sliderMaxValue
-  )
-  sliderFrame:SetValueStep(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP)
-  sliderFrame:SetObeyStepOnDrag(true)
-  sliderFrame:SetValue(defaultValue)
+  sliderFrame:Init(defaultValue, options.minValue, options.maxValue, options.steps, options.formatters)
+  sliderFrame:RegisterCallback("OnValueChanged", OnValueChangedCallback, sliderFrame)
 
-  -- Update slider texts
-  _G[sliderFrame:GetName() .. "Low"]:SetText(sliderMinValue)
-  _G[sliderFrame:GetName() .. "High"]:SetText(sliderMaxValue)
-  _G[sliderFrame:GetName() .. "Text"]:SetText(sliderTitle)
+  -- Store callbacks for compatibility
+  sliderFrame.onShowCallback = onShowCallback
   sliderFrame.tooltipText = sliderTooltip
 
-  local valueFontString = sliderFrame:CreateFontString(nil, "OVERLAY")
-  valueFontString:SetFont(STANDARD_TEXT_FONT, 12)
-  valueFontString:SetPoint("BOTTOM", 0, -15)
-  valueFontString:SetText(sliderFrame:GetValue())
+  -- Add tooltip support for modern sliders - need to add to child elements
+  local function ShowTooltip(self)
+    if sliderFrame.tooltipText then
+      mod.tooltip.BuildTooltipForOption(sliderTitle, sliderFrame.tooltipText, sliderFrame)
+    end
+  end
 
-  sliderFrame.valueFontString = valueFontString
-  sliderFrame:SetScript("OnValueChanged", OnValueChangedCallback)
-  sliderFrame:SetScript("OnShow", onShowCallback)
+  local function HideTooltip(self)
+    _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
+  end
 
-  -- load initial state
+  -- Add tooltip to the main frame
+  sliderFrame:SetScript("OnEnter", ShowTooltip)
+  sliderFrame:SetScript("OnLeave", HideTooltip)
+
+  -- Add tooltip to all child regions (slider bar, buttons, etc.)
+  for _, child in pairs({sliderFrame:GetChildren()}) do
+    if child:IsObjectType("Slider") or child:IsObjectType("Button") then
+      child:SetScript("OnEnter", ShowTooltip)
+      child:SetScript("OnLeave", HideTooltip)
+    end
+  end
+
+  -- Also check regions (textures, fontstrings)
+  for _, region in pairs({sliderFrame:GetRegions()}) do
+    if region:IsObjectType("Texture") and region:IsMouseEnabled() then
+      region:SetScript("OnEnter", ShowTooltip)
+      region:SetScript("OnLeave", HideTooltip)
+    end
+  end
+
+  -- Call onShow callback
   onShowCallback(sliderFrame)
-  
-  mod.logger.LogInfo(me.tag, "Using fallback UISliderTemplateWithLabels for " .. sliderName)
 end
 
 --[[
@@ -340,7 +292,7 @@ EnergyBarWidthSliderOnShow = function(self)
     -- Modern slider - value is already set during Init
     return
   end
-  
+
   -- Old slider
   self:SetValue(mod.configuration.GetEnergyBarWidth())
   if self.valueFontString then
@@ -359,7 +311,7 @@ EnergyBarWidthSliderOnValueChanged = function(self, value)
   if self.valueFontString then
     self.valueFontString:SetText(value)
   end
-  
+
   mod.configuration.SetEnergyBarWidth(value)
   mod.energyBar.UpdateEnergyBarSize()
 end
@@ -375,7 +327,7 @@ EnergyBarHeightSliderOnShow = function(self)
     -- Modern slider - value is already set during Init
     return
   end
-  
+
   -- Old slider
   self:SetValue(mod.configuration.GetEnergyBarHeight())
   if self.valueFontString then
@@ -394,7 +346,7 @@ EnergyBarHeightSliderOnValueChanged = function(self, value)
   if self.valueFontString then
     self.valueFontString:SetText(value)
   end
-  
+
   mod.configuration.SetEnergyBarHeight(value)
   mod.energyBar.UpdateEnergyBarSize()
 end

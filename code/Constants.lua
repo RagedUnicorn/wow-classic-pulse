@@ -71,12 +71,12 @@ RGP_CONSTANTS = {
     General
   ]]--
   ELEMENT_GENERAL_SUB_OPTION_FRAME = "P_GeneralMenuOptionsFrame",
-  ELEMENT_GENERAL_CHECK_OPTION_SIZE = 32,
+  ELEMENT_GENERAL_CHECK_OPTION_SIZE = 24,
   ELEMENT_GENERAL_OPT = "P_Opt",
   ELEMENT_GENERAL_FRAME = "P_GeneralFrame",
   ELEMENT_GENERAL_TITLE = "P_GeneralTitle",
   ELEMENT_GENERAL_OPT_WINDOW_LOCK_ENERGY_BAR = "P_OptWindowLockEnergyBar",
-  
+
   --[[
     Energy Bar Size Configuration
   ]]--
