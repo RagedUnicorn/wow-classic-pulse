@@ -41,12 +41,18 @@ end
 --[[
   @param {string} line1
   @param {string} line2
+  @param {table} frame - optional frame to anchor tooltip to
 ]]--
-function me.BuildTooltipForOption(line1, line2)
+function me.BuildTooltipForOption(line1, line2, frame)
   local tooltip = _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]
 
-  tooltip:SetOwner(UIParent)
-  GameTooltip_SetDefaultAnchor(tooltip, UIParent)
+  if frame then
+    tooltip:SetOwner(frame, "ANCHOR_RIGHT")
+  else
+    tooltip:SetOwner(UIParent)
+    GameTooltip_SetDefaultAnchor(tooltip, UIParent)
+  end
+  
   tooltip:AddLine(line1)
   tooltip:AddLine(line2, .8, .8, .8, 1)
 

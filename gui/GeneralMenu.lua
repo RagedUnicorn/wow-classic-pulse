@@ -173,7 +173,7 @@ OptTooltipOnEnter = function(self)
 
   for i = 1, #options do
     if name == RGP_CONSTANTS.ELEMENT_GENERAL_OPT .. options[i][1] then
-      mod.tooltip.BuildTooltipForOption(options[i][2], options[i][3])
+      mod.tooltip.BuildTooltipForOption(options[i][2], options[i][3], self)
       break
     end
   end
@@ -232,6 +232,64 @@ end
 CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
     sliderTitle, sliderTooltip, onShowCallback, OnValueChangedCallback)
 
+  -- Test if modern template and Settings API are available
+  if Settings and Settings.CreateSliderOptions and MinimalSliderWithSteppersMixin then
+    -- Modern slider implementation
+    local options = Settings.CreateSliderOptions(sliderMinValue, sliderMaxValue, RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP)
+    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
+    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function(value) return sliderMaxValue end)
+    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function(value) return sliderMinValue end)
+    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function(value) return sliderTitle end)
+    
+    local sliderFrame = CreateFrame("Frame", sliderName, parentFrame, "MinimalSliderWithSteppersTemplate")
+    sliderFrame:SetWidth(250)
+    sliderFrame:SetPoint(unpack(position))
+    sliderFrame:Init(defaultValue, options.minValue, options.maxValue, options.steps, options.formatters)
+    sliderFrame:RegisterCallback("OnValueChanged", OnValueChangedCallback, sliderFrame)
+    
+    -- Store callbacks for compatibility
+    sliderFrame.onShowCallback = onShowCallback
+    sliderFrame.tooltipText = sliderTooltip
+    
+    -- Add tooltip support for modern sliders - need to add to child elements
+    local function ShowTooltip(self)
+      if sliderFrame.tooltipText then
+        mod.tooltip.BuildTooltipForOption(sliderTitle, sliderFrame.tooltipText, sliderFrame)
+      end
+    end
+    
+    local function HideTooltip(self)
+      _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
+    end
+    
+    -- Add tooltip to the main frame
+    sliderFrame:SetScript("OnEnter", ShowTooltip)
+    sliderFrame:SetScript("OnLeave", HideTooltip)
+    
+    -- Add tooltip to all child regions (slider bar, buttons, etc.)
+    for _, child in pairs({sliderFrame:GetChildren()}) do
+      if child:IsObjectType("Slider") or child:IsObjectType("Button") then
+        child:SetScript("OnEnter", ShowTooltip)
+        child:SetScript("OnLeave", HideTooltip)
+      end
+    end
+    
+    -- Also check regions (textures, fontstrings)
+    for _, region in pairs({sliderFrame:GetRegions()}) do
+      if region:IsObjectType("Texture") and region:IsMouseEnabled() then
+        region:SetScript("OnEnter", ShowTooltip)
+        region:SetScript("OnLeave", HideTooltip)
+      end
+    end
+    
+    -- Call onShow callback
+    onShowCallback(sliderFrame)
+    
+    mod.logger.LogInfo(me.tag, "Using modern MinimalSliderWithSteppersTemplate for " .. sliderName)
+    return
+  end
+
+  -- Fallback to old template if modern one isn't available
   local sliderFrame = CreateFrame(
     "Slider",
     sliderName,
@@ -267,6 +325,8 @@ CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, s
 
   -- load initial state
   onShowCallback(sliderFrame)
+  
+  mod.logger.LogInfo(me.tag, "Using fallback UISliderTemplateWithLabels for " .. sliderName)
 end
 
 --[[
@@ -275,8 +335,17 @@ end
   @param {table} self
 ]]--
 EnergyBarWidthSliderOnShow = function(self)
+  -- Check if this is a modern slider
+  if self.Init then
+    -- Modern slider - value is already set during Init
+    return
+  end
+  
+  -- Old slider
   self:SetValue(mod.configuration.GetEnergyBarWidth())
-  self.valueFontString:SetText(self:GetValue())
+  if self.valueFontString then
+    self.valueFontString:SetText(self:GetValue())
+  end
 end
 
 --[[
@@ -286,7 +355,11 @@ end
   @param {number} value
 ]]--
 EnergyBarWidthSliderOnValueChanged = function(self, value)
-  self.valueFontString:SetText(value)
+  -- Update value display for old sliders
+  if self.valueFontString then
+    self.valueFontString:SetText(value)
+  end
+  
   mod.configuration.SetEnergyBarWidth(value)
   mod.energyBar.UpdateEnergyBarSize()
 end
@@ -297,8 +370,17 @@ end
   @param {table} self
 ]]--
 EnergyBarHeightSliderOnShow = function(self)
+  -- Check if this is a modern slider
+  if self.Init then
+    -- Modern slider - value is already set during Init
+    return
+  end
+  
+  -- Old slider
   self:SetValue(mod.configuration.GetEnergyBarHeight())
-  self.valueFontString:SetText(self:GetValue())
+  if self.valueFontString then
+    self.valueFontString:SetText(self:GetValue())
+  end
 end
 
 --[[
@@ -308,7 +390,11 @@ end
   @param {number} value
 ]]--
 EnergyBarHeightSliderOnValueChanged = function(self, value)
-  self.valueFontString:SetText(value)
+  -- Update value display for old sliders
+  if self.valueFontString then
+    self.valueFontString:SetText(value)
+  end
+  
   mod.configuration.SetEnergyBarHeight(value)
   mod.energyBar.UpdateEnergyBarSize()
 end
