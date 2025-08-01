@@ -52,7 +52,7 @@ function me.BuildTooltipForOption(line1, line2, frame)
     tooltip:SetOwner(UIParent)
     GameTooltip_SetDefaultAnchor(tooltip, UIParent)
   end
-  
+
   tooltip:AddLine(line1)
   tooltip:AddLine(line2, .8, .8, .8, 1)
 

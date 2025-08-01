@@ -96,7 +96,12 @@ end
   @param {table} frame
 ]]--
 CreateStatusBarFrame = function(frame)
-  local energyStatusBar = CreateFrame("StatusBar", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR, frame, "BackdropTemplate")
+  local energyStatusBar = CreateFrame(
+    "StatusBar",
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR,
+    frame,
+    "BackdropTemplate"
+  )
   energyStatusBar:SetPoint("CENTER", frame, 0, 0)
   energyStatusBar:SetWidth(mod.configuration.GetEnergyBarWidth() - 4)
   energyStatusBar:SetHeight(mod.configuration.GetEnergyBarHeight() - 4)
@@ -107,7 +112,7 @@ CreateStatusBarFrame = function(frame)
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MIN,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MAX
   )
-  
+
   energyStatusBar:SetBackdrop({
     bgFile = "",
     edgeFile = "",
@@ -203,15 +208,15 @@ end
 ]]--
 function me.UpdateEnergyBarSize()
   if not energyBarFrame then return end
-  
+
   local width = mod.configuration.GetEnergyBarWidth()
   local height = mod.configuration.GetEnergyBarHeight()
-  
+
   energyBarFrame:SetWidth(width)
   energyBarFrame:SetHeight(height)
-  
+
   energyBarFrame.energyStatusBar:SetWidth(width - 4)
   energyBarFrame.energyStatusBar:SetHeight(height - 4)
-  
+
   energyBarFrame.energyAmount:SetSize(width, height)
 end

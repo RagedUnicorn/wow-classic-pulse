@@ -22,7 +22,7 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT MinimalSliderWithSteppersMixin Settings
 
 local mod = rgp
 local me = {}
@@ -31,10 +31,21 @@ mod.generalMenu = me
 me.tag = "GeneralMenu"
 
 --[[
-  Option texts for checkbutton options
+  Option texts for UI elements
 ]]--
 local options = {
-  {"WindowLockEnergyBar", rgp.L["window_lock_energy_bar"], rgp.L["window_lock_energy_bar_tooltip"]}
+  WindowLockEnergyBar = {
+    label = rgp.L["window_lock_energy_bar"],
+    tooltip = rgp.L["window_lock_energy_bar_tooltip"]
+  },
+  EnergyBarWidth = {
+    label = rgp.L["energy_bar_width"],
+    tooltip = rgp.L["energy_bar_width_tooltip"]
+  },
+  EnergyBarHeight = {
+    label = rgp.L["energy_bar_height"],
+    tooltip = rgp.L["energy_bar_height_tooltip"]
+  }
 }
 
 -- track whether the menu was already built
@@ -80,8 +91,12 @@ function me.BuildUi(frame)
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_WIDTH,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_WIDTH,
     mod.configuration.GetEnergyBarWidth(),
-    rgp.L["energy_bar_width"],
-    rgp.L["energy_bar_width_tooltip"]
+    options.EnergyBarWidth.label,
+    options.EnergyBarWidth.tooltip,
+    function(value)
+      mod.configuration.SetEnergyBarWidth(value)
+      mod.energyBar.UpdateEnergyBarSize()
+    end
   )
 
   CreateSizeSlider(
@@ -91,8 +106,12 @@ function me.BuildUi(frame)
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_HEIGHT,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_HEIGHT,
     mod.configuration.GetEnergyBarHeight(),
-    rgp.L["energy_bar_height"],
-    rgp.L["energy_bar_height_tooltip"]
+    options.EnergyBarHeight.label,
+    options.EnergyBarHeight.tooltip,
+    function(value)
+      mod.configuration.SetEnergyBarHeight(value)
+      mod.energyBar.UpdateEnergyBarSize()
+    end
   )
 
   builtMenu = true
@@ -144,9 +163,9 @@ GetLabelText = function(frame)
 
   if not name then return end
 
-  for i = 1, #options do
-    if name == RGP_CONSTANTS.ELEMENT_GENERAL_OPT .. options[i][1] then
-      return options[i][2]
+  for optionKey, optionData in pairs(options) do
+    if name == RGP_CONSTANTS.ELEMENT_GENERAL_OPT .. optionKey then
+      return optionData.label
     end
   end
 end
@@ -161,9 +180,9 @@ OptTooltipOnEnter = function(self)
 
   if not name then return end
 
-  for i = 1, #options do
-    if name == RGP_CONSTANTS.ELEMENT_GENERAL_OPT .. options[i][1] then
-      mod.tooltip.BuildTooltipForOption(options[i][2], options[i][3], self)
+  for optionKey, optionData in pairs(options) do
+    if name == RGP_CONSTANTS.ELEMENT_GENERAL_OPT .. optionKey then
+      mod.tooltip.BuildTooltipForOption(optionData.label, optionData.tooltip, self)
       break
     end
   end
@@ -216,31 +235,44 @@ end
   @param {number} defaultValue
   @param {string} sliderTitle
   @param {string} sliderTooltip
+  @param {function} onValueChangedCallback
 ]]--
 CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
-    sliderTitle, sliderTooltip)
+    sliderTitle, sliderTooltip, onValueChangedCallback)
 
-  local options = Settings.CreateSliderOptions(sliderMinValue, sliderMaxValue, RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP)
-  options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
-  options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function(value) return sliderMaxValue end)
-  options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function(value) return sliderMinValue end)
-  options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function(value) return sliderTitle end)
+  local sliderOptions = Settings.CreateSliderOptions(
+    sliderMinValue,
+    sliderMaxValue,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP
+  )
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function() return sliderMaxValue end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function() return sliderMinValue end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function() return sliderTitle end)
 
   local sliderFrame = CreateFrame("Frame", sliderName, parentFrame, "MinimalSliderWithSteppersTemplate")
   sliderFrame:SetWidth(250)
   sliderFrame:SetPoint(unpack(position))
-  sliderFrame:Init(defaultValue, options.minValue, options.maxValue, options.steps, options.formatters)
-
-  sliderFrame.onShowCallback = onShowCallback
+  sliderFrame:Init(
+    defaultValue,
+    sliderOptions.minValue,
+    sliderOptions.maxValue,
+    sliderOptions.steps,
+    sliderOptions.formatters
+  )
   sliderFrame.tooltipText = sliderTooltip
 
-  local function ShowTooltip(self)
+  if onValueChangedCallback then
+    sliderFrame:RegisterCallback("OnValueChanged", onValueChangedCallback, sliderFrame)
+  end
+
+  local function ShowTooltip()
     if sliderFrame.tooltipText then
       mod.tooltip.BuildTooltipForOption(sliderTitle, sliderFrame.tooltipText, sliderFrame)
     end
   end
 
-  local function HideTooltip(self)
+  local function HideTooltip()
     _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
   end
 

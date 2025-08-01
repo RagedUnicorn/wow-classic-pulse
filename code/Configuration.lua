@@ -40,7 +40,7 @@ PulseConfiguration = {
     Whether the energyBar is locked from moving or not
   ]]--
   ["lockEnergyBar"] = false,
-  
+
   --[[
     Energy bar dimensions
   ]]--
@@ -75,12 +75,12 @@ function me.SetupConfiguration()
     mod.logger.LogInfo(me.tag, "frames has unexpected nil value")
     PulseConfiguration.frames = {}
   end
-  
+
   if PulseConfiguration.energyBarWidth == nil then
     mod.logger.LogInfo(me.tag, "energyBarWidth has unexpected nil value")
     PulseConfiguration.energyBarWidth = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH
   end
-  
+
   if PulseConfiguration.energyBarHeight == nil then
     mod.logger.LogInfo(me.tag, "energyBarHeight has unexpected nil value")
     PulseConfiguration.energyBarHeight = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT
@@ -176,7 +176,7 @@ end
 
 --[[
   Set the energy bar width
-  
+
   @param {number} width
 ]]--
 function me.SetEnergyBarWidth(width)
@@ -185,7 +185,7 @@ end
 
 --[[
   Get the energy bar width
-  
+
   @return {number}
 ]]--
 function me.GetEnergyBarWidth()
@@ -194,7 +194,7 @@ end
 
 --[[
   Set the energy bar height
-  
+
   @param {number} height
 ]]--
 function me.SetEnergyBarHeight(height)
@@ -203,7 +203,7 @@ end
 
 --[[
   Get the energy bar height
-  
+
   @return {number}
 ]]--
 function me.GetEnergyBarHeight()
