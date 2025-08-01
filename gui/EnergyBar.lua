@@ -55,10 +55,14 @@ function me.BuildUi()
   energyBarFrame:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH)
   energyBarFrame:SetHeight(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT)
   energyBarFrame:SetBackdrop({
-    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"
+    bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+    edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
+    tile = false,
+    edgeSize = 2,
+    insets = { left = -2, right = -2, top = -2, bottom = -2 }
   })
-  energyBarFrame:SetBackdropColor(0, 0, 0, .5)
-  energyBarFrame:SetBackdropBorderColor(0, 0, 0, .8)
+  energyBarFrame:SetBackdropColor(0, 0, 0, 0)
+  energyBarFrame:SetBackdropBorderColor(0, 0, 0, 1)
   energyBarFrame:SetPoint("CENTER", 0, 0)
   energyBarFrame:SetMovable(true)
   energyBarFrame:SetClampedToScreen(true)
@@ -92,17 +96,25 @@ end
   @param {table} frame
 ]]--
 CreateStatusBarFrame = function(frame)
-  local energyStatusBar = CreateFrame("StatusBar", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR, frame)
+  local energyStatusBar = CreateFrame("StatusBar", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR, frame, "BackdropTemplate")
   energyStatusBar:SetPoint("CENTER", frame, 0, 0)
   energyStatusBar:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH)
   energyStatusBar:SetHeight(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT)
   energyStatusBar:SetStatusBarTexture("Interface\\AddOns\\Pulse\\assets\\ui_statusbar")
-  energyStatusBar:SetStatusBarColor(0, 1, 0.68, 1)
+  energyStatusBar:SetStatusBarColor(1, 0.95, 0, 1)
   energyStatusBar:SetFrameLevel(energyStatusBar:GetFrameLevel() - 1)
   energyStatusBar:SetMinMaxValues(
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MIN,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MAX
   )
+  
+  energyStatusBar:SetBackdrop({
+    bgFile = "",
+    edgeFile = "",
+    tile = false,
+    edgeSize = 0,
+    insets = { left = 0, right = 0, top = 0, bottom = 0 }
+  })
 
   return energyStatusBar
 end
@@ -112,8 +124,8 @@ end
 ]]--
 CreateEnergyAmountFontString = function(frame)
   local energyAmountFontString = frame:CreateFontString(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT, "OVERLAY")
-  energyAmountFontString:SetFont(STANDARD_TEXT_FONT, 14)
-  energyAmountFontString:SetPoint("LEFT", 5, 0)
+  energyAmountFontString:SetFont(STANDARD_TEXT_FONT, 16, "OUTLINE")
+  energyAmountFontString:SetPoint("CENTER", 0, 0)
   energyAmountFontString:SetSize(
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT_WIDTH,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT_HEIGHT
