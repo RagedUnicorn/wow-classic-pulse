@@ -96,7 +96,7 @@ function me.BuildUi(frame)
     mod.configuration.GetEnergyBarWidth(),
     options.EnergyBarWidth.label,
     options.EnergyBarWidth.tooltip,
-    function(owner, value)
+    function(_, value)
       mod.configuration.SetEnergyBarWidth(value)
       mod.energyBar.UpdateEnergyBarSize()
     end
@@ -111,7 +111,7 @@ function me.BuildUi(frame)
     mod.configuration.GetEnergyBarHeight(),
     options.EnergyBarHeight.label,
     options.EnergyBarHeight.tooltip,
-    function(owner, value)
+    function(_, value)
       mod.configuration.SetEnergyBarHeight(value)
       mod.energyBar.UpdateEnergyBarSize()
     end
