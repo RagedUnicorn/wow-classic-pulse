@@ -15,12 +15,12 @@
     <addon.displayName>pulse</addon.displayName>
     <addon.curseforge.projectId>339160</addon.curseforge.projectId>
     <!-- renovate: datasource=custom.wow-game-versions depName=wow-gameversion versioning=loose -->
-    <addon.curseforge.gameVersion>12919</addon.curseforge.gameVersion>
+    <addon.curseforge.gameVersion>14029</addon.curseforge.gameVersion>
     <addon.wago.projectId>LvNAj96o</addon.wago.projectId>
     <addon.name.short>P</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
     <!-- renovate: datasource=custom.wow-versions depName=wow-interface versioning=loose -->
-    <addon.interface>11507</addon.interface>
+    <addon.interface>11508</addon.interface>
     <!-- renovate: datasource=custom.wow-patch-versions depName=wow-patch versioning=loose -->
     <addon.supported.patch>1.15.8</addon.supported.patch>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
