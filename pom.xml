@@ -22,7 +22,7 @@
     <!-- renovate: datasource=custom.wow-versions depName=wow-interface versioning=loose -->
     <addon.interface>11507</addon.interface>
     <!-- renovate: datasource=custom.wow-patch-versions depName=wow-patch versioning=loose -->
-    <addon.supported.patch>1.15.7</addon.supported.patch>
+    <addon.supported.patch>1.15.8</addon.supported.patch>
     <addon.identifier>${project.groupId}.${project.artifactId}</addon.identifier>
     <addon.project.categories>PVP Combat</addon.project.categories>
   </properties>
