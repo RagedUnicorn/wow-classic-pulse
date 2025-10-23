@@ -1,9 +1,9 @@
 # THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
-## Interface: 11507
+## Interface: 11508
 ## Title: Pulse
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Watch Tickrate for drinking, energy regen and similar
-## Version: v1.1.0
+## Version: v1.1.1
 ## SavedVariablesPerCharacter: PulseConfiguration
 
 # constant values
