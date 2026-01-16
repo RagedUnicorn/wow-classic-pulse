@@ -17,6 +17,7 @@ code/Environment.lua
 # localization
 localization/enUS.lua
 localization/deDE.lua
+localization/ruRU.lua
 
 code/Core.lua
 code/Logger.lua
