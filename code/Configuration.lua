@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetAddOnMetadata
+-- luacheck: globals C_AddOns
 
 local mod = rgp
 local me = {}
@@ -100,12 +100,12 @@ end
 SetAddonVersion = function()
   -- if no version set so far make sure to set the current one
   if PulseConfiguration.addonVersion == nil then
-    PulseConfiguration.addonVersion = GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
+    PulseConfiguration.addonVersion = C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
   end
 
   -- me.MigrationPath()
   -- migration done update addon version to current
-  PulseConfiguration.addonVersion = GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
+  PulseConfiguration.addonVersion = C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
 end
 
 --[[

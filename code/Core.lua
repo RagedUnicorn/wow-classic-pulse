@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals GetAddOnMetadata
+-- luacheck: globals C_AddOns
 
 rgp = rgp or {}
 local me = rgp
@@ -98,6 +98,6 @@ end
 ShowWelcomeMessage = function()
   print(
     string.format("|cFF00FFB0" .. RGP_CONSTANTS.ADDON_NAME .. rgp.L["help"],
-    GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version"))
+    C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version"))
   )
 end

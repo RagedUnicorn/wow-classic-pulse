@@ -1,5 +1,4 @@
-
--- luacheck: globals GetLocale GetAddOnMetadata
+-- luacheck: globals GetLocale C_AddOns
 
 if (GetLocale() == "deDE") then
   rgp = rgp or {}
@@ -18,7 +17,7 @@ if (GetLocale() == "deDE") then
   -- about tab
   rgp.L["author"] = "Autor: Michael Wiesendanger"
   rgp.L["email"] = "E-Mail: michael.wiesendanger@gmail.com"
-  rgp.L["version"] = "Version: " .. GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
+  rgp.L["version"] = "Version: " .. C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
   rgp.L["issues"] = "Probleme: https://github.com/RagedUnicorn/wow-classic-pulse/issues"
 
   -- general
