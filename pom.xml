@@ -147,7 +147,7 @@
                 <configuration>
                   <game>wow</game>
                   <projectId>${addon.curseforge.projectId}</projectId>
-                  <displayName>${addon.displayName}-${addon.tag.version}-classic.zip</displayName>
+                  <displayName>${addon.displayName}-${addon.tag.version}.zip</displayName>
                   <changelogFile>${project.basedir}/build-resources/release-notes.md</changelogFile>
                   <changelogType>markdown</changelogType>
                   <gameVersions>
@@ -191,7 +191,7 @@
                 </goals>
                 <configuration>
                   <projectId>${addon.wago.projectId}</projectId>
-                  <label>${addon.displayName}-${addon.tag.version}-classic.zip</label>
+                  <label>${addon.displayName}-${addon.tag.version}.zip</label>
                   <changelogFile>${project.basedir}/build-resources/release-notes.md</changelogFile>
                   <supportedClassicPatch>${addon.supported.patch.classic}</supportedClassicPatch>
                   <supportedBccPatch>${addon.supported.patch.bcc}</supportedBccPatch>
