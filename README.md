@@ -4,7 +4,8 @@
 
 > Pulse aims to give a visual interpretation of when the next resources tick happens. This can be used by multiple classes but the most prominent one might be rogue and his energy regeneration.
 
-![](docs/wow_badge.svg)
+![](docs/wow_badge_classic.svg)
+![](docs/wow_badge_tbc.svg)
 ![](docs/license_mit.svg)
 ![Lint](https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/lint.yaml/badge.svg?branch=master)
 
@@ -15,9 +16,9 @@
 
 **WoW Burning Crusade Classic Support**
 
-> This Addon supports WoW Burning Crusade Classic see - [bcc-Pulse](https://github.com/RagedUnicorn/wow-bcc-pulse/)
+> This Addon supports WoW Burning Crusade Anniversary
 
-<a href="https://github.com/RagedUnicorn/wow-bcc-pulse/"><img src="/docs/the_burning_crusade_logo.png" width="40%"></img></a>
+<img src="/docs/the_burning_crusade_anniversary_logo.png" width="40%"></img>
 
 ## Installation
 
