@@ -1,10 +1,10 @@
-# THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
 ## Interface: 11508, 20506
 ## Title: Pulse
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Watch Tickrate for drinking, energy regen and similar
 ## Version: v1.2.0
 ## SavedVariablesPerCharacter: PulseConfiguration
+# THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
 
 # constant values
 code/Constants.lua
