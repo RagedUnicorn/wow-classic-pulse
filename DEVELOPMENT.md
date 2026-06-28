@@ -153,16 +153,37 @@ This will:
   - Lua 5.1 standard for compatibility
   - Excluded directories (e.g., `target/`)
 
+### Running Busted
+
+The project includes a Docker Compose configuration for running [Busted](https://github.com/lunarmodules/busted), a unit testing framework for Lua. The headless specs live under `test/headless/spec` and validate logic that does not depend on the WoW runtime.
+
+**To run the test suite:**
+
+```bash
+docker compose run --rm busted
+```
+
+This runs the busted specs in `test/headless/spec` and prints the results to the console.
+
+**To generate a JUnit report:**
+
+```bash
+docker compose run --rm busted-report
+```
+
+This writes a JUnit XML report to `target/busted-junit.xml`.
+
 ## Testing
 
 Before committing changes:
 
 1. Run Luacheck to ensure code quality: `docker compose up`
-2. Test in development mode
-3. Switch to release mode and test again
-4. Verify no debug logs appear in release mode
-5. Test with `/reload` to ensure saved variables work correctly
-6. Test the main functionality (energy tick tracking)
+2. Run the busted test suite: `docker compose run --rm busted`
+3. Test in development mode
+4. Switch to release mode and test again
+5. Verify no debug logs appear in release mode
+6. Test with `/reload` to ensure saved variables work correctly
+7. Test the main functionality (energy tick tracking)
 
 ## Build and Package
 

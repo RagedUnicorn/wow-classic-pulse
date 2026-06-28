@@ -8,6 +8,7 @@
 ![](docs/wow_badge_tbc.svg)
 ![](docs/license_mit.svg)
 ![Lint](https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/lint.yaml/badge.svg?branch=master)
+![Test](https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/test.yaml/badge.svg?branch=master)
 
 ## Providers
 
