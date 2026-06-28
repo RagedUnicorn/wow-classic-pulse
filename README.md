@@ -15,12 +15,6 @@
 [![](docs/curseforge.svg)](https://www.curseforge.com/wow/addons/pulse)
 [![](docs/wago.svg)](https://addons.wago.io/addons/pulse)
 
-**WoW Burning Crusade Classic Support**
-
-> This Addon supports WoW Burning Crusade Anniversary
-
-<img src="/docs/the_burning_crusade_anniversary_logo.png" width="40%"></img>
-
 ## Installation
 
 WoW-Addons are installed directly into your WoW directory:
