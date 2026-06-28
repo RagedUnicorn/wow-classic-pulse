@@ -1,3 +1,11 @@
+# Pulse Docker Services
+#
+# Usage:
+#   docker compose run --rm luacheck                    # Run lua linting
+#   docker compose run --rm luacheck-report             # Generate lua lint report
+#   docker compose run --rm busted                      # Run busted unit tests
+#   docker compose run --rm busted-report               # Generate busted test report
+
 services:
   luacheck:
     image: ragedunicorn/luacheck:1.2.0-alpine3.24.1-1
@@ -19,5 +27,15 @@ services:
     image: ragedunicorn/busted:2.3.0-alpine3.24.1-1
     container_name: pulse-busted
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     working_dir: /workspace
+    command: ["test/headless/spec"]
+  busted-report:
+    image: ragedunicorn/busted:2.3.0-alpine3.24.1-1
+    container_name: pulse-busted-report
+    volumes:
+      - ./:/workspace:ro
+      - ./target:/reports
+    working_dir: /workspace
+    entrypoint: /bin/sh
+    command: ["-c", "busted --output=junit test/headless/spec > /reports/busted-junit.xml"]
