@@ -59,7 +59,13 @@ PulseConfiguration = {
       ...
     }
   ]]--
-  ["frames"] = {}
+  ["frames"] = {},
+
+  --[[
+    Named configuration profiles keyed by the user given name. Each entry is a
+    snapshot of the configurable fields (see code/Profile.lua me.PROFILE_FIELDS)
+  ]]--
+  ["profiles"] = {}
 }
 
 --[[
@@ -74,6 +80,11 @@ function me.SetupConfiguration()
   if PulseConfiguration.frames == nil then
     mod.logger.LogInfo(me.tag, "frames has unexpected nil value")
     PulseConfiguration.frames = {}
+  end
+
+  if PulseConfiguration.profiles == nil then
+    mod.logger.LogInfo(me.tag, "profiles has unexpected nil value")
+    PulseConfiguration.profiles = {}
   end
 
   if PulseConfiguration.energyBarWidth == nil then

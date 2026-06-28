@@ -22,6 +22,9 @@ code/Filter.lua
 code/Ticker.lua
 code/Cmd.lua
 code/Configuration.lua
+code/Serializer.lua
+code/Encoder.lua
+code/Profile.lua
 code/Tooltip.lua
 
 # gui
@@ -30,3 +33,4 @@ gui/EnergyBar.lua
 gui/AddonConfiguration.lua
 gui/AboutContent.lua
 gui/GeneralMenu.lua
+gui/ProfileMenu.lua

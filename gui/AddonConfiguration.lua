@@ -56,6 +56,13 @@ function me.SetupAddonConfiguration()
     rgp.L["general_category_name"],
     mod.generalMenu.BuildUi
   )
+
+  BuildCategory(
+    RGP_CONSTANTS.ELEMENT_PROFILE_SUB_OPTION_FRAME,
+    category,
+    rgp.L["profile_category_name"],
+    mod.profileMenu.BuildUi
+  )
 end
 
 --[[

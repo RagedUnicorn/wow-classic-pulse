@@ -15,3 +15,9 @@ services:
     working_dir: /workspace
     entrypoint: /bin/sh
     command: ["-c", "luacheck --formatter JUnit . > /reports/luacheck-junit.xml"]
+  busted:
+    image: ragedunicorn/busted:2.3.0-alpine3.24.1-1
+    container_name: pulse-busted
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace

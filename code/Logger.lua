@@ -142,3 +142,14 @@ end
 function me.PrintUserError(msg)
   UIErrorsFrame:AddMessage(msg, 1.0, 0.0, 0.0, 1.0, 53)
 end
+
+--[[
+  Display a user facing informational message in the default chat frame. Unlike
+  the Log* functions this is always shown - it is not gated by the log level or
+  tag filter - and is meant for direct feedback on a user action.
+
+  @param {string} msg
+]]--
+function me.PrintUserMessage(msg)
+  print(me.colors.info .. C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Title") .. ":|r " .. msg)
+end
