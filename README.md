@@ -59,6 +59,28 @@ Alternatively, you can use the slash command: `/pulse opt` or `/rgp opt`
 - **Energy Bar Width**: Adjust the width of the energy bar to fit your UI layout. Use the slider to increase or decrease the horizontal size.
 - **Energy Bar Height**: Adjust the height of the energy bar. Use the slider to increase or decrease the vertical size.
 
+### Profiles
+
+Pulse lets you save your configuration as named profiles, so you can switch between different setups or carry your settings to another character. Profiles are managed under the **Profiles** tab of the configuration interface.
+
+![](docs/pulse_profile_configuration.png)
+
+A profile captures all of your Pulse settings – the energy bar lock state, its width and height, and its on-screen position.
+
+- **Save current as...**: Snapshots your current settings into a new named profile (or overwrites an existing one of the same name).
+- **Apply**: Loads the selected profile and applies its settings.
+- **Rename**: Renames the selected profile.
+- **Delete**: Removes the selected profile.
+
+#### Sharing Profiles (Export / Import)
+
+Profiles can be shared as portable strings, making it easy to copy a setup between characters or hand it to another player.
+
+- **Export**: Generates a copy-pasteable profile string for the selected profile in the *Profile String* field.
+- **Import**: Paste a profile string into the field and import it as a new profile. Imported strings are validated, so an invalid, corrupted, or non-Pulse string is rejected without changing any of your settings.
+
+> Note: Profiles are stored per character. Use export/import to move a profile to another character.
+
 ## FAQ
 
 #### The Addon is not showing up in WoW. What can I do?
