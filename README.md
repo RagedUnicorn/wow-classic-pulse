@@ -2,7 +2,7 @@
 
 ![](docs/ragedunicorn_wow_banner.png)
 
-> Pulse aims to give a visual interpretation of when the next resources tick happens. This can be used by multiple classes but the most prominent one might be rogue and his energy regeneration.
+> Pulse aims to give a visual interpretation of when the next resources tick happens. This can be used by multiple classes, but the most prominent one might be rogue and his energy regeneration.
 
 ![](docs/wow_badge_classic.svg)
 ![](docs/wow_badge_tbc.svg)
