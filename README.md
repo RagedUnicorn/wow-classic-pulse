@@ -31,6 +31,8 @@ Make sure to get the newest version of the Addon from the releases tab:
 
 Pulse is a simple addon that tracks the energy-regen tickrate and the current amount of energy. The energybar will show once the player spent some energy.
 
+The bar keeps sweeping even while energy is full. This is intentional and one of the main use cases of the addon: it lets you time an attack right before the next energy tick. A rogue sitting at full energy in stealth, for example, can watch the bar and open just before a tick, so the first energy regenerates shortly after the opener.
+
 ![](docs/pulse_example.png)
 
 ## Configuration
