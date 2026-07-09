@@ -175,10 +175,15 @@ StopDragFrame = function(self)
 
   local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
 
+  --[[
+    GetPoint returns relativeTo as a region reference. Only its name (or nil for
+    anonymous regions) may be persisted - PulseConfiguration.frames is exported
+    via profiles and must stay serializable.
+  ]]--
   mod.configuration.SaveUserPlacedFramePosition(
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME,
     point,
-    relativeTo,
+    relativeTo and relativeTo:GetName() or nil,
     relativePoint,
     posX,
     posY

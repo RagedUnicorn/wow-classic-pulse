@@ -210,7 +210,9 @@ end
 
   @param {string} frameName
   @param {string} point
-  @param {string} relativeTo
+  @param {string | nil} relativeTo
+    the name of the region the frame is anchored to or nil if anchored to its
+    parent or an anonymous region
   @param {string} relativePoint
   @param {number} posX
   @param {number} posY
