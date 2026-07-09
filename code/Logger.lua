@@ -66,6 +66,21 @@ me.colors.info = "|cff18f3ff"   -- blue
 me.colors.debug = "|cff7413d9"  -- magenta
 me.colors.event = "|cff1cdb4f"  -- green
 
+local addonTitle
+
+--[[
+  Returns the addon title, fetched once and cached for the session
+
+  @return {string}
+]]--
+local GetAddonTitle = function()
+  if addonTitle == nil then
+    addonTitle = C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Title")
+  end
+
+  return addonTitle
+end
+
 --[[
   Writes string message to the default chat frame
 
@@ -79,7 +94,7 @@ local PrintLogMessage = function(levelColor, tag, message)
   end
 
   if not mod.filter.ShouldFilterTag(tag) then
-    print(levelColor .. C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Title") .. ":" .. tag .. " - " .. message)
+    print(levelColor .. GetAddonTitle() .. ":" .. tag .. " - " .. message)
   end
 end
 
@@ -88,8 +103,7 @@ end
   @param {string} message
 ]]--
 function me.LogDebug(tag, message)
-  if me.logLevel == me.debug then
-
+  if me.logLevel >= me.debug then
     PrintLogMessage(me.colors.debug, tag, message)
   end
 end
@@ -151,5 +165,5 @@ end
   @param {string} msg
 ]]--
 function me.PrintUserMessage(msg)
-  print(me.colors.info .. C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Title") .. ":|r " .. msg)
+  print(me.colors.info .. GetAddonTitle() .. ":|r " .. msg)
 end
