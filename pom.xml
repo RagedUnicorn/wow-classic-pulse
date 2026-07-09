@@ -10,7 +10,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <addon.author>Michael Wiesendanger &lt;michael.wiesendanger@gmail.com&gt;</addon.author>
-    <addon.description>Watch Tickrate for drinking, energy regen and similar</addon.description>
+    <addon.description>Visualize the player's energy regeneration tick</addon.description>
     <addon.name>Pulse</addon.name>
     <addon.displayName>pulse</addon.displayName>
     <addon.curseforge.projectId>339160</addon.curseforge.projectId>

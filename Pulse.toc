@@ -1,7 +1,7 @@
 ## Interface: 11508, 20506
 ## Title: Pulse
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
-## Notes: Watch Tickrate for drinking, energy regen and similar
+## Notes: Visualize the player's energy regeneration tick
 ## Version: v1.2.0
 ## SavedVariablesPerCharacter: PulseConfiguration
 # THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
