@@ -16,6 +16,11 @@
     * https://github.com/RagedUnicorn/wow-classic-pulse/actions/workflows/release_wago.yaml
 
 > Note: When updating the addon for a new WoW release the following properties have to be updated in `pom.xml`
-> * addon.curseforge.gameVersion
-> * addon.interface
-> * addon.supported.patch
+> * addon.curseforge.gameVersionClassic
+> * addon.curseforge.gameVersionTbcc
+> * addon.interface.classic
+> * addon.interface.tbcc
+> * addon.supported.patch.classic
+> * addon.supported.patch.tbcc
+>
+> `addon.interface` is derived from `addon.interface.classic` and `addon.interface.tbcc` and must not be edited directly.
