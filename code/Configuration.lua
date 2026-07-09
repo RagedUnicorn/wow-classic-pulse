@@ -34,6 +34,9 @@ me.tag = "Configuration"
 -- forward declarations for local functions
 local ApplyDefaults
 local SetAddonVersion
+local IsVersionBefore
+-- upgrade steps are forward-declared here as schema changes ship, e.g.:
+-- local UpgradeToV1_3_0
 
 PulseConfiguration = {}
 
@@ -117,14 +120,66 @@ end
   to run through migration paths.
 ]]--
 SetAddonVersion = function()
-  -- if no version set so far make sure to set the current one
-  if PulseConfiguration.addonVersion == nil then
-    PulseConfiguration.addonVersion = C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
-  end
-
-  -- me.MigrationPath()
+  me.MigrationPath()
   -- migration done update addon version to current
   PulseConfiguration.addonVersion = C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
+end
+
+--[[
+  Versioned upgrade steps run by MigrationPath in release order. Each entry maps the
+  version that introduced a schema change to the UpgradeToVx_y_z function migrating
+  older saved variables to it. When the first schema change ships, forward-declare
+  the step next to the other locals and append it here:
+
+    { version = "v1.3.0", upgrade = UpgradeToV1_3_0 }
+
+  Exposed on the module (instead of file-local) so the headless spec can inject a
+  step and exercise the dispatch mechanism.
+]]--
+me.migrationSteps = {}
+
+--[[
+  Run through all migration paths. A step runs only when the saved addonVersion is
+  older than the version the step migrates to; equal or newer saved versions skip it.
+  Fresh installs have no saved version yet and skip every step - their defaults are
+  already current.
+]]--
+function me.MigrationPath()
+  for _, step in ipairs(me.migrationSteps) do
+    if IsVersionBefore(PulseConfiguration.addonVersion, step.version) then
+      mod.logger.LogInfo(me.tag, "Running upgrade path from "
+        .. PulseConfiguration.addonVersion .. " to " .. step.version)
+      step.upgrade()
+    end
+  end
+end
+
+--[[
+  Semver-ish comparison of two version strings of the form "v1.2.0" (the leading "v"
+  is optional). Missing or unparseable versions are never considered older - there is
+  nothing to migrate.
+
+  @param {string | nil} version
+  @param {string} otherVersion
+  @return {boolean}
+    true - if version is older than otherVersion
+    false - otherwise
+]]--
+IsVersionBefore = function(version, otherVersion)
+  local major, minor, patch = string.match(version or "", "^v?(%d+)%.(%d+)%.(%d+)")
+  local otherMajor, otherMinor, otherPatch = string.match(otherVersion or "", "^v?(%d+)%.(%d+)%.(%d+)")
+
+  if major == nil or otherMajor == nil then return false end
+
+  if tonumber(major) ~= tonumber(otherMajor) then
+    return tonumber(major) < tonumber(otherMajor)
+  end
+
+  if tonumber(minor) ~= tonumber(otherMinor) then
+    return tonumber(minor) < tonumber(otherMinor)
+  end
+
+  return tonumber(patch) < tonumber(otherPatch)
 end
 
 --[[

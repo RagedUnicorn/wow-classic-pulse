@@ -29,8 +29,10 @@
   load/upgrade (fresh install = empty table gets everything, upgrade = only missing keys). The module
   owns the PulseConfiguration global and rgp.configuration; both are re-created by re-dofiling
   code/Configuration.lua in before_each (per the bootstrap module-state convention). SetAddonVersion
-  reads C_AddOns.GetAddOnMetadata, stubbed via WowStubs to return a fixed version string (and a
-  Title, which the logger prints). SetupConfiguration logs through rgp.logger, whose PrintLogMessage
+  runs MigrationPath (dispatching the version-keyed steps in me.migrationSteps - empty in production
+  until the first schema change ships, injected here to prove the mechanism) before stamping
+  addonVersion from C_AddOns.GetAddOnMetadata, stubbed via WowStubs to return a fixed version string
+  (and a Title, which the logger prints). SetupConfiguration logs through rgp.logger, whose PrintLogMessage
   consults rgp.filter -- loaded here in TOC order (Filter precedes Configuration in Pulse.toc) so the
   real logging path is satisfied. The logger's level is then dropped below `error` to keep the chat
   prints out of the test output (the bootstrap shims LOG_LEVEL = 4 / debug).
@@ -133,6 +135,84 @@ describe("Configuration", function()
 
       assert.is_true(rawequal(reference, PulseConfiguration))
       assert.are.same({}, reference.frames)
+    end)
+  end)
+
+  describe("MigrationPath", function()
+    it("runs an injected step when the saved version is older, before stamping the current one", function()
+      PulseConfiguration.addonVersion = "v1.0.0"
+
+      local versionSeenByStep
+      table.insert(configuration.migrationSteps, {
+        version = "v1.2.0",
+        upgrade = function()
+          versionSeenByStep = PulseConfiguration.addonVersion
+        end
+      })
+
+      configuration.SetupConfiguration()
+
+      -- the step ran while the saved version was still the old one ...
+      assert.are.equal("v1.0.0", versionSeenByStep)
+      -- ... and only afterwards was the version stamped to current (the stubbed metadata)
+      assert.are.equal("1.2.3", PulseConfiguration.addonVersion)
+    end)
+
+    it("skips a step whose version equals the saved version", function()
+      PulseConfiguration.addonVersion = "v1.2.0"
+
+      local stepRan = false
+      table.insert(configuration.migrationSteps, {
+        version = "v1.2.0",
+        upgrade = function() stepRan = true end
+      })
+
+      configuration.SetupConfiguration()
+
+      assert.is_false(stepRan)
+      assert.are.equal("1.2.3", PulseConfiguration.addonVersion)
+    end)
+
+    it("skips a step whose version is older than the saved version", function()
+      PulseConfiguration.addonVersion = "v1.3.0"
+
+      local stepRan = false
+      table.insert(configuration.migrationSteps, {
+        version = "v1.2.0",
+        upgrade = function() stepRan = true end
+      })
+
+      configuration.SetupConfiguration()
+
+      assert.is_false(stepRan)
+      assert.are.equal("1.2.3", PulseConfiguration.addonVersion)
+    end)
+
+    it("skips every step on a fresh install without a saved version", function()
+      local stepRan = false
+      table.insert(configuration.migrationSteps, {
+        version = "v99.0.0",
+        upgrade = function() stepRan = true end
+      })
+
+      configuration.SetupConfiguration()
+
+      assert.is_false(stepRan)
+      assert.are.equal("1.2.3", PulseConfiguration.addonVersion)
+    end)
+
+    it("compares versions numerically, not lexically", function()
+      PulseConfiguration.addonVersion = "v1.9.0"
+
+      local stepRan = false
+      table.insert(configuration.migrationSteps, {
+        version = "v1.10.0",
+        upgrade = function() stepRan = true end
+      })
+
+      configuration.SetupConfiguration()
+
+      assert.is_true(stepRan)
     end)
   end)
 
