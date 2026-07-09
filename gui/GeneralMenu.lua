@@ -319,7 +319,7 @@ CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, s
   local sliderOptions = CreateSliderOptions(sliderMinValue, sliderMaxValue, sliderTitle)
 
   local sliderFrame = CreateFrame("Frame", sliderName, parentFrame, "MinimalSliderWithSteppersTemplate")
-  sliderFrame:SetWidth(250)
+  sliderFrame:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_WIDTH)
   sliderFrame:SetPoint(unpack(position))
   sliderFrame:Init(
     defaultValue,

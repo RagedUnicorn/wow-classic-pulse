@@ -47,7 +47,6 @@ if (GetLocale() == "ruRU") then
     .. "и перезагрузит интерфейс."
   rgp.L["profile_delete_confirm"] = "Удалить профиль \"%s\"?"
   rgp.L["profile_save_success"] = "Профиль \"%s\" сохранён"
-  rgp.L["profile_apply_success"] = "Профиль \"%s\" применён"
   rgp.L["profile_import_success"] = "Профиль \"%s\" импортирован"
   rgp.L["profile_delete_success"] = "Профиль \"%s\" удалён"
   rgp.L["profile_rename_success"] = "Профиль переименован в \"%s\""

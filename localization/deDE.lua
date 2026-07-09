@@ -48,7 +48,6 @@ if (GetLocale() == "deDE") then
     .. "und lädt die Benutzeroberfläche neu."
   rgp.L["profile_delete_confirm"] = "Profil \"%s\" löschen?"
   rgp.L["profile_save_success"] = "Profil \"%s\" gespeichert"
-  rgp.L["profile_apply_success"] = "Profil \"%s\" angewendet"
   rgp.L["profile_import_success"] = "Profil \"%s\" importiert"
   rgp.L["profile_delete_success"] = "Profil \"%s\" gelöscht"
   rgp.L["profile_rename_success"] = "Profil umbenannt in \"%s\""

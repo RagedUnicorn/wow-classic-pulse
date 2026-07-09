@@ -45,7 +45,6 @@ rgp.L["profile_import_name_prompt"] = "Enter a name to save the imported profile
 rgp.L["profile_apply_confirm"] = "Apply profile \"%s\"? This overwrites your current settings and reloads the UI."
 rgp.L["profile_delete_confirm"] = "Delete profile \"%s\"?"
 rgp.L["profile_save_success"] = "Saved profile \"%s\""
-rgp.L["profile_apply_success"] = "Applied profile \"%s\""
 rgp.L["profile_import_success"] = "Imported profile \"%s\""
 rgp.L["profile_delete_success"] = "Deleted profile \"%s\""
 rgp.L["profile_rename_success"] = "Renamed profile to \"%s\""
