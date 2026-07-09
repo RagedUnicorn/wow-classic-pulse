@@ -37,8 +37,8 @@ local Initialize
 local ShowWelcomeMessage
 
 --[[
-  Run the bootstrap sequence on login. Pulse registers no gated handlers, so
-  SetReady only keeps the event bus api uniform across the addon family.
+  Run the bootstrap sequence on login, then mark the event bus ready so gated
+  handlers begin firing.
 ]]--
 OnPlayerLogin = function()
   Initialize()
@@ -68,8 +68,13 @@ function me.OnLoad(self)
   -- register to player login event also fires on /reload
   me.event.Register("PLAYER_LOGIN", OnPlayerLogin)
   -- fired when a unit's current power changes; unit-filtered on the client so
-  -- the handler never runs for other units' power changes
-  me.event.Register("UNIT_POWER_UPDATE", OnUnitPowerUpdate, { unit = RGP_CONSTANTS.UNIT_ID_PLAYER })
+  -- the handler never runs for other units' power changes. Gated because the
+  -- handler touches the energy bar ui, which only exists after Initialize()
+  me.event.Register(
+    "UNIT_POWER_UPDATE",
+    OnUnitPowerUpdate,
+    { gated = true, unit = RGP_CONSTANTS.UNIT_ID_PLAYER }
+  )
 
   me.event.Setup(self)
 end
