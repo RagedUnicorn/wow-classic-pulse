@@ -42,7 +42,7 @@ me.tag = "Event"
 
 -- main frame reference, set in Setup
 local frame
--- registered handlers keyed by event name: eventName -> { fn = handler, gated = boolean }
+-- registered handlers keyed by event name: eventName -> { fn = handler, gated = boolean, unit = string|nil }
 local handlers = {}
 -- gated handlers are suppressed until initialization completes and SetReady is called
 local isReady = false
@@ -56,16 +56,20 @@ local isReady = false
     invoked with the event varargs when the event fires
   @param {table} opts
     optional; opts.gated = true skips the handler until SetReady is called
+    optional; opts.unit = "<unitId>" subscribes via RegisterUnitEvent so the
+      client only delivers the event for that unit - use for high-frequency
+      UNIT_* events to avoid handler invocations for irrelevant units
 ]]--
 function me.Register(events, handler, opts)
   local gated = opts and opts.gated or false
+  local unit = opts and opts.unit or nil
 
   if type(events) == "table" then
     for _, eventName in ipairs(events) do
-      handlers[eventName] = { fn = handler, gated = gated }
+      handlers[eventName] = { fn = handler, gated = gated, unit = unit }
     end
   else
-    handlers[events] = { fn = handler, gated = gated }
+    handlers[events] = { fn = handler, gated = gated, unit = unit }
   end
 end
 
@@ -78,8 +82,12 @@ end
 function me.Setup(mainFrame)
   frame = mainFrame
 
-  for eventName in pairs(handlers) do
-    frame:RegisterEvent(eventName)
+  for eventName, entry in pairs(handlers) do
+    if entry.unit then
+      frame:RegisterUnitEvent(eventName, entry.unit)
+    else
+      frame:RegisterEvent(eventName)
+    end
   end
 end
 

@@ -35,8 +35,8 @@
   of each test and restored afterwards (it is a deep field of the shared `rgp` table that busted's
   file insulation does not snapshot).
 
-  Setup only calls RegisterEvent on the frame it is handed, so a recording stub table stands in for
-  the main frame - no WoW API is needed.
+  Setup only calls RegisterEvent/RegisterUnitEvent on the frame it is handed, so a recording stub
+  table stands in for the main frame - no WoW API is needed.
 ]]--
 
 -- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
@@ -68,6 +68,9 @@ describe("Event bus", function()
       RegisterEvent = function(_, eventName)
         registered[eventName] = true
       end,
+      RegisterUnitEvent = function(_, eventName, unit)
+        registered[eventName] = { unit = unit }
+      end,
     }
   end)
 
@@ -83,6 +86,24 @@ describe("Event bus", function()
 
     assert.is_true(registered["PLAYER_LOGIN"])
     assert.is_true(registered["UNIT_POWER_UPDATE"])
+  end)
+
+  it("Setup registers a unit-filtered event via RegisterUnitEvent", function()
+    rgp.event.Register("UNIT_POWER_UPDATE", function() end, { unit = "player" })
+
+    rgp.event.Setup(stubFrame)
+
+    assert.same({ unit = "player" }, registered["UNIT_POWER_UPDATE"])
+  end)
+
+  it("Setup keeps unfiltered events on RegisterEvent when others are unit-filtered", function()
+    rgp.event.Register("PLAYER_LOGIN", function() end)
+    rgp.event.Register("UNIT_POWER_UPDATE", function() end, { unit = "player" })
+
+    rgp.event.Setup(stubFrame)
+
+    assert.is_true(registered["PLAYER_LOGIN"])
+    assert.same({ unit = "player" }, registered["UNIT_POWER_UPDATE"])
   end)
 
   it("Dispatch invokes the matching handler with the event varargs", function()

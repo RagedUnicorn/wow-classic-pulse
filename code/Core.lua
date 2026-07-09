@@ -67,8 +67,9 @@ end
 function me.OnLoad(self)
   -- register to player login event also fires on /reload
   me.event.Register("PLAYER_LOGIN", OnPlayerLogin)
-  -- fired when a unit's current power changes
-  me.event.Register("UNIT_POWER_UPDATE", OnUnitPowerUpdate)
+  -- fired when a unit's current power changes; unit-filtered on the client so
+  -- the handler never runs for other units' power changes
+  me.event.Register("UNIT_POWER_UPDATE", OnUnitPowerUpdate, { unit = RGP_CONSTANTS.UNIT_ID_PLAYER })
 
   me.event.Setup(self)
 end
