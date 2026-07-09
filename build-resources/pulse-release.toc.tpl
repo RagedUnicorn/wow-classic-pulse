@@ -19,6 +19,7 @@ localization/enUS.lua
 localization/deDE.lua
 localization/ruRU.lua
 
+code/Event.lua
 code/Core.lua
 code/Logger.lua
 code/Filter.lua

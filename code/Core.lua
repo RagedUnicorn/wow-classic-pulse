@@ -31,9 +31,33 @@ local me = rgp
 me.tag = "Core"
 
 -- forward declarations for local functions
-local RegisterEvents
+local OnPlayerLogin
+local OnUnitPowerUpdate
 local Initialize
 local ShowWelcomeMessage
+
+--[[
+  Run the bootstrap sequence on login. Pulse registers no gated handlers, so
+  SetReady only keeps the event bus api uniform across the addon family.
+]]--
+OnPlayerLogin = function()
+  Initialize()
+  me.event.SetReady()
+end
+
+--[[
+  Start the energy ticker and show the energy bar when the player's energy
+  changes.
+
+  @param {string} unitTarget
+  @param {string} powerType
+]]--
+OnUnitPowerUpdate = function(unitTarget, powerType)
+  if unitTarget == RGP_CONSTANTS.UNIT_ID_PLAYER and powerType == RGP_CONSTANTS.POWERTYPE_ENERGY[1] then
+    me.ticker.StartTickerEnergy()
+    me.energyBar.ShowEnergyBarFrame()
+  end
+end
 
 --[[
   Addon load
@@ -41,38 +65,22 @@ local ShowWelcomeMessage
   @param {table} self
 ]]--
 function me.OnLoad(self)
-  RegisterEvents(self)
-end
-
---[[
-  Register addon events
-]]--
-RegisterEvents = function(self)
   -- register to player login event also fires on /reload
-  self:RegisterEvent("PLAYER_LOGIN")
-  -- Fired when a unit's current power
-  self:RegisterEvent("UNIT_POWER_UPDATE")
+  me.event.Register("PLAYER_LOGIN", OnPlayerLogin)
+  -- fired when a unit's current power changes
+  me.event.Register("UNIT_POWER_UPDATE", OnUnitPowerUpdate)
+
+  me.event.Setup(self)
 end
 
 --[[
-  MainFrame OnEvent handler
+  MainFrame OnEvent handler. Delegates to the event bus for dispatch.
 
   @param {string} event
-  @param {table} vararg
+  @param {vararg} ...
 ]]--
 function me.OnEvent(event, ...)
-  if event == "PLAYER_LOGIN" then
-    me.logger.LogEvent(me.tag, "PLAYER_LOGIN")
-    Initialize()
-  elseif event == "UNIT_POWER_UPDATE" then
-    me.logger.LogEvent(me.tag, "UNIT_POWER_UPDATE")
-    local unitTarget, powerType = ...
-
-    if unitTarget == RGP_CONSTANTS.UNIT_ID_PLAYER and powerType == RGP_CONSTANTS.POWERTYPE_ENERGY[1] then
-      me.ticker.StartTickerEnergy()
-      me.energyBar.ShowEnergyBarFrame()
-    end
-  end
+  me.event.Dispatch(event, ...)
 end
 
 --[[

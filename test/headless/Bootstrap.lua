@@ -33,7 +33,7 @@
     1. the `rgp` namespace table (normally created by code/Core.lua),
     2. RGP_ENVIRONMENT, shimmed directly here (mirrors the *development* code/Environment.lua) so
        tests do not depend on `mvn generate-resources` or the build-generated file,
-    3. the pure modules Constants.lua and Logger.lua, dofile'd in TOC dependency order,
+    3. the pure modules Constants.lua, Event.lua and Logger.lua, dofile'd in TOC dependency order,
     4. a minimal PulseConfiguration stand-in plus a no-op rgp.configuration, and the serialization
        modules (Serializer, Encoder, Profile) the existing specs exercise.
 
@@ -65,6 +65,7 @@ RGP_ENVIRONMENT = {
 
 -- load the pure modules in Pulse.toc dependency order
 dofile("code/Constants.lua") -- defines RGP_CONSTANTS
+dofile("code/Event.lua")     -- defines rgp.event (the centralized event bus)
 dofile("code/Logger.lua")    -- defines rgp.logger (reads RGP_ENVIRONMENT at load time)
 
 -- a minimal stand-in for the per-character saved variables
