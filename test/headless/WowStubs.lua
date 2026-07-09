@@ -127,8 +127,8 @@ end
 
 --[[
   C_Timer namespace (Ticker.StartTickerEnergy / StopTickerEnergy). Records scheduled callbacks
-  rather than running a real clock: NewTicker returns a handle exposing Cancel() and the
-  _cancelled flag the Ticker module inspects, and the returned namespace exposes the captured
+  rather than running a real clock: NewTicker returns a handle exposing the public Cancel() and
+  IsCancelled() pair the Ticker module uses, and the returned namespace exposes the captured
   tickers/timers so a spec can flush them by invoking their callbacks manually.
 
   @return {table}
@@ -146,6 +146,10 @@ function M.stubs.C_Timer()
 
     function handle:Cancel()
       self._cancelled = true
+    end
+
+    function handle:IsCancelled()
+      return self._cancelled
     end
 
     namespace.tickers[#namespace.tickers + 1] = handle

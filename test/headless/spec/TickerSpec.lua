@@ -26,12 +26,12 @@
   Tests for the energyBar update ticker (code/Ticker.lua).
 
   Ticker is a thin guard around C_Timer: StartTickerEnergy creates a repeating ticker only when none
-  is live (energyBarTicker nil or already _cancelled), StopTickerEnergy cancels a live one. The live
+  is live (energyBarTicker nil or already cancelled), StopTickerEnergy cancels a live one. The live
   handle is held in a file-local `energyBarTicker`, so the module is re-dofile'd in before_each to
   reset that state (per the bootstrap module-state convention).
 
   C_Timer is pulled from the WowStubs registry: its NewTicker records each handle on
-  `timer.tickers` and exposes the Cancel()/_cancelled pair the guard inspects, so the specs can
+  `timer.tickers` and exposes the Cancel()/IsCancelled() pair the guard uses, so the specs can
   count creations and flip the cancelled flag without a real clock. mod.energyBar (the ticker
   callback target) and mod.logger (LogInfo) are not present in the headless bootstrap, so both are
   installed as recording stubs and restored afterwards -- they are deep fields of the shared `rgp`
@@ -102,10 +102,10 @@ describe("Ticker", function()
   it("StopTickerEnergy cancels the live ticker, and a later start creates a fresh one", function()
     ticker.StartTickerEnergy()
     local first = timer.tickers[1]
-    assert.is_false(first._cancelled)
+    assert.is_false(first:IsCancelled())
 
     ticker.StopTickerEnergy()
-    assert.is_true(first._cancelled)
+    assert.is_true(first:IsCancelled())
 
     -- the previous handle is cancelled, so the guard allows a brand new ticker
     ticker.StartTickerEnergy()

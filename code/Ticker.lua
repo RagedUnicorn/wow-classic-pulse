@@ -37,7 +37,7 @@ local energyBarTicker
   Start the repeating update ticker for the energyBar
 ]]--
 function me.StartTickerEnergy()
-  if energyBarTicker == nil or energyBarTicker._cancelled then
+  if energyBarTicker == nil or energyBarTicker:IsCancelled() then
     energyBarTicker = C_Timer.NewTicker(
       RGP_CONSTANTS.ENERGY_BAR_UPDATE_INTERVAL, mod.energyBar.UpdateTickerBar)
       mod.logger.LogInfo(me.tag, "Started 'EnergyTicker'")
