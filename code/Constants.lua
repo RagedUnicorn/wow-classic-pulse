@@ -36,7 +36,7 @@ RGP_CONSTANTS = {
   --[[
     Update Intervals for tickers
   ]]--
-  ENERGY_BAR_UPDATE_INTERVAL = 0.01,
+  ENERGY_BAR_UPDATE_INTERVAL = 0.05,
   --[[
     Energy tickrate every 2 seconds
   ]]--

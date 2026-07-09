@@ -46,9 +46,9 @@ local StopDragFrame
 ]]--
 local lastTick = 0
 --[[
-  Last saved energyValue
+  Last saved energyValue. Starts at -1 so the first ticker update always writes the energy text
 ]]--
-local lastEnergyValue = 0
+local lastEnergyValue = -1
 
 function me.BuildUi()
   energyBarFrame = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME, UIParent, "BackdropTemplate")
@@ -198,7 +198,10 @@ function me.UpdateTickerBar()
 
   local difference = currentTime - lastTick
   energyBarFrame.energyStatusBar:SetValue(difference)
-  energyBarFrame.energyAmount:SetText(currentEnergy)
+
+  if currentEnergy ~= lastEnergyValue then
+    energyBarFrame.energyAmount:SetText(currentEnergy)
+  end
 
   lastEnergyValue = currentEnergy
 end
