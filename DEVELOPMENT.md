@@ -139,13 +139,21 @@ The project includes a Docker Compose configuration for running [Luacheck](https
 **To run Luacheck:**
 
 ```bash
-docker compose up
+docker compose run --rm luacheck
 ```
 
 This will:
 - Mount the project directory as read-only
 - Run Luacheck on all Lua files
-- Output results in JUnit XML format
+- Print the results to the console
+
+**To generate a JUnit report:**
+
+```bash
+docker compose run --rm luacheck-report
+```
+
+This writes a JUnit XML report to `target/luacheck-junit.xml`.
 
 **Configuration:**
 - `.luacheckrc` - Contains Luacheck configuration, including:
@@ -177,7 +185,7 @@ This writes a JUnit XML report to `target/busted-junit.xml`.
 
 Before committing changes:
 
-1. Run Luacheck to ensure code quality: `docker compose up`
+1. Run Luacheck to ensure code quality: `docker compose run --rm luacheck`
 2. Run the busted test suite: `docker compose run --rm busted`
 3. Test in development mode
 4. Switch to release mode and test again
@@ -307,8 +315,8 @@ This repository uses [Renovate](https://renovatebot.com/) for automated dependen
 - Maven dependencies (plugins and libraries)
 - GitHub Actions versions
 - World of Warcraft interface versions and related properties
-  - `addon.interface` - WoW interface version
-  - `addon.supported.patch` - WoW patch version
-  - `addon.curseforge.gameVersion` - CurseForge game version ID
+  - `addon.interface.classic` / `addon.interface.tbcc` - WoW interface versions
+  - `addon.supported.patch.classic` / `addon.supported.patch.tbcc` - WoW patch versions
+  - `addon.curseforge.gameVersionClassic` / `addon.curseforge.gameVersionTbcc` - CurseForge game version IDs
 
 The configuration can be found in `renovate.json`. Renovate runs on a weekly schedule and creates pull requests for available updates.
