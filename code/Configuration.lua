@@ -32,10 +32,17 @@ mod.configuration = me
 me.tag = "Configuration"
 
 -- forward declarations for local functions
+local ApplyDefaults
 local SetAddonVersion
 
-PulseConfiguration = {
-  ["addonVersion"] = nil,
+PulseConfiguration = {}
+
+--[[
+  Default values for all configurable fields - the single source of truth for both a
+  fresh install (empty saved table) and an upgrade (fields added since the saved table
+  was written). addonVersion is intentionally absent; it is stamped by SetAddonVersion.
+]]--
+local DEFAULTS = {
   --[[
     Whether the energyBar is locked from moving or not
   ]]--
@@ -44,8 +51,8 @@ PulseConfiguration = {
   --[[
     Energy bar dimensions
   ]]--
-  ["energyBarWidth"] = nil,
-  ["energyBarHeight"] = nil,
+  ["energyBarWidth"] = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH,
+  ["energyBarHeight"] = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT,
 
   --[[
     Framepositions for user draggable Frames
@@ -69,39 +76,40 @@ PulseConfiguration = {
 }
 
 --[[
-  Set default values if property is nil. This might happen after an addon upgrade
+  Fill missing configuration values with their defaults
 ]]--
 function me.SetupConfiguration()
-  if PulseConfiguration.lockEnergyBar == nil then
-    mod.logger.LogInfo(me.tag, "lockEnergyBar has unexpected nil value")
-    PulseConfiguration.lockEnergyBar = true
-  end
-
-  if PulseConfiguration.frames == nil then
-    mod.logger.LogInfo(me.tag, "frames has unexpected nil value")
-    PulseConfiguration.frames = {}
-  end
-
-  if PulseConfiguration.profiles == nil then
-    mod.logger.LogInfo(me.tag, "profiles has unexpected nil value")
-    PulseConfiguration.profiles = {}
-  end
-
-  if PulseConfiguration.energyBarWidth == nil then
-    mod.logger.LogInfo(me.tag, "energyBarWidth has unexpected nil value")
-    PulseConfiguration.energyBarWidth = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH
-  end
-
-  if PulseConfiguration.energyBarHeight == nil then
-    mod.logger.LogInfo(me.tag, "energyBarHeight has unexpected nil value")
-    PulseConfiguration.energyBarHeight = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT
-  end
+  ApplyDefaults(PulseConfiguration, DEFAULTS)
 
   --[[
     Set saved variables with addon version. This can be used later to determine whether
     a migration path applies to the current saved variables or not
   ]]--
   SetAddonVersion()
+end
+
+--[[
+  Recursively fill nil keys of target with the values from defaults. Table defaults
+  are materialized by recursing into a fresh (or the existing) table instead of being
+  assigned directly, so DEFAULTS is never shared or mutated and keys the user wrote
+  into existing tables are never touched.
+
+  @param {table} target
+  @param {table} defaults
+]]--
+ApplyDefaults = function(target, defaults)
+  for key, defaultValue in pairs(defaults) do
+    if type(defaultValue) == "table" then
+      if type(target[key]) ~= "table" then
+        mod.logger.LogInfo(me.tag, key .. " has no saved value - applying default")
+        target[key] = {}
+      end
+      ApplyDefaults(target[key], defaultValue)
+    elseif target[key] == nil then
+      mod.logger.LogInfo(me.tag, key .. " has no saved value - applying default")
+      target[key] = defaultValue
+    end
+  end
 end
 
 --[[

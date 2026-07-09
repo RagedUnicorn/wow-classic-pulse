@@ -25,7 +25,8 @@
 --[[
   Tests for the SavedVariables defaulting and accessors (code/Configuration.lua).
 
-  SetupConfiguration is the nil-defaulting routine that runs on every load/upgrade. The module
+  SetupConfiguration recursively merges a single DEFAULTS table into the saved table on every
+  load/upgrade (fresh install = empty table gets everything, upgrade = only missing keys). The module
   owns the PulseConfiguration global and rgp.configuration; both are re-created by re-dofiling
   code/Configuration.lua in before_each (per the bootstrap module-state convention). SetAddonVersion
   reads C_AddOns.GetAddOnMetadata, stubbed via WowStubs to return a fixed version string (and a
@@ -63,7 +64,8 @@ describe("Configuration", function()
 
     -- Filter precedes Configuration in Pulse.toc; the logger's PrintLogMessage consults rgp.filter
     dofile("code/Filter.lua")
-    -- re-run code/Configuration.lua to get a fresh PulseConfiguration with documented defaults
+    -- re-run code/Configuration.lua to get a fresh, empty PulseConfiguration (defaults are
+    -- applied by SetupConfiguration, not at file scope)
     dofile("code/Configuration.lua")
     configuration = rgp.configuration
 
@@ -78,17 +80,10 @@ describe("Configuration", function()
   end)
 
   describe("SetupConfiguration", function()
-    it("fills every nil field with its documented default and stamps addonVersion", function()
-      PulseConfiguration.lockEnergyBar = nil
-      PulseConfiguration.frames = nil
-      PulseConfiguration.profiles = nil
-      PulseConfiguration.energyBarWidth = nil
-      PulseConfiguration.energyBarHeight = nil
-      PulseConfiguration.addonVersion = nil
-
+    it("fills a fresh install (empty saved table) with every documented default", function()
       configuration.SetupConfiguration()
 
-      assert.is_true(PulseConfiguration.lockEnergyBar)
+      assert.is_false(PulseConfiguration.lockEnergyBar)
       assert.are.same({}, PulseConfiguration.frames)
       assert.are.same({}, PulseConfiguration.profiles)
       assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH, PulseConfiguration.energyBarWidth)
@@ -96,18 +91,48 @@ describe("Configuration", function()
       assert.are.equal("1.2.3", PulseConfiguration.addonVersion)
     end)
 
-    it("does not overwrite values that are already set", function()
+    it("fills only the missing fields of a partial (upgraded) saved table", function()
+      PulseConfiguration.energyBarWidth = 200
+      PulseConfiguration.frames = { P_EnergyBar = { point = "CENTER" } }
+
+      configuration.SetupConfiguration()
+
+      -- existing values, including keys the user wrote into the frames table, survive
+      assert.are.equal(200, PulseConfiguration.energyBarWidth)
+      assert.are.same({ P_EnergyBar = { point = "CENTER" } }, PulseConfiguration.frames)
+      -- missing fields get their defaults
+      assert.is_false(PulseConfiguration.lockEnergyBar)
+      assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT, PulseConfiguration.energyBarHeight)
+      assert.are.same({}, PulseConfiguration.profiles)
+    end)
+
+    it("does not overwrite values that are already set, including false", function()
       PulseConfiguration.lockEnergyBar = false
       PulseConfiguration.energyBarWidth = 200
       PulseConfiguration.energyBarHeight = 45
-      PulseConfiguration.frames = { P_EnergyBar = { point = "CENTER" } }
 
       configuration.SetupConfiguration()
 
       assert.is_false(PulseConfiguration.lockEnergyBar)
       assert.are.equal(200, PulseConfiguration.energyBarWidth)
       assert.are.equal(45, PulseConfiguration.energyBarHeight)
-      assert.are.same({ P_EnergyBar = { point = "CENTER" } }, PulseConfiguration.frames)
+    end)
+
+    it("does not overwrite a value that differs from its default", function()
+      PulseConfiguration.lockEnergyBar = true -- default is false
+
+      configuration.SetupConfiguration()
+
+      assert.is_true(PulseConfiguration.lockEnergyBar)
+    end)
+
+    it("merges in place, preserving the PulseConfiguration table reference", function()
+      local reference = PulseConfiguration
+
+      configuration.SetupConfiguration()
+
+      assert.is_true(rawequal(reference, PulseConfiguration))
+      assert.are.same({}, reference.frames)
     end)
   end)
 
@@ -134,6 +159,11 @@ describe("Configuration", function()
   end)
 
   describe("frame position persistence", function()
+    before_each(function()
+      -- the freshly dofiled PulseConfiguration is empty; the frames table is created by the merge
+      configuration.SetupConfiguration()
+    end)
+
     it("returns the stored point / posX / posY after a save", function()
       configuration.SaveUserPlacedFramePosition("P_EnergyBar", "CENTER", nil, "CENTER", 12.5, -30.25)
 
@@ -150,8 +180,9 @@ describe("Configuration", function()
   end)
 
   it("does not bleed PulseConfiguration between it() blocks", function()
-    -- if a previous block's width/frame leaked, these fresh-default assertions would fail
+    -- the before_each dofile re-creates PulseConfiguration as an empty table; if a previous
+    -- block's width/frames leaked, these fresh-state assertions would fail
     assert.is_nil(PulseConfiguration.energyBarWidth)
-    assert.are.same({}, PulseConfiguration.frames)
+    assert.is_nil(PulseConfiguration.frames)
   end)
 end)
