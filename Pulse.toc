@@ -1,4 +1,4 @@
-## Interface: 11508, 20506
+## Interface: 11509, 20506
 ## Title: Pulse
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Visualize the player's energy regeneration tick
