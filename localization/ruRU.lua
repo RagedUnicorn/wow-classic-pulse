@@ -12,6 +12,7 @@ if (GetLocale() == "ruRU") then
   rgp.L["reload"] = "|cFFFFC300reload|r — перезагрузить интерфейс"
   rgp.L["info_title"] = "|cFF00FFB0Pulse:|r"
   rgp.L["invalid_argument"] = "Недопустимый аргумент"
+  rgp.L["update_available"] = "Доступна новая версия |cFFFFC300%s|r — |cFF00FFB0рекомендуется обновление!|r"
 
   -- about
   rgp.L["author"] = "Автор: Michael Wiesendanger"

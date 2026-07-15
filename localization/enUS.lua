@@ -11,6 +11,7 @@ rgp.L["opt"] = "|cFFFFC300opt|r - display Optionsmenu"
 rgp.L["reload"] = "|cFFFFC300reload|r - reload UI"
 rgp.L["info_title"] = "|cFF00FFB0Pulse:|r"
 rgp.L["invalid_argument"] = "Invalid argument passed"
+rgp.L["update_available"] = "New version |cFFFFC300%s|r is available - |cFF00FFB0consider updating!|r"
 
 -- about
 rgp.L["author"] = "Author: Michael Wiesendanger"

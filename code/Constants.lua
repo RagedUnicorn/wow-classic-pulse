@@ -34,6 +34,10 @@ RGP_CONSTANTS = {
   ]]--
   POWERTYPE_ENERGY = {"ENERGY", 3},
   --[[
+    Addon message prefix for the version broadcast (max 16 characters)
+  ]]--
+  ADDON_MESSAGE_PREFIX = "RGP_VER",
+  --[[
     Update Intervals for tickers
   ]]--
   ENERGY_BAR_UPDATE_INTERVAL = 0.05,

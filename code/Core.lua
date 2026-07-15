@@ -75,6 +75,12 @@ function me.OnLoad(self)
     OnUnitPowerUpdate,
     { gated = true, unit = RGP_CONSTANTS.UNIT_ID_PLAYER }
   )
+  me.event.Register("CHAT_MSG_ADDON", me.comm.OnChatMsgAddon, { gated = true })
+  me.event.Register(
+    { "PLAYER_ENTERING_WORLD", "GROUP_ROSTER_UPDATE" },
+    me.comm.BroadcastVersion,
+    { gated = true }
+  )
 
   me.event.Setup(self)
 end
@@ -102,6 +108,8 @@ Initialize = function()
   me.addonConfiguration.SetupAddonConfiguration()
   -- setup ui
   me.energyBar.BuildUi()
+  -- register addon message prefix for the version broadcast
+  me.comm.Initialize()
 
   ShowWelcomeMessage()
 end

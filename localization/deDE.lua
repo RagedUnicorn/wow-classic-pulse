@@ -13,6 +13,7 @@ if (GetLocale() == "deDE") then
   rgp.L["reload"] = "|cFFFFC300reload|r - UI neu laden"
   rgp.L["info_title"] = "|cFF00FFB0Pulse:|r"
   rgp.L["invalid_argument"] = "Ungültiges Argument übergeben"
+  rgp.L["update_available"] = "Neue Version |cFFFFC300%s|r ist verfügbar - |cFF00FFB0Update empfohlen!|r"
 
   -- about tab
   rgp.L["author"] = "Autor: Michael Wiesendanger"

@@ -29,6 +29,7 @@ code/Configuration.lua
 code/Serializer.lua
 code/Encoder.lua
 code/Profile.lua
+code/Comm.lua
 code/Tooltip.lua
 
 # gui

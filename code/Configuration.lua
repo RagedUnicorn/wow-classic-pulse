@@ -34,7 +34,6 @@ me.tag = "Configuration"
 -- forward declarations for local functions
 local ApplyDefaults
 local SetAddonVersion
-local IsVersionBefore
 -- upgrade steps are forward-declared here as schema changes ship, e.g.:
 -- local UpgradeToV1_3_0
 
@@ -75,7 +74,14 @@ local DEFAULTS = {
     Named configuration profiles keyed by the user given name. Each entry is a
     snapshot of the configurable fields (see code/Profile.lua me.PROFILE_FIELDS)
   ]]--
-  ["profiles"] = {}
+  ["profiles"] = {},
+
+  --[[
+    Highest version the update notifier (code/Comm.lua) already announced to the
+    user - bookkeeping like addonVersion, deliberately not part of profiles.
+    Empty string means no version was announced yet
+  ]]--
+  ["lastNotifiedVersion"] = ""
 }
 
 --[[
@@ -146,7 +152,7 @@ me.migrationSteps = {}
 ]]--
 function me.MigrationPath()
   for _, step in ipairs(me.migrationSteps) do
-    if IsVersionBefore(PulseConfiguration.addonVersion, step.version) then
+    if me.IsVersionBefore(PulseConfiguration.addonVersion, step.version) then
       mod.logger.LogInfo(me.tag, "Running upgrade path from "
         .. PulseConfiguration.addonVersion .. " to " .. step.version)
       step.upgrade()
@@ -165,7 +171,7 @@ end
     true - if version is older than otherVersion
     false - otherwise
 ]]--
-IsVersionBefore = function(version, otherVersion)
+function me.IsVersionBefore(version, otherVersion)
   local major, minor, patch = string.match(version or "", "^v?(%d+)%.(%d+)%.(%d+)")
   local otherMajor, otherMinor, otherPatch = string.match(otherVersion or "", "^v?(%d+)%.(%d+)%.(%d+)")
 
