@@ -83,7 +83,7 @@ function me.CreateCheckBox(frameName, parent, position, onClickCallback, onShowC
     "CheckButton",
     frameName,
     parent,
-    "UICheckButtonTemplate"
+    "SettingsCheckboxTemplate"
   )
   checkBoxFrame:SetSize(
     RGP_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE,
@@ -91,9 +91,17 @@ function me.CreateCheckBox(frameName, parent, position, onClickCallback, onShowC
   )
   checkBoxFrame:SetPoint(unpack(position))
 
-  checkBoxFrame.text = _G[checkBoxFrame:GetName() .. "Text"]
-  checkBoxFrame.text:SetFont(STANDARD_TEXT_FONT, 15)
-  me.SetColor(checkBoxFrame.text, RGP_CONSTANTS.COLOR.BODY)
+  --[[ the template's inherited hover scripts drive the settings-list row highlight and
+       misbehave outside that list - remove them ]]--
+  checkBoxFrame:SetScript("OnEnter", nil)
+  checkBoxFrame:SetScript("OnLeave", nil)
+
+  --[[ the template ships no label - the settings list rows normally provide it ]]--
+  local labelFontString = checkBoxFrame:CreateFontString(nil, "OVERLAY")
+  labelFontString:SetFont(STANDARD_TEXT_FONT, 15)
+  me.SetColor(labelFontString, RGP_CONSTANTS.COLOR.BODY)
+  labelFontString:SetPoint("LEFT", checkBoxFrame, "RIGHT", 5, 0)
+  checkBoxFrame.text = labelFontString
 
   if text ~= nil then
     checkBoxFrame.text:SetText(text)
@@ -103,7 +111,7 @@ function me.CreateCheckBox(frameName, parent, position, onClickCallback, onShowC
     local descriptionFontString = checkBoxFrame:CreateFontString(nil, "OVERLAY")
     descriptionFontString:SetFont(STANDARD_TEXT_FONT, 12)
     me.SetColor(descriptionFontString, RGP_CONSTANTS.COLOR.SUBNOTE)
-    descriptionFontString:SetPoint("TOPLEFT", checkBoxFrame, "BOTTOMLEFT", 4, 4)
+    descriptionFontString:SetPoint("TOPLEFT", checkBoxFrame, "BOTTOMLEFT", 4, -2)
     descriptionFontString:SetJustifyH("LEFT")
     descriptionFontString:SetText(description)
     checkBoxFrame.description = descriptionFontString
