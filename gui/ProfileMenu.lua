@@ -22,7 +22,7 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT StaticPopupDialogs StaticPopup_Show ReloadUI
+-- luacheck: globals CreateFrame STANDARD_TEXT_FONT StaticPopupDialogs StaticPopup_Show ReloadUI ScrollUtil
 -- luacheck: globals ACCEPT CANCEL YES NO
 
 local mod = rgp
@@ -119,14 +119,18 @@ function me.BuildProfileList(frame)
   local scrollFrame = CreateFrame(
     "ScrollFrame",
     RGP_CONSTANTS.ELEMENT_PROFILE_LIST_SCROLL_FRAME,
-    listContainer,
-    "UIPanelScrollFrameTemplate"
+    listContainer
   )
   scrollFrame:SetPoint("TOPLEFT", 6, -6)
-  scrollFrame:SetPoint("BOTTOMRIGHT", -28, 6)
+  scrollFrame:SetPoint("BOTTOMRIGHT", -22, 6)
+
+  local scrollBar = CreateFrame("EventFrame", nil, listContainer, "MinimalScrollBar")
+  scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 8, 0)
+  scrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 8, 0)
+  ScrollUtil.InitScrollFrameWithScrollBar(scrollFrame, scrollBar)
 
   profileListContent = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_PROFILE_LIST_CONTENT_FRAME, scrollFrame)
-  profileListContent:SetSize(listWidth - 34, listHeight)
+  profileListContent:SetSize(listWidth - 28, listHeight)
   scrollFrame:SetScrollChild(profileListContent)
 end
 
