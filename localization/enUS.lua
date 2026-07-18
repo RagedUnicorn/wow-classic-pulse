@@ -20,8 +20,8 @@ rgp.L["version"] = "Version: " .. C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_
 rgp.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-pulse/issues"
 
 -- general
-rgp.L["general_category_name"] = "Pulse Options"
-rgp.L["general_title"] = "General Configuration"
+rgp.L["general_category_name"] = "Options"
+rgp.L["general_title"] = "Options"
 rgp.L["window_lock_energy_bar"] = "Lock EnergyBar"
 rgp.L["window_lock_energy_bar_tooltip"] = "Prevents EnergyBar from being moved"
 rgp.L["energy_bar_width"] = "Energy Bar Width"
@@ -31,7 +31,7 @@ rgp.L["energy_bar_height_tooltip"] = "Adjust the height of the energy bar"
 
 -- profile
 rgp.L["profile_category_name"] = "Profiles"
-rgp.L["profile_title"] = "Configuration Profiles"
+rgp.L["profile_title"] = "Profiles"
 rgp.L["profile_list_label"] = "Saved Profiles"
 rgp.L["profile_string_label"] = "Profile String (Export / Import)"
 rgp.L["profile_save_button"] = "Save current as..."

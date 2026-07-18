@@ -60,7 +60,19 @@ RGP_CONSTANTS = {
     Addon configuration
   ]]--
   ELEMENT_ADDON_PANEL = "P_AddonPanel",
-  ELEMENT_TOOLTIP = "GameTooltip", -- default blizzard frames tooltip
+  --[[
+    Design colour tokens as { r, g, b } in the 0-1 range. Derived from Quartermaster's COLOR
+    table, but BODY / SUBNOTE are brightened: Quartermaster's values are tuned for its own
+    near-black panel backdrop, while these panels render on the lighter stock settings canvas.
+  ]]--
+  COLOR = {
+    TITLE_GOLD = { 1.0, 0.819, 0.0 },       -- #ffd100 panel titles
+    SECTION_GOLD = { 0.851, 0.647, 0.129 }, -- #d9a521 section headers
+    BODY = { 0.91, 0.87, 0.80 },            -- #e8decc body text / option labels (warm near-white)
+    MUTED = { 0.541, 0.486, 0.392 },        -- #8a7c64 idle / dim text
+    DISABLED = { 0.45, 0.41, 0.35 },        -- disabled control labels (QM stepper disabled-glyph tone)
+    SUBNOTE = { 0.66, 0.60, 0.50 }          -- #a89980 option descriptions (warm mid gray)
+  },
   --[[
     About
   ]]--
@@ -73,7 +85,7 @@ RGP_CONSTANTS = {
     General
   ]]--
   ELEMENT_GENERAL_SUB_OPTION_FRAME = "P_GeneralMenuOptionsFrame",
-  ELEMENT_GENERAL_CHECK_OPTION_SIZE = 24,
+  ELEMENT_GENERAL_CHECK_OPTION_SIZE = 32,
   ELEMENT_GENERAL_OPT = "P_Opt",
   ELEMENT_GENERAL_TITLE = "P_GeneralTitle",
   ELEMENT_GENERAL_OPT_WINDOW_LOCK_ENERGY_BAR = "P_OptWindowLockEnergyBar",

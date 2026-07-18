@@ -36,15 +36,15 @@ me.tag = "GeneralMenu"
 local options = {
   WindowLockEnergyBar = {
     label = rgp.L["window_lock_energy_bar"],
-    tooltip = rgp.L["window_lock_energy_bar_tooltip"]
+    description = rgp.L["window_lock_energy_bar_tooltip"]
   },
   EnergyBarWidth = {
     label = rgp.L["energy_bar_width"],
-    tooltip = rgp.L["energy_bar_width_tooltip"]
+    description = rgp.L["energy_bar_width_tooltip"]
   },
   EnergyBarHeight = {
     label = rgp.L["energy_bar_height"],
-    tooltip = rgp.L["energy_bar_height_tooltip"]
+    description = rgp.L["energy_bar_height_tooltip"]
   }
 }
 
@@ -55,11 +55,8 @@ local builtMenu = false
 local BuildCheckButtonOption
 local CreateSizeSlider
 local CreateSliderOptions
-local SetupSliderTooltips
-local CreateCheckButtonLabel
-local GetLabelText
-local OptTooltipOnEnter
-local OptTooltipOnLeave
+local CreateSliderDescription
+local GetOptionData
 local LockWindowEnergyBarOnShow
 local LockWindowEnergyBarOnClick
 
@@ -72,17 +69,17 @@ local LockWindowEnergyBarOnClick
 function me.BuildUi(frame)
   if builtMenu then return end
 
-  local titleFontString = frame:CreateFontString(RGP_CONSTANTS.ELEMENT_GENERAL_TITLE, "OVERLAY")
-  titleFontString:SetFont("Fonts\\FRIZQT__.TTF", 20)
-  titleFontString:SetPoint("TOP", 0, -20)
-  titleFontString:SetSize(frame:GetWidth(), 20)
+  local titleFontString = frame:CreateFontString(
+    RGP_CONSTANTS.ELEMENT_GENERAL_TITLE, "OVERLAY", "GameFontNormalLarge")
+  titleFontString:SetPoint("TOPLEFT", 16, -16)
+  mod.uiHelper.SetColor(titleFontString, RGP_CONSTANTS.COLOR.TITLE_GOLD)
   titleFontString:SetText(rgp.L["general_title"])
 
   BuildCheckButtonOption(
     frame,
     RGP_CONSTANTS.ELEMENT_GENERAL_OPT_WINDOW_LOCK_ENERGY_BAR,
     20,
-    -80,
+    -52,
     LockWindowEnergyBarOnShow,
     LockWindowEnergyBarOnClick
   )
@@ -90,12 +87,12 @@ function me.BuildUi(frame)
   CreateSizeSlider(
     frame,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH_SLIDER,
-    {"TOPLEFT", 20, -140},
+    {"TOPLEFT", 20, -130},
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_WIDTH,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_WIDTH,
     mod.configuration.GetEnergyBarWidth(),
     options.EnergyBarWidth.label,
-    options.EnergyBarWidth.tooltip,
+    options.EnergyBarWidth.description,
     function(_, value)
       mod.configuration.SetEnergyBarWidth(value)
       mod.energyBar.UpdateEnergyBarSize()
@@ -110,7 +107,7 @@ function me.BuildUi(frame)
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_HEIGHT,
     mod.configuration.GetEnergyBarHeight(),
     options.EnergyBarHeight.label,
-    options.EnergyBarHeight.tooltip,
+    options.EnergyBarHeight.description,
     function(_, value)
       mod.configuration.SetEnergyBarHeight(value)
       mod.energyBar.UpdateEnergyBarSize()
@@ -144,58 +141,20 @@ CreateSliderOptions = function(minValue, maxValue, title)
 end
 
 --[[
-  Setup tooltip handlers for slider and all its child elements
+  Create an always visible description below a slider
 
   @param {table} sliderFrame
-  @param {string} title
-  @param {string} tooltip
+  @param {string} description
 ]]--
-SetupSliderTooltips = function(sliderFrame, title, tooltip)
-  local function ShowTooltip()
-    if tooltip then
-      mod.tooltip.BuildTooltipForOption(title, tooltip, sliderFrame)
-    end
-  end
-
-  local function HideTooltip()
-    _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
-  end
-
-  sliderFrame:SetScript("OnEnter", ShowTooltip)
-  sliderFrame:SetScript("OnLeave", HideTooltip)
-
-  local slider = sliderFrame.Slider
-  local backButton = sliderFrame.Back
-  local forwardButton = sliderFrame.Forward
-
-  if slider then
-    slider:SetScript("OnEnter", ShowTooltip)
-    slider:SetScript("OnLeave", HideTooltip)
-  end
-
-  if backButton then
-    backButton:SetScript("OnEnter", ShowTooltip)
-    backButton:SetScript("OnLeave", HideTooltip)
-  end
-
-  if forwardButton then
-    forwardButton:SetScript("OnEnter", ShowTooltip)
-    forwardButton:SetScript("OnLeave", HideTooltip)
-  end
-end
-
---[[
-  Create and setup a label for a checkbutton
-
-  @param {table} checkButtonFrame
-]]--
-CreateCheckButtonLabel = function(checkButtonFrame)
-  local labelText = checkButtonFrame:CreateFontString(nil, "OVERLAY")
-  labelText:SetFont(STANDARD_TEXT_FONT, 15)
-  labelText:SetTextColor(.95, .95, .95)
-  labelText:SetPoint("LEFT", checkButtonFrame, "RIGHT", 5, 0)
-  labelText:SetText(GetLabelText(checkButtonFrame))
-  checkButtonFrame.labelText = labelText
+CreateSliderDescription = function(sliderFrame, description)
+  local descriptionFontString = sliderFrame:CreateFontString(nil, "OVERLAY")
+  descriptionFontString:SetFont(STANDARD_TEXT_FONT, 12)
+  mod.uiHelper.SetColor(descriptionFontString, RGP_CONSTANTS.COLOR.SUBNOTE)
+  -- the template renders its min/max value labels below the frame - clear them
+  descriptionFontString:SetPoint("TOPLEFT", sliderFrame, "BOTTOMLEFT", 4, -16)
+  descriptionFontString:SetJustifyH("LEFT")
+  descriptionFontString:SetText(description)
+  sliderFrame.description = descriptionFontString
 end
 
 --[[
@@ -209,66 +168,37 @@ end
   @param {function} onClickCallback
 ]]--
 BuildCheckButtonOption = function(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
-  local checkButtonOptionFrame = CreateFrame("CheckButton", optionFrameName, parentFrame, "SettingsCheckboxTemplate")
-  checkButtonOptionFrame:SetSize(
-    RGP_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE,
-    RGP_CONSTANTS.ELEMENT_GENERAL_CHECK_OPTION_SIZE
+  local optionData = GetOptionData(optionFrameName)
+  local checkButtonOptionFrame = mod.uiHelper.CreateCheckBox(
+    optionFrameName,
+    parentFrame,
+    {"TOPLEFT", posX, posY},
+    onClickCallback,
+    onShowCallback,
+    optionData and optionData.label,
+    optionData and optionData.description
   )
-  checkButtonOptionFrame:SetPoint("TOPLEFT", posX, posY)
 
-  CreateCheckButtonLabel(checkButtonOptionFrame)
-
-  checkButtonOptionFrame:SetScript("OnEnter", OptTooltipOnEnter)
-  checkButtonOptionFrame:SetScript("OnLeave", OptTooltipOnLeave)
-  checkButtonOptionFrame:SetScript("OnShow", onShowCallback)
-  checkButtonOptionFrame:SetScript("OnClick", onClickCallback)
   -- load initial state
   onShowCallback(checkButtonOptionFrame)
 end
 
 --[[
-  Get the label text for the checkbutton
+  Get the option metadata for a checkbutton
 
-  @param {table} frame
+  @param {string} frameName
 
-  @return {string}
-    The text for the label
+  @return {table | nil}
+    The option data with label and description
 ]]--
-GetLabelText = function(frame)
-  local name = frame:GetName()
-
-  if not name then return end
+GetOptionData = function(frameName)
+  if not frameName then return end
 
   for optionKey, optionData in pairs(options) do
-    if name == RGP_CONSTANTS.ELEMENT_GENERAL_OPT .. optionKey then
-      return optionData.label
+    if frameName == RGP_CONSTANTS.ELEMENT_GENERAL_OPT .. optionKey then
+      return optionData
     end
   end
-end
-
---[[
-  OnEnter callback for checkbuttons - show tooltip
-
-  @param {table} self
-]]--
-OptTooltipOnEnter = function(self)
-  local name = self:GetName()
-
-  if not name then return end
-
-  for optionKey, optionData in pairs(options) do
-    if name == RGP_CONSTANTS.ELEMENT_GENERAL_OPT .. optionKey then
-      mod.tooltip.BuildTooltipForOption(optionData.label, optionData.tooltip, self)
-      break
-    end
-  end
-end
-
---[[
-  OnEnter callback for checkbuttons - hide tooltip
-]]--
-OptTooltipOnLeave = function()
-  _G[RGP_CONSTANTS.ELEMENT_TOOLTIP]:Hide()
 end
 
 --[[
@@ -310,11 +240,11 @@ end
   @param {number} sliderMaxValue
   @param {number} defaultValue
   @param {string} sliderTitle
-  @param {string} sliderTooltip
+  @param {string} sliderDescription
   @param {function} onValueChangedCallback
 ]]--
 CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
-    sliderTitle, sliderTooltip, onValueChangedCallback)
+    sliderTitle, sliderDescription, onValueChangedCallback)
 
   local sliderOptions = CreateSliderOptions(sliderMinValue, sliderMaxValue, sliderTitle)
 
@@ -333,5 +263,5 @@ CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, s
     sliderFrame:RegisterCallback("OnValueChanged", onValueChangedCallback, sliderFrame)
   end
 
-  SetupSliderTooltips(sliderFrame, sliderTitle, sliderTooltip)
+  CreateSliderDescription(sliderFrame, sliderDescription)
 end

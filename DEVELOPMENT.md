@@ -91,7 +91,7 @@ During development, you can add temporary filters in the `Initialize` function i
 Initialize = function()
   -- Hide noisy modules while debugging specific functionality
   rgp.filter.RegisterFilter("hide_ticker", "Ticker")
-  rgp.filter.RegisterFilter("hide_tooltip", "Tooltip")
+  rgp.filter.RegisterFilter("hide_config", "Configuration")
 
   me.logger.LogDebug(me.tag, "Initialize addon")
   -- ... rest of initialization
@@ -237,7 +237,6 @@ mvn package -D generate.sources.overwrite=true -P release
    -- Hide everything except Energy and Ticker logs
    rgp.filter.RegisterFilter("hide_config", "Configuration")
    rgp.filter.RegisterFilter("hide_cmd", "Cmd")
-   rgp.filter.RegisterFilter("hide_tooltip", "Tooltip")
    rgp.filter.RegisterFilter("hide_frame", "Frame")
    rgp.filter.RegisterFilter("hide_menu", "Menu")
    ```

@@ -30,10 +30,10 @@ code/Serializer.lua
 code/Encoder.lua
 code/Profile.lua
 code/Comm.lua
-code/Tooltip.lua
 
 # gui
 gui/Frame.xml
+gui/UiHelper.lua
 gui/EnergyBar.lua
 gui/AddonConfiguration.lua
 gui/AboutContent.lua

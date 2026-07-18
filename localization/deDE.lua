@@ -22,8 +22,8 @@ if (GetLocale() == "deDE") then
   rgp.L["issues"] = "Probleme: https://github.com/RagedUnicorn/wow-classic-pulse/issues"
 
   -- general
-  rgp.L["general_category_name"] = "Pulse Optionen"
-  rgp.L["general_title"] = "Allgemeine Konfiguration"
+  rgp.L["general_category_name"] = "Optionen"
+  rgp.L["general_title"] = "Optionen"
   rgp.L["window_lock_energy_bar"] = "Sperre Energiebalken"
   rgp.L["window_lock_energy_bar_tooltip"] = "Verhindert das bewegen des Energiebalken"
   rgp.L["energy_bar_width"] = "Energiebalken Breite"
@@ -33,7 +33,7 @@ if (GetLocale() == "deDE") then
 
   -- profile
   rgp.L["profile_category_name"] = "Profile"
-  rgp.L["profile_title"] = "Konfigurationsprofile"
+  rgp.L["profile_title"] = "Profile"
   rgp.L["profile_list_label"] = "Gespeicherte Profile"
   rgp.L["profile_string_label"] = "Profil-Zeichenkette (Export / Import)"
   rgp.L["profile_save_button"] = "Aktuelles speichern als..."

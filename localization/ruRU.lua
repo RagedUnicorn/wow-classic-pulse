@@ -21,8 +21,8 @@ if (GetLocale() == "ruRU") then
   rgp.L["issues"] = "Проблемы: https://github.com/RagedUnicorn/wow-classic-pulse/issues"
 
   -- general
-  rgp.L["general_category_name"] = "Настройки Pulse"
-  rgp.L["general_title"] = "Общая конфигурация"
+  rgp.L["general_category_name"] = "Настройки"
+  rgp.L["general_title"] = "Настройки"
   rgp.L["window_lock_energy_bar"] = "Заблокировать панель энергии"
   rgp.L["window_lock_energy_bar_tooltip"] = "Запрещает перемещение панели энергии"
   rgp.L["energy_bar_width"] = "Ширина панели энергии"
@@ -32,7 +32,7 @@ if (GetLocale() == "ruRU") then
 
   -- profile
   rgp.L["profile_category_name"] = "Профили"
-  rgp.L["profile_title"] = "Профили конфигурации"
+  rgp.L["profile_title"] = "Профили"
   rgp.L["profile_list_label"] = "Сохранённые профили"
   rgp.L["profile_string_label"] = "Строка профиля (экспорт / импорт)"
   rgp.L["profile_save_button"] = "Сохранить текущий как..."
