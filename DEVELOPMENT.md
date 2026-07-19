@@ -163,7 +163,7 @@ This writes a JUnit XML report to `target/luacheck-junit.xml`.
 
 ### Running Busted
 
-The project includes a Docker Compose configuration for running [Busted](https://github.com/lunarmodules/busted), a unit testing framework for Lua. The headless specs live under `test/headless/spec` and validate logic that does not depend on the WoW runtime.
+The project includes a Docker Compose configuration for running [Busted](https://github.com/lunarmodules/busted), a unit testing framework for Lua. The headless specs live under `test/headless/spec` and validate logic that does not depend on the WoW runtime. The `test/headless/` subfolder keeps these headless specs separate from the manual in-game test cases under `test/manual/`. The release test procedure - automated gates, the in-game test matrix and the manual test case catalog - is documented in [test/TESTING.md](test/TESTING.md).
 
 **To run the test suite:**
 
@@ -192,6 +192,10 @@ Before committing changes:
 5. Verify no debug logs appear in release mode
 6. Test with `/reload` to ensure saved variables work correctly
 7. Test the main functionality (energy tick tracking)
+
+Before creating a release, additionally complete the full test procedure - automated gates,
+the in-game test matrix and the manual test case catalog - documented in
+[test/TESTING.md](test/TESTING.md).
 
 ## Build and Package
 
