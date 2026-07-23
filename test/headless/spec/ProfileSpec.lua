@@ -29,11 +29,17 @@
 
 -- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
 -- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each
+-- luacheck: globals describe it before_each after_each RGP_CONSTANTS
 -- luacheck: ignore 143
 
 describe("Profile", function()
   local profile = rgp.profile
+
+  -- EnsureDefaultProfile logs through rgp.logger, whose print path needs a WoW client
+  -- (C_AddOns for the addon title). Drop the level below `error` while this spec runs so
+  -- nothing is printed; rgp.logger is a deep field of the shared `rgp` table that busted's
+  -- file insulation does not restore, so put it back in after_each.
+  local originalLogLevel = rgp.logger.logLevel
 
   before_each(function()
     PulseConfiguration.profiles = {}
@@ -41,6 +47,12 @@ describe("Profile", function()
     PulseConfiguration.energyBarWidth = 120
     PulseConfiguration.energyBarHeight = 30
     PulseConfiguration.frames = {}
+
+    rgp.logger.logLevel = rgp.logger.error - 1
+  end)
+
+  after_each(function()
+    rgp.logger.logLevel = originalLogLevel
   end)
 
   it("exports and imports a snapshot round-trip", function()
@@ -124,6 +136,94 @@ describe("Profile", function()
 
     profile.DeleteProfile("beta")
     assert.are.same({ "gamma" }, profile.ListProfiles())
+  end)
+
+  describe("default profile", function()
+    local defaultName = RGP_CONSTANTS.DEFAULT_PROFILE_NAME
+
+    it("seeds the default profile when the store does not hold one yet", function()
+      assert.are.same({}, profile.ListProfiles())
+
+      profile.EnsureDefaultProfile()
+
+      assert.are.same({ defaultName }, profile.ListProfiles())
+      assert.is_true(profile.ProfileExists(defaultName))
+    end)
+
+    it("seeds it from the shipped defaults, not from the live configuration", function()
+      -- a customized live configuration must not bleed into the frozen baseline
+      PulseConfiguration.lockEnergyBar = true
+      PulseConfiguration.energyBarWidth = 250
+      PulseConfiguration.frames = { P_EnergyBar = { posX = 42 } }
+
+      profile.EnsureDefaultProfile()
+
+      local payload = profile.GetProfile(defaultName)
+
+      assert.is_false(payload.lockEnergyBar)
+      assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH, payload.energyBarWidth)
+      assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT, payload.energyBarHeight)
+      assert.are.same({}, payload.frames)
+    end)
+
+    it("leaves an already seeded default untouched on a second call", function()
+      profile.EnsureDefaultProfile()
+      local seeded = profile.GetProfile(defaultName)
+
+      profile.EnsureDefaultProfile()
+
+      assert.is_true(rawequal(seeded, profile.GetProfile(defaultName)))
+    end)
+
+    it("refuses to delete the default profile", function()
+      profile.EnsureDefaultProfile()
+
+      assert.is_false(profile.DeleteProfile(defaultName))
+      assert.is_true(profile.ProfileExists(defaultName))
+    end)
+
+    it("refuses to rename the default profile", function()
+      profile.EnsureDefaultProfile()
+
+      assert.is_false(profile.RenameProfile(defaultName, "MyDefault"))
+      assert.is_true(profile.ProfileExists(defaultName))
+      assert.is_false(profile.ProfileExists("MyDefault"))
+    end)
+
+    it("refuses to rename another profile onto the default name", function()
+      profile.EnsureDefaultProfile()
+      profile.SaveProfile("alpha", profile.BuildSnapshot())
+
+      assert.is_false(profile.RenameProfile("alpha", defaultName))
+      assert.is_true(profile.ProfileExists("alpha"))
+      assert.are.same(profile.BuildDefaultSnapshot(), profile.GetProfile(defaultName))
+    end)
+
+    it("refuses to overwrite the default profile through SaveProfile", function()
+      profile.EnsureDefaultProfile()
+      PulseConfiguration.energyBarWidth = 250
+
+      assert.is_false(profile.SaveProfile(defaultName, profile.BuildSnapshot()))
+      assert.are.equal(
+        RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH,
+        profile.GetProfile(defaultName).energyBarWidth
+      )
+    end)
+
+    it("still saves, renames and deletes user created profiles", function()
+      profile.EnsureDefaultProfile()
+
+      assert.is_true(profile.SaveProfile("alpha", profile.BuildSnapshot()))
+      assert.is_true(profile.RenameProfile("alpha", "beta"))
+      assert.is_true(profile.DeleteProfile("beta"))
+      assert.are.same({ defaultName }, profile.ListProfiles())
+    end)
+
+    it("recognizes only the reserved name as the default profile", function()
+      assert.is_true(profile.IsDefaultProfile(defaultName))
+      assert.is_false(profile.IsDefaultProfile("default"))
+      assert.is_false(profile.IsDefaultProfile(nil))
+    end)
   end)
 
   it("imports a payload as data without executing it", function()

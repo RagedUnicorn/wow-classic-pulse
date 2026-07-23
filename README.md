@@ -68,6 +68,10 @@ A profile captures all of your Pulse settings – the energy bar lock state, its
 - **Rename**: Renames the selected profile.
 - **Delete**: Removes the selected profile.
 
+#### The Default Profile
+
+Every character starts with a profile named **Default**. It holds Pulse's shipped settings and is created automatically – you never have to save it yourself. It cannot be deleted, renamed or overwritten, so there is always a clean baseline to go back to: select **Default** and click **Apply** to reset Pulse to its factory settings. The Rename and Delete buttons are greyed out while it is selected.
+
 #### Sharing Profiles (Export / Import)
 
 Profiles can be shared as portable strings, making it easy to copy a setup between characters or hand it to another player.

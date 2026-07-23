@@ -104,6 +104,8 @@ Initialize = function()
   me.cmd.SetupSlashCmdList()
   -- load addon variables
   me.configuration.SetupConfiguration()
+  -- guarantee the undeletable default profile exists (needs the defaults applied above)
+  me.profile.EnsureDefaultProfile()
   -- setup addon configuration ui
   me.addonConfiguration.SetupAddonConfiguration()
   -- setup ui

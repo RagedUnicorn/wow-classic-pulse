@@ -78,10 +78,22 @@ PulseConfiguration = {
   profiles = {}
 }
 
--- Profile.ApplySnapshot calls back into the configuration module to backfill
--- defaults; a no-op stub is enough for the headless tests
+-- Profile.ApplySnapshot calls back into the configuration module to backfill defaults and
+-- Profile.BuildDefaultSnapshot reads the shipped defaults from it; a no-op SetupConfiguration
+-- plus a GetDefaults mirroring the DEFAULTS table of code/Configuration.lua is enough for the
+-- headless tests (ConfigurationSpec exercises the real module by re-dofiling it)
 rgp.configuration = {
-  SetupConfiguration = function() end
+  SetupConfiguration = function() end,
+  GetDefaults = function()
+    return {
+      lockEnergyBar = false,
+      energyBarWidth = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH,
+      energyBarHeight = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT,
+      frames = {},
+      profiles = {},
+      lastNotifiedVersion = ""
+    }
+  end
 }
 
 -- load the serialization modules under test (dependency order)

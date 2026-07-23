@@ -57,3 +57,6 @@ rgp.L["profile_error_version"] = "This profile string was created by a newer ver
 rgp.L["profile_error_name_empty"] = "The profile name cannot be empty"
 rgp.L["profile_error_name_exists"] = "A profile with that name already exists"
 rgp.L["profile_error_no_selection"] = "No profile selected"
+rgp.L["profile_error_default_cannot_be_deleted"] = "The \"%s\" profile cannot be deleted"
+rgp.L["profile_error_default_cannot_be_renamed"] = "The \"%s\" profile cannot be renamed"
+rgp.L["profile_error_default_cannot_be_overwritten"] = "The \"%s\" profile cannot be overwritten"

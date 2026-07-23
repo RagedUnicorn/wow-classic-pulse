@@ -96,6 +96,7 @@ One file per test case under [test/manual/](manual/). Case IDs follow `TC-<AREA>
 | [TC-PR-03](manual/TC-PR-03-rename-and-delete-profile.md) | Rename and delete a profile           |
 | [TC-PR-04](manual/TC-PR-04-export-import-round-trip.md)  | Export / import round-trip            |
 | [TC-PR-05](manual/TC-PR-05-corrupted-import-rejected.md) | Corrupted import string rejected      |
+| [TC-PR-06](manual/TC-PR-06-default-profile.md)           | Default profile seeded and immutable  |
 
 ### Version broadcast (conditional)
 

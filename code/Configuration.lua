@@ -98,6 +98,20 @@ function me.SetupConfiguration()
 end
 
 --[[
+  Read access to the shipped default values. Used by code/Profile.lua to seed the
+  default profile with a pristine baseline instead of whatever the live configuration
+  happens to hold at seed time.
+
+  The returned table is the module's own DEFAULTS - callers must treat it as read-only
+  and copy anything they intend to keep.
+
+  @return {table}
+]]--
+function me.GetDefaults()
+  return DEFAULTS
+end
+
+--[[
   Recursively fill nil keys of target with the values from defaults. Table defaults
   are materialized by recursing into a fresh (or the existing) table instead of being
   assigned directly, so DEFAULTS is never shared or mutated and keys the user wrote

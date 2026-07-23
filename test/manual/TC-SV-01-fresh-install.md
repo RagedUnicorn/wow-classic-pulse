@@ -20,7 +20,10 @@
 
 - No Lua errors on login; the welcome message prints
 - The bar appears centered on screen (default position) at the default size (width 120, height 30)
-- The lock checkbox is unchecked, the sliders show 120/30, the profile list is empty
+- The lock checkbox is unchecked, the sliders show 120/30, the profile list holds exactly one
+  entry named "Default" (see TC-PR-06)
 - After logout, `PulseConfiguration` contains `lockEnergyBar = false`, `energyBarWidth = 120`,
-  `energyBarHeight = 30`, empty `frames` and `profiles` tables, an empty `lastNotifiedVersion`,
+  `energyBarHeight = 30`, an empty `frames` table, an empty `lastNotifiedVersion`,
   and `addonVersion` stamped with the current version
+- `PulseConfiguration.profiles` holds the seeded `Default` profile with `lockEnergyBar = false`,
+  `energyBarWidth = 120`, `energyBarHeight = 30` and an empty `frames` table

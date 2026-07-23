@@ -59,4 +59,7 @@ if (GetLocale() == "ruRU") then
   rgp.L["profile_error_name_empty"] = "Имя профиля не может быть пустым"
   rgp.L["profile_error_name_exists"] = "Профиль с таким именем уже существует"
   rgp.L["profile_error_no_selection"] = "Профиль не выбран"
+  rgp.L["profile_error_default_cannot_be_deleted"] = "Профиль \"%s\" нельзя удалить"
+  rgp.L["profile_error_default_cannot_be_renamed"] = "Профиль \"%s\" нельзя переименовать"
+  rgp.L["profile_error_default_cannot_be_overwritten"] = "Профиль \"%s\" нельзя перезаписать"
 end

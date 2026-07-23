@@ -60,4 +60,7 @@ if (GetLocale() == "deDE") then
   rgp.L["profile_error_name_empty"] = "Der Profilname darf nicht leer sein"
   rgp.L["profile_error_name_exists"] = "Ein Profil mit diesem Namen existiert bereits"
   rgp.L["profile_error_no_selection"] = "Kein Profil ausgewählt"
+  rgp.L["profile_error_default_cannot_be_deleted"] = "Das Profil \"%s\" kann nicht gelöscht werden"
+  rgp.L["profile_error_default_cannot_be_renamed"] = "Das Profil \"%s\" kann nicht umbenannt werden"
+  rgp.L["profile_error_default_cannot_be_overwritten"] = "Das Profil \"%s\" kann nicht überschrieben werden"
 end
