@@ -15,6 +15,7 @@ Complete the test procedure in [test/TESTING.md](test/TESTING.md) before creatin
 
 * Push all commits before proceeding
 * Make sure `build-resources/release-notes.md` are up-to-date
+* Recreate the documentation screenshots if the UI changed since the last release - see [Recreating Documentation Media](DEVELOPMENT.md#recreating-documentation-media). They live in `docs/` (README) and the wow-pulse-meta `assets/` (store pages and gallery)
 * Make sure Metadata https://github.com/RagedUnicorn/wow-pulse-meta is up-to-date
 * Create a GitHub deployment
   * Invoke GitHub action

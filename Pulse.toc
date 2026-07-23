@@ -4,6 +4,7 @@
 ## Notes: Visualize the player's energy regeneration tick
 ## Version: v1.2.0
 ## SavedVariablesPerCharacter: PulseConfiguration
+## SavedVariables: PulseShotLog
 # THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
 
 # constant values
@@ -36,3 +37,7 @@ gui/AddonConfiguration.lua
 gui/AboutContent.lua
 gui/GeneralMenu.lua
 gui/ProfileMenu.lua
+
+# dev - media capture, never shipped in a release
+dev/ShotManifest.lua
+dev/Capture.lua

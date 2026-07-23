@@ -4,6 +4,7 @@
 ## Notes: ${addon.description}
 ## Version: ${addon.tag.version}
 ## SavedVariablesPerCharacter: ${addon.savedVariablesPerCharacter}
+## SavedVariables: PulseShotLog
 ${addon.comment.generated.toc}
 
 # constant values
@@ -36,3 +37,7 @@ gui/AddonConfiguration.lua
 gui/AboutContent.lua
 gui/GeneralMenu.lua
 gui/ProfileMenu.lua
+
+# dev - media capture, never shipped in a release
+dev/ShotManifest.lua
+dev/Capture.lua

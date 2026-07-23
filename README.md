@@ -55,6 +55,8 @@ Alternatively, you can use the slash command: `/pulse opt` or `/rgp opt`
 - **Energy Bar Width**: Adjust the width of the energy bar to fit your UI layout. Use the slider to increase or decrease the horizontal size.
 - **Energy Bar Height**: Adjust the height of the energy bar. Use the slider to increase or decrease the vertical size.
 
+![](docs/pulse_options_configuration.png)
+
 ### Profiles
 
 Pulse lets you save your configuration as named profiles, so you can switch between different setups or carry your settings to another character. Profiles are managed under the **Profiles** tab of the configuration interface.

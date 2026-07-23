@@ -249,6 +249,57 @@ mvn package -D generate.sources.overwrite=true -P release
 
 3. Check the ticker timing in `Ticker.lua`
 
+### Recreating Documentation Media
+
+The screenshots in `README.md` — and the store pages and gallery strip in the
+[wow-pulse-meta](https://github.com/RagedUnicorn/wow-pulse-meta) repo — are produced by a
+development-only capture module, so they can be re-shot deterministically instead of framed
+by hand. Recreate them whenever the UI they show changes.
+
+**In-repo pieces** (loaded only by the development `.toc`, never the release one):
+
+- `dev/Capture.lua` — registers the `/rgpshot` slash command and drives the capture.
+- `dev/ShotManifest.lua` — the list of shots. **Auto-generated — do not hand-edit** (it
+  carries the standard auto-generated banner). It is regenerated from the media-capture
+  tooling's manifest (`wow-media-capture/reference/media/pulse.json`).
+
+**Capturing** (in-game, on a development build — ideally on an energy class so the bar shows
+a real value):
+
+1. `/reload` after any change to the `dev/` files so the client picks them up.
+2. Position the UI for the shot (e.g. drag the energy bar just below the `PlayerFrame`).
+3. Capture:
+   - `/rgpshot list` — print the shot manifest
+   - `/rgpshot all` — capture every shot
+   - `/rgpshot <name>` — capture a single shot (e.g. `/rgpshot pulse_example`)
+   - `/rgpshot next` — capture the next shot; bind to a key if `all` does not work, because
+     `Screenshot()` occasionally needs a hardware event
+   - `/rgpshot clear` — reset the shot log
+4. `/reload` once more to flush the shot log to `SavedVariables` (it is only written on
+   logout or reload).
+
+For each shot the module hides the UI chrome, runs the shot's setup, records the target
+frame's pixel rect to `SavedVariables`, and takes a PNG screenshot into WoW's
+`Screenshots/` folder.
+
+**What a shot can do** (fields on each manifest entry, mirrored into `dev/ShotManifest.lua`):
+
+- `setup` — ordered steps run before the screenshot: `openCategory:<general|profile>` opens
+  a settings subcategory, `previewEnergyBar` forces the energy bar visible and sweeping,
+  `showFrame:<name>` shows a frame, `closeSettings` closes the settings window.
+- `includeFrames` — extra frames kept visible despite chrome-hiding and unioned into the
+  crop, so a shot can frame a group (e.g. the energy bar together with the `PlayerFrame`).
+- `hideFrames` — frames force-hidden just before the screenshot, e.g. hiding `P_EnergyBar`
+  on the settings shots so the size preview does not ghost through the panel.
+- `hideChrome`, `padding` — hide chat/minimap/bars, and pixels added around the crop rect.
+
+**Post-processing** (maintainer step, via the separate `wow-media-capture` tooling): the raw
+screenshots are cropped to the recorded rects, normalized into 16:9 gallery variants, and
+written byte-identically to both `docs/` (used by `README.md`) and the meta repo's `assets/`
+(used by the CurseForge/Wago store pages). The shot manifest there is the single source of
+truth, and adding or changing a shot is a manifest edit followed by regenerating
+`dev/ShotManifest.lua` — never a hand-edit of the generated file.
+
 ## Troubleshooting
 
 ### Logs Not Appearing

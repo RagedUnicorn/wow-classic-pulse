@@ -38,6 +38,13 @@ me.tag = "AddonConfiguration"
 ]]--
 local mainCategoryId
 
+--[[
+  Maps a panel key ("main", "general", "profile") to its Settings category id.
+  Settings.OpenToCategory requires the numeric id - a category name is not accepted.
+  {table<string, number>}
+]]--
+local categoryIds = {}
+
 -- forward declarations for local functions
 local BuildCategory
 
@@ -47,22 +54,38 @@ local BuildCategory
 function me.SetupAddonConfiguration()
   -- initialize the main addon category
   local category, menu = BuildCategory(RGP_CONSTANTS.ELEMENT_ADDON_PANEL, nil, rgp.L["addon_name"])
+  categoryIds.main = category.ID
   -- add about content into main category
   mod.aboutContent.BuildAboutContent(menu)
 
-  BuildCategory(
+  local generalCategory = BuildCategory(
     RGP_CONSTANTS.ELEMENT_GENERAL_SUB_OPTION_FRAME,
     category,
     rgp.L["general_category_name"],
     mod.generalMenu.BuildUi
   )
+  categoryIds.general = generalCategory.ID
 
-  BuildCategory(
+  local profileCategory = BuildCategory(
     RGP_CONSTANTS.ELEMENT_PROFILE_SUB_OPTION_FRAME,
     category,
     rgp.L["profile_category_name"],
     mod.profileMenu.BuildUi
   )
+  categoryIds.profile = profileCategory.ID
+end
+
+--[[
+  Get the Settings category id for a known panel key.
+
+  @param {string} key
+    One of "main", "general", "profile"
+
+  @return {number | nil}
+    The registered Settings category id, or nil if unknown
+]]--
+function me.GetCategoryId(key)
+  return categoryIds[key]
 end
 
 --[[
