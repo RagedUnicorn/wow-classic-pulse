@@ -67,7 +67,19 @@ local LockWindowEnergyBarOnClick
     The addon configuration frame to attach to
 ]]--
 function me.BuildUi(frame)
+  --[[
+    Force the energyBar visible while the panel is open so the width/height
+    sliders show their effect live even for a class/state where no energy tick
+    has fired yet. Runs on every OnShow, before the one-time build guard
+  ]]--
+  mod.energyBar.ShowPreview()
+
   if builtMenu then return end
+
+  -- restore the bar's prior state when the panel closes (registered once)
+  frame:HookScript("OnHide", function()
+    mod.energyBar.HidePreview()
+  end)
 
   local titleFontString = frame:CreateFontString(
     RGP_CONSTANTS.ELEMENT_GENERAL_TITLE, "OVERLAY", "GameFontNormalLarge")

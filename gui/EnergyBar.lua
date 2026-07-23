@@ -49,6 +49,16 @@ local lastTick = 0
   Last saved energyValue. Starts at -1 so the first ticker update always writes the energy text
 ]]--
 local lastEnergyValue = -1
+--[[
+  Whether the energyBar was already shown when a size preview started. Used by
+  me.HidePreview to decide whether to hide it again on preview end
+]]--
+local wasShownBeforePreview = false
+--[[
+  Whether me.ShowPreview started the ticker itself (bar was hidden). Used by
+  me.HidePreview to only stop a ticker the preview owns
+]]--
+local previewStartedTicker = false
 
 function me.BuildUi()
   energyBarFrame = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME, UIParent, "BackdropTemplate")
@@ -141,6 +151,43 @@ end
 
 function me.ShowEnergyBarFrame()
   energyBarFrame:Show()
+end
+
+--[[
+  Force the energyBar visible for a live size preview (e.g. while the options
+  panel with the width/height sliders is open). Remembers the prior shown state
+  and, only when the bar was hidden, starts the sweep ticker so the preview is
+  lively. Reversed by me.HidePreview
+]]--
+function me.ShowPreview()
+  if not energyBarFrame then return end
+
+  wasShownBeforePreview = energyBarFrame:IsShown()
+  energyBarFrame:Show()
+
+  if not wasShownBeforePreview then
+    mod.ticker.StartTickerEnergy()
+    previewStartedTicker = true
+  end
+end
+
+--[[
+  End a size preview started by me.ShowPreview. Restores the bar to hidden and
+  stops the ticker only when the preview itself showed the bar and started the
+  ticker - a bar that was already shown (and its running ticker) is left alone
+]]--
+function me.HidePreview()
+  if not energyBarFrame then return end
+
+  if not wasShownBeforePreview then
+    energyBarFrame:Hide()
+
+    if previewStartedTicker then
+      mod.ticker.StopTickerEnergy()
+    end
+  end
+
+  previewStartedTicker = false
 end
 
 --[[
