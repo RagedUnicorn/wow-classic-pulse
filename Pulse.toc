@@ -2,7 +2,7 @@
 ## Title: Pulse
 ## Author: Michael Wiesendanger <michael.wiesendanger@gmail.com>
 ## Notes: Visualize the player's energy regeneration tick
-## Version: v1.2.0
+## Version: v1.3.0
 ## SavedVariablesPerCharacter: PulseConfiguration
 ## SavedVariables: PulseShotLog
 ## IconTexture: Interface\AddOns\Pulse\assets\pulse_icon
