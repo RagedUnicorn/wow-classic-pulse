@@ -52,6 +52,8 @@ Click **Move Bar** in the options (or type `/pulse move`). Pulse closes the opti
 
 This is the intended way to position the bar: the options window sits in the middle of the screen, so it would otherwise cover the very bar you are trying to place. If **Snap to Grid** is enabled, the alignment grid is drawn while you are placing the bar and disappears again when you are done.
 
+![](docs/pulse_grid_snap.png)
+
 ### Available Settings
 
 #### Energy Bar Positioning

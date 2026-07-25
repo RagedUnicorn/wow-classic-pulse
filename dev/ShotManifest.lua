@@ -27,6 +27,10 @@
 -- Source: wow-media-capture/reference/media/pulse.json
 -- Regenerate: scripts/gen-shot-table.ps1 -Addon pulse
 
+-- shows/name are human-facing copy carried over from the manifest verbatim - reflowing
+-- them is not the generator's call, so the 120-column limit does not apply here
+-- luacheck: max line length 400
+
 RGP_SHOTS = {
   {
     name = "pulse_example",
@@ -39,6 +43,16 @@ RGP_SHOTS = {
     shows = "Energy bar mid-tick in the open world"
   },
   {
+    name = "pulse_grid_snap",
+    shot = "grid_snap",
+    frame = "P_EnergyBar",
+    setup = { "previewEnergyBar", "unlockEnergyBar", "showEnergyBarGrid" },
+    includeFrames = { "PlayerFrame" },
+    hideChrome = true,
+    padding = 160,
+    shows = "Energy bar in its unlocked mover state snapping to the alignment grid"
+  },
+  {
     name = "pulse_options_configuration",
     shot = "options_panel",
     frame = "SettingsPanel",
@@ -46,7 +60,7 @@ RGP_SHOTS = {
     hideFrames = { "P_EnergyBar" },
     hideChrome = true,
     padding = 0,
-    shows = "Options panel with the window-lock toggle and the energy-bar width and height sliders"
+    shows = "Options panel with the lock toggle, the snap-to-grid checkbox and grid-size slider, the energy-bar width and height sliders, and the Move Bar button"
   },
   {
     name = "pulse_profile_configuration",

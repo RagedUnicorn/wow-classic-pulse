@@ -153,6 +153,34 @@ local setupVerbs = {
   ]]--
   ["previewEnergyBar"] = function()
     mod.energyBar.ShowPreview()
+  end,
+
+  --[[
+    Clear the energyBar's placement lock so it can actually be moved for the shot. Mirrors
+    the General panel's Lock Energy Bar checkbox.
+
+    Unlike previewEnergyBar this writes to PulseConfiguration, so it survives the /reload
+    that follows a capture - a capture run leaves the bar unlocked on the dev character.
+  ]]--
+  ["unlockEnergyBar"] = function()
+    mod.configuration.UnlockEnergyBar()
+  end,
+
+  --[[
+    Draw the alignment grid behind the bar. gui/AlignmentGrid.lua only shows it when grid
+    snapping is enabled AND the positioning mode is active (me.ShouldShowGrid), so neither
+    half can be skipped - the snap toggle goes on first, then positioningMode.Enter() flips
+    the isPositioning half and calls alignmentGrid.Refresh itself.
+
+    Enter() also runs energyBar.ShowPreview and closes the settings window, which makes the
+    manifest's preceding previewEnergyBar step redundant for this shot. Harmless, and left
+    in place so the setup array still reads as the full intent.
+
+    Also persisted - see unlockEnergyBar.
+  ]]--
+  ["showEnergyBarGrid"] = function()
+    mod.configuration.EnableEnergyBarGridSnap()
+    mod.positioningMode.Enter()
   end
 }
 
