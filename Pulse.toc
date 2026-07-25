@@ -5,6 +5,7 @@
 ## Version: v1.2.0
 ## SavedVariablesPerCharacter: PulseConfiguration
 ## SavedVariables: PulseShotLog
+## IconTexture: Interface\AddOns\Pulse\assets\pulse_icon
 # THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
 
 # constant values
@@ -33,6 +34,8 @@ code/Comm.lua
 gui/Frame.xml
 gui/UiHelper.lua
 gui/EnergyBar.lua
+gui/AlignmentGrid.lua
+gui/PositioningMode.lua
 gui/AddonConfiguration.lua
 gui/AboutContent.lua
 gui/GeneralMenu.lua

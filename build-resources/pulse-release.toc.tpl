@@ -7,6 +7,7 @@
 ## X-Category: ${addon.project.categories}
 ## X-Curse-Project-ID: ${addon.curseforge.projectId}
 ## X-Wago-ID: ${addon.wago.projectId}
+## IconTexture: Interface\AddOns\Pulse\assets\pulse_icon
 ${addon.comment.generated.toc}
 
 # constant values

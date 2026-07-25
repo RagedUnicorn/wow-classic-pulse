@@ -5,6 +5,7 @@
 ## Version: ${addon.tag.version}
 ## SavedVariablesPerCharacter: ${addon.savedVariablesPerCharacter}
 ## SavedVariables: PulseShotLog
+## IconTexture: Interface\AddOns\Pulse\assets\pulse_icon
 ${addon.comment.generated.toc}
 
 # constant values
