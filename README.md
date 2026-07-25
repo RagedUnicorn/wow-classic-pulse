@@ -46,10 +46,18 @@ Pulse can be configured through the in-game interface options. Access the config
 
 Alternatively, you can use the slash command: `/pulse opt` or `/rgp opt`
 
+### Placing the Energy Bar
+
+Click **Move Bar** in the options (or type `/pulse move`). Pulse closes the options window, brings the energy bar on screen and lets you drag it wherever you like – even if the bar is locked. Click **Done** when you are happy with the position and you are taken straight back to the options. Pressing Escape also leaves positioning mode, but closes everything instead of returning to the options.
+
+This is the intended way to position the bar: the options window sits in the middle of the screen, so it would otherwise cover the very bar you are trying to place. If **Snap to Grid** is enabled, the alignment grid is drawn while you are placing the bar and disappears again when you are done.
+
 ### Available Settings
 
 #### Energy Bar Positioning
 - **Lock Energy Bar**: When enabled, prevents the energy bar from being moved by dragging. When disabled, you can drag the energy bar to reposition it anywhere on your screen.
+- **Snap to Grid**: When enabled, the energy bar's top-left corner is aligned to a grid as soon as you drop it, which makes it easy to line the bar up with the rest of your UI. Disabled by default — placement stays free until you turn it on, and an already placed bar only moves the next time you drag it. The grid itself is drawn only while you are placing the bar (see above), never during normal play.
+- **Grid Size**: The spacing of that grid in pixels. A smaller value allows finer placement, a larger value snaps in bigger steps. Only available while **Snap to Grid** is enabled.
 
 #### Energy Bar Dimensions
 - **Energy Bar Width**: Adjust the width of the energy bar to fit your UI layout. Use the slider to increase or decrease the horizontal size.
@@ -63,7 +71,7 @@ Pulse lets you save your configuration as named profiles, so you can switch betw
 
 ![](docs/pulse_profile_configuration.png)
 
-A profile captures all of your Pulse settings – the energy bar lock state, its width and height, and its on-screen position.
+A profile captures all of your Pulse settings – the energy bar lock state, its grid snapping and grid size, its width and height, and its on-screen position.
 
 - **Save current as...**: Snapshots your current settings into a new named profile (or overwrites an existing one of the same name).
 - **Apply**: Loads the selected profile and applies its settings.
