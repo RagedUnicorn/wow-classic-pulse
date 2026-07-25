@@ -18,6 +18,7 @@
 
 - The rename popup is pre-filled with the current name
 - An empty name and a name that already exists are both rejected with a user-visible error
+- The rename prompt stops accepting input at 30 characters
 - Renaming to a new name updates the list entry; the profile's content is unchanged
   (spot-check by exporting or applying it)
 - Delete asks for confirmation; the profile disappears and does not return after `/reload`

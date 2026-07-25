@@ -69,6 +69,7 @@ if (GetLocale() == "deDE") then
   rgp.L["profile_error_wrong_addon"] = "Diese Profil-Zeichenkette wurde nicht von Pulse erstellt"
   rgp.L["profile_error_version"] = "Diese Profil-Zeichenkette wurde mit einer neueren Version von Pulse erstellt"
   rgp.L["profile_error_name_empty"] = "Der Profilname darf nicht leer sein"
+  rgp.L["profile_error_name_too_long"] = "Der Profilname darf nicht länger als %d Zeichen sein"
   rgp.L["profile_error_name_exists"] = "Ein Profil mit diesem Namen existiert bereits"
   rgp.L["profile_error_no_selection"] = "Kein Profil ausgewählt"
   rgp.L["profile_error_default_cannot_be_deleted"] = "Das Profil \"%s\" kann nicht gelöscht werden"

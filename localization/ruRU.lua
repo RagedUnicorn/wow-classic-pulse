@@ -68,6 +68,7 @@ if (GetLocale() == "ruRU") then
   rgp.L["profile_error_wrong_addon"] = "Эта строка профиля создана не Pulse"
   rgp.L["profile_error_version"] = "Эта строка профиля создана более новой версией Pulse"
   rgp.L["profile_error_name_empty"] = "Имя профиля не может быть пустым"
+  rgp.L["profile_error_name_too_long"] = "Имя профиля не может быть длиннее %d символов"
   rgp.L["profile_error_name_exists"] = "Профиль с таким именем уже существует"
   rgp.L["profile_error_no_selection"] = "Профиль не выбран"
   rgp.L["profile_error_default_cannot_be_deleted"] = "Профиль \"%s\" нельзя удалить"

@@ -153,6 +153,12 @@ RGP_CONSTANTS = {
     every character keeps a baseline to fall back to
   ]]--
   DEFAULT_PROFILE_NAME = "Default",
+  --[[
+    Upper bound for a user chosen profile name, counted in characters (not bytes) so a
+    localized name is not cut short. Keeps the name readable in the profile list and in
+    the chat messages that quote it
+  ]]--
+  PROFILE_NAME_MAX_LENGTH = 30,
   ELEMENT_PROFILE_SUB_OPTION_FRAME = "P_ProfileMenuOptionsFrame",
   ELEMENT_PROFILE_TITLE = "P_ProfileTitle",
   ELEMENT_PROFILE_LIST_SCROLL_FRAME = "P_ProfileListScrollFrame",

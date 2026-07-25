@@ -66,6 +66,7 @@ rgp.L["profile_error_checksum"] = "The profile string is corrupt (checksum misma
 rgp.L["profile_error_wrong_addon"] = "This profile string was not created by Pulse"
 rgp.L["profile_error_version"] = "This profile string was created by a newer version of Pulse"
 rgp.L["profile_error_name_empty"] = "The profile name cannot be empty"
+rgp.L["profile_error_name_too_long"] = "The profile name cannot be longer than %d characters"
 rgp.L["profile_error_name_exists"] = "A profile with that name already exists"
 rgp.L["profile_error_no_selection"] = "No profile selected"
 rgp.L["profile_error_default_cannot_be_deleted"] = "The \"%s\" profile cannot be deleted"
