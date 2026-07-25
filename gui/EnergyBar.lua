@@ -40,6 +40,8 @@ local CreateEnergyAmountFontString
 local SetupDragFrame
 local StartDragFrame
 local StopDragFrame
+local SnapFrameToGrid
+local IsDragAllowed
 
 --[[
   Time when the last energyTick happened
@@ -59,6 +61,14 @@ local wasShownBeforePreview = false
   me.HidePreview to only stop a ticker the preview owns
 ]]--
 local previewStartedTicker = false
+--[[
+  Whether a preview is currently forcing the bar visible. Makes the Show/HidePreview pair
+  idempotent: the options panel and the positioning mode can both ask for a preview, and
+  the mode takes over an already running one (the panel closes on its way in). Without this
+  the second ShowPreview would re-capture wasShownBeforePreview from the previewed state and
+  the bar would never be restored to hidden
+]]--
+local previewActive = false
 
 function me.BuildUi()
   energyBarFrame = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME, UIParent, "BackdropTemplate")
@@ -162,6 +172,7 @@ end
 function me.ShowPreview()
   if not energyBarFrame then return end
 
+  previewActive = true
   wasShownBeforePreview = energyBarFrame:IsShown()
   energyBarFrame:Show()
 
@@ -178,6 +189,9 @@ end
 ]]--
 function me.HidePreview()
   if not energyBarFrame then return end
+  if not previewActive then return end
+
+  previewActive = false
 
   if not wasShownBeforePreview then
     energyBarFrame:Hide()
@@ -200,12 +214,24 @@ SetupDragFrame = function(frame)
 end
 
 --[[
+  Whether the bar may be dragged right now. The lock keeps the bar from being nudged by a
+  stray click during play, but entering the positioning mode is a deliberate "I want to
+  move this" - so the mode overrides the lock instead of forcing the user to find and
+  toggle a second setting first. The lock setting itself is never changed by the mode.
+
+  @return {boolean}
+]]--
+IsDragAllowed = function()
+  return mod.positioningMode.IsActive() or not mod.configuration.IsEnergyBarLocked()
+end
+
+--[[
   Frame callback to start moving the passed (self) frame
 
   @param {table} self
 ]]--
 StartDragFrame = function(self)
-  if mod.configuration.IsEnergyBarLocked() then return end
+  if not IsDragAllowed() then return end
 
   self:StartMoving()
 end
@@ -216,9 +242,13 @@ end
   @param {table} self
 ]]--
 StopDragFrame = function(self)
-  if mod.configuration.IsEnergyBarLocked() then return end
+  if not IsDragAllowed() then return end
 
   self:StopMovingOrSizing()
+
+  if mod.configuration.IsEnergyBarGridSnapEnabled() then
+    SnapFrameToGrid(self)
+  end
 
   local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
 
@@ -234,6 +264,58 @@ StopDragFrame = function(self)
     relativePoint,
     posX,
     posY
+  )
+end
+
+--[[
+  Round a coordinate onto the nearest multiple of the alignment grid. Pure arithmetic -
+  exposed on the module so the headless spec can exercise it without a WoW client. A
+  gridSize that is not a positive number leaves the value untouched
+
+  @param {number} value
+  @param {number} gridSize
+
+  @return {number}
+]]--
+function me.SnapValueToGrid(value, gridSize)
+  if type(gridSize) ~= "number" or gridSize <= 0 then return value end
+
+  return math.floor(value / gridSize + 0.5) * gridSize
+end
+
+--[[
+  Re-anchor a dropped frame onto the alignment grid.
+
+  It is the frame's top left corner that lands on an intersection, not its center. With
+  the grid drawn on screen the user aligns what they can see - an edge touching a line -
+  and a centered snap would leave both visible edges half a bar off every line unless the
+  bar's size happened to be a multiple of the grid size.
+
+  The frame is normalized to a TOPLEFT / UIParent BOTTOMLEFT anchor before the offsets are
+  rounded: whatever anchor the drag left behind, the persisted position is then a
+  deterministic, serializable screen coordinate (profiles carry it) and the grid means the
+  same thing no matter where the bar was dragged from.
+
+  @param {table} frame
+]]--
+SnapFrameToGrid = function(frame)
+  local left = frame:GetLeft()
+  local top = frame:GetTop()
+
+  --[[
+    Both return nil for a frame that has no resolved rect yet - nothing to snap
+  ]]--
+  if left == nil or top == nil then return end
+
+  local gridSize = mod.configuration.GetEnergyBarGridSize()
+
+  frame:ClearAllPoints()
+  frame:SetPoint(
+    "TOPLEFT",
+    UIParent,
+    "BOTTOMLEFT",
+    me.SnapValueToGrid(left, gridSize),
+    me.SnapValueToGrid(top, gridSize)
   )
 end
 

@@ -55,12 +55,14 @@ describe("Cmd", function()
   local userErrors
   local reloadCalls
   local openCalls
+  local toggleCalls
 
-  -- rgp.logger / rgp.addonConfiguration / rgp.L are deep fields of the shared `rgp` table; file
-  -- insulation snapshots only the top-level reference, so capture and restore them to avoid leaking
-  -- the stubs into later specs (addonConfiguration and L do not exist in the bootstrap -> nil).
+  -- rgp.logger / rgp.addonConfiguration / rgp.positioningMode / rgp.L are deep fields of the shared
+  -- `rgp` table; file insulation snapshots only the top-level reference, so capture and restore them
+  -- to avoid leaking the stubs into later specs (all but the logger are absent in the bootstrap -> nil).
   local originalLogger = rgp.logger
   local originalAddonConfiguration = rgp.addonConfiguration
+  local originalPositioningMode = rgp.positioningMode
   local originalL = rgp.L
 
   before_each(function()
@@ -68,6 +70,7 @@ describe("Cmd", function()
     userErrors = {}
     reloadCalls = 0
     openCalls = 0
+    toggleCalls = 0
 
     -- SLASH_PULSE1/2 are assigned by SetupSlashCmdList; installing them (as false) lets restore put
     -- the headless-absent globals back to their original (nil) afterwards.
@@ -84,6 +87,7 @@ describe("Cmd", function()
       PrintUserError = function(msg) userErrors[#userErrors + 1] = msg end
     }
     rgp.addonConfiguration = { OpenMainCategory = function() openCalls = openCalls + 1 end }
+    rgp.positioningMode = { Toggle = function() toggleCalls = toggleCalls + 1 end }
     -- ShowInfoMessage / the error path read several L keys; fall back to the key name for any other
     rgp.L = setmetatable({
       info_title = "Pulse",
@@ -103,6 +107,7 @@ describe("Cmd", function()
     restore()
     rgp.logger = originalLogger
     rgp.addonConfiguration = originalAddonConfiguration
+    rgp.positioningMode = originalPositioningMode
     rgp.L = originalL
   end)
 
@@ -117,15 +122,16 @@ describe("Cmd", function()
   describe("HandleSlashCommand", function()
     it("shows the info message for no argument", function()
       handle("")
-      -- ShowInfoMessage prints the title plus the two help lines
-      assert.are.equal(3, #prints)
+      -- ShowInfoMessage prints the title plus the three help lines
+      assert.are.equal(4, #prints)
       assert.are.equal(0, reloadCalls)
       assert.are.equal(0, openCalls)
+      assert.are.equal(0, toggleCalls)
     end)
 
     it("shows the info message for the 'help' argument", function()
       handle("help")
-      assert.are.equal(3, #prints)
+      assert.are.equal(4, #prints)
     end)
 
     it("reloads the UI for 'rl'", function()
@@ -141,6 +147,12 @@ describe("Cmd", function()
     it("opens the options category for 'opt'", function()
       handle("opt")
       assert.are.equal(1, openCalls)
+    end)
+
+    it("toggles the positioning mode for 'move'", function()
+      handle("move")
+      assert.are.equal(1, toggleCalls)
+      assert.are.equal(0, openCalls)
     end)
 
     it("dispatches on the first token and ignores trailing arguments", function()

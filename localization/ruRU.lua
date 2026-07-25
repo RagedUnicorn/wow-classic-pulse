@@ -9,6 +9,7 @@ if (GetLocale() == "ruRU") then
   -- console
   rgp.L["help"] = "|cFFFFC300(%s)|r: Используйте |cFFFFC300/rgp|r или |cFFFFC300/pulse|r для списка опций"
   rgp.L["opt"] = "|cFFFFC300opt|r — показать меню настроек"
+  rgp.L["move"] = "|cFFFFC300move|r — разместить панель энергии на экране"
   rgp.L["reload"] = "|cFFFFC300reload|r — перезагрузить интерфейс"
   rgp.L["info_title"] = "|cFF00FFB0Pulse:|r"
   rgp.L["invalid_argument"] = "Недопустимый аргумент"
@@ -29,6 +30,16 @@ if (GetLocale() == "ruRU") then
   rgp.L["energy_bar_width_tooltip"] = "Настройка ширины панели энергии"
   rgp.L["energy_bar_height"] = "Высота панели энергии"
   rgp.L["energy_bar_height_tooltip"] = "Настройка высоты панели энергии"
+  rgp.L["snap_energy_bar_to_grid"] = "Привязка к сетке"
+  rgp.L["snap_energy_bar_to_grid_tooltip"] = "Выравнивает панель энергии по сетке при отпускании"
+  rgp.L["energy_bar_grid_size"] = "Размер сетки"
+  rgp.L["energy_bar_grid_size_tooltip"] = "Расстояние между линиями сетки в пикселях"
+  rgp.L["move_bar"] = "Переместить панель"
+  rgp.L["move_bar_description"] = "Закрывает настройки, чтобы можно было разместить панель энергии"
+  rgp.L["positioning_hud_instruction"] = "Перетащите панель энергии в нужное место"
+  rgp.L["positioning_hud_instruction_snap"] =
+    "Перетащите панель энергии в нужное место. Левый верхний угол привяжется к сетке."
+  rgp.L["positioning_hud_done"] = "Готово"
 
   -- profile
   rgp.L["profile_category_name"] = "Профили"

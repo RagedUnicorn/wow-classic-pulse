@@ -10,6 +10,7 @@ if (GetLocale() == "deDE") then
   rgp.L["help"] = "|cFFFFC300(%s)|r: Benutze |cFFFFC300/rgp|r oder |cFFFFC300/pulse|r "
     .. "für eine Liste der verfügbaren Optionen"
   rgp.L["opt"] = "|cFFFFC300opt|r - zeige Optionsmenu an"
+  rgp.L["move"] = "|cFFFFC300move|r - Energiebalken auf dem Bildschirm platzieren"
   rgp.L["reload"] = "|cFFFFC300reload|r - UI neu laden"
   rgp.L["info_title"] = "|cFF00FFB0Pulse:|r"
   rgp.L["invalid_argument"] = "Ungültiges Argument übergeben"
@@ -30,6 +31,16 @@ if (GetLocale() == "deDE") then
   rgp.L["energy_bar_width_tooltip"] = "Breite des Energiebalkens anpassen"
   rgp.L["energy_bar_height"] = "Energiebalken Höhe"
   rgp.L["energy_bar_height_tooltip"] = "Höhe des Energiebalkens anpassen"
+  rgp.L["snap_energy_bar_to_grid"] = "Am Raster ausrichten"
+  rgp.L["snap_energy_bar_to_grid_tooltip"] = "Richtet den Energiebalken beim Loslassen am Raster aus"
+  rgp.L["energy_bar_grid_size"] = "Rastergrösse"
+  rgp.L["energy_bar_grid_size_tooltip"] = "Abstand der Rasterlinien in Pixeln"
+  rgp.L["move_bar"] = "Balken verschieben"
+  rgp.L["move_bar_description"] = "Schliesst diese Optionen, damit der Energiebalken platziert werden kann"
+  rgp.L["positioning_hud_instruction"] = "Energiebalken an die gewünschte Stelle ziehen"
+  rgp.L["positioning_hud_instruction_snap"] =
+    "Energiebalken an die gewünschte Stelle ziehen. Die obere linke Ecke rastet am Raster ein."
+  rgp.L["positioning_hud_done"] = "Fertig"
 
   -- profile
   rgp.L["profile_category_name"] = "Profile"

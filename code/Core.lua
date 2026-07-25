@@ -33,6 +33,7 @@ me.tag = "Core"
 -- forward declarations for local functions
 local OnPlayerLogin
 local OnUnitPowerUpdate
+local OnDisplaySizeChanged
 local Initialize
 local ShowWelcomeMessage
 
@@ -60,6 +61,14 @@ OnUnitPowerUpdate = function(unitTarget, powerType)
 end
 
 --[[
+  Re-lay the alignment grid when the drawable area changes. Referenced through the module
+  table at call time - gui/AlignmentGrid.lua is loaded after gui/Frame.xml runs OnLoad
+]]--
+OnDisplaySizeChanged = function()
+  me.alignmentGrid.Refresh()
+end
+
+--[[
   Addon load
 
   @param {table} self
@@ -79,6 +88,12 @@ function me.OnLoad(self)
   me.event.Register(
     { "PLAYER_ENTERING_WORLD", "GROUP_ROSTER_UPDATE" },
     me.comm.BroadcastVersion,
+    { gated = true }
+  )
+  -- the alignment grid spans the whole screen and has to be re-laid when that changes
+  me.event.Register(
+    { "DISPLAY_SIZE_CHANGED", "UI_SCALE_CHANGED" },
+    OnDisplaySizeChanged,
     { gated = true }
   )
 
@@ -108,7 +123,6 @@ Initialize = function()
   me.profile.EnsureDefaultProfile()
   -- setup addon configuration ui
   me.addonConfiguration.SetupAddonConfiguration()
-  -- setup ui
   me.energyBar.BuildUi()
   -- register addon message prefix for the version broadcast
   me.comm.Initialize()

@@ -45,11 +45,23 @@ local options = {
   EnergyBarHeight = {
     label = rgp.L["energy_bar_height"],
     description = rgp.L["energy_bar_height_tooltip"]
+  },
+  SnapEnergyBarToGrid = {
+    label = rgp.L["snap_energy_bar_to_grid"],
+    description = rgp.L["snap_energy_bar_to_grid_tooltip"]
+  },
+  EnergyBarGridSize = {
+    label = rgp.L["energy_bar_grid_size"],
+    description = rgp.L["energy_bar_grid_size_tooltip"]
   }
 }
 
 -- track whether the menu was already built
 local builtMenu = false
+--[[
+  The grid size slider, kept around so its enabled state can follow the snap checkbox
+]]--
+local gridSizeSlider
 
 -- forward declarations
 local BuildCheckButtonOption
@@ -59,6 +71,9 @@ local CreateSliderDescription
 local GetOptionData
 local LockWindowEnergyBarOnShow
 local LockWindowEnergyBarOnClick
+local SnapEnergyBarToGridOnShow
+local SnapEnergyBarToGridOnClick
+local UpdateGridSizeSliderState
 
 --[[
   Build the ui for the general menu
@@ -76,8 +91,17 @@ function me.BuildUi(frame)
 
   if builtMenu then return end
 
-  -- restore the bar's prior state when the panel closes (registered once)
+  --[[
+    Restore the bar's prior state when the panel closes (registered once).
+
+    Skipped while the positioning mode is running: that mode closes this very panel on its
+    way in, which fires this OnHide, and tearing the preview down here would hide the bar
+    the user just asked to place. The mode owns the preview from that point on and reverses
+    it when it exits
+  ]]--
   frame:HookScript("OnHide", function()
+    if mod.positioningMode.IsActive() then return end
+
     mod.energyBar.HidePreview()
   end)
 
@@ -96,10 +120,41 @@ function me.BuildUi(frame)
     LockWindowEnergyBarOnClick
   )
 
+  BuildCheckButtonOption(
+    frame,
+    RGP_CONSTANTS.ELEMENT_GENERAL_OPT_SNAP_ENERGY_BAR_TO_GRID,
+    20,
+    -100,
+    SnapEnergyBarToGridOnShow,
+    SnapEnergyBarToGridOnClick
+  )
+
+  --[[
+    Directly below the checkbox that governs it - and greyed out while that checkbox is
+    unchecked (see UpdateGridSizeSliderState)
+  ]]--
+  gridSizeSlider = CreateSizeSlider(
+    frame,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_GRID_SIZE_SLIDER,
+    {"TOPLEFT", 20, -160},
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_GRID_SIZE,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_GRID_SIZE,
+    mod.configuration.GetEnergyBarGridSize(),
+    options.EnergyBarGridSize.label,
+    options.EnergyBarGridSize.description,
+    function(_, value)
+      mod.configuration.SetEnergyBarGridSize(value)
+      mod.alignmentGrid.Refresh()
+    end,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_GRID_SIZE_SLIDER_STEP
+  )
+
+  UpdateGridSizeSliderState()
+
   CreateSizeSlider(
     frame,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH_SLIDER,
-    {"TOPLEFT", 20, -130},
+    {"TOPLEFT", 20, -250},
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_WIDTH,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_WIDTH,
     mod.configuration.GetEnergyBarWidth(),
@@ -108,13 +163,14 @@ function me.BuildUi(frame)
     function(_, value)
       mod.configuration.SetEnergyBarWidth(value)
       mod.energyBar.UpdateEnergyBarSize()
-    end
+    end,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP
   )
 
   CreateSizeSlider(
     frame,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT_SLIDER,
-    {"TOPLEFT", 20, -220},
+    {"TOPLEFT", 20, -340},
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_HEIGHT,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_HEIGHT,
     mod.configuration.GetEnergyBarHeight(),
@@ -123,8 +179,32 @@ function me.BuildUi(frame)
     function(_, value)
       mod.configuration.SetEnergyBarHeight(value)
       mod.energyBar.UpdateEnergyBarSize()
+    end,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP
+  )
+
+  --[[
+    Placing the bar cannot happen from here - this panel covers the screen the bar sits on.
+    The button hands over to the positioning mode, which closes the panel first
+  ]]--
+  mod.uiHelper.CreateButton(
+    frame,
+    RGP_CONSTANTS.ELEMENT_GENERAL_MOVE_BAR_BUTTON,
+    {"TOPLEFT", 20, -430},
+    RGP_CONSTANTS.ELEMENT_POSITIONING_HUD_BUTTON_WIDTH,
+    RGP_CONSTANTS.ELEMENT_POSITIONING_HUD_BUTTON_HEIGHT,
+    rgp.L["move_bar"],
+    function()
+      mod.positioningMode.Enter()
     end
   )
+
+  local moveBarDescription = frame:CreateFontString(nil, "OVERLAY")
+  moveBarDescription:SetFont(STANDARD_TEXT_FONT, 12)
+  mod.uiHelper.SetColor(moveBarDescription, RGP_CONSTANTS.COLOR.SUBNOTE)
+  moveBarDescription:SetPoint("TOPLEFT", 24, -460)
+  moveBarDescription:SetJustifyH("LEFT")
+  moveBarDescription:SetText(rgp.L["move_bar_description"])
 
   builtMenu = true
 end
@@ -135,14 +215,16 @@ end
   @param {number} minValue
   @param {number} maxValue
   @param {string} title
+  @param {number} stepSize
+    Increment between two slider values
 
   @return {table} configured slider options
 ]]--
-CreateSliderOptions = function(minValue, maxValue, title)
+CreateSliderOptions = function(minValue, maxValue, title, stepSize)
   local sliderOptions = Settings.CreateSliderOptions(
     minValue,
     maxValue,
-    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_STEP
+    stepSize
   )
   sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
   sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function() return maxValue end)
@@ -239,10 +321,59 @@ LockWindowEnergyBarOnClick = function(self)
   else
     mod.configuration.UnlockEnergyBar()
   end
+
+  -- a locked bar cannot be moved, so the grid has nothing left to guide
+  mod.alignmentGrid.Refresh()
 end
 
 --[[
-  Create a slider for changing the size of the energyBar
+  OnShow callback for checkbuttons - snap energyBar to grid
+
+  @param {table} self
+]]--
+SnapEnergyBarToGridOnShow = function(self)
+  if mod.configuration.IsEnergyBarGridSnapEnabled() then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+
+  --[[
+    Guarded against the slider not existing yet - the checkbox is built (and its OnShow
+    run once) before the slider below it
+  ]]--
+  UpdateGridSizeSliderState()
+end
+
+--[[
+  OnClick callback for checkbuttons - snap energyBar to grid
+
+  @param {table} self
+]]--
+SnapEnergyBarToGridOnClick = function(self)
+  local enabled = self:GetChecked()
+
+  if enabled then
+    mod.configuration.EnableEnergyBarGridSnap()
+  else
+    mod.configuration.DisableEnergyBarGridSnap()
+  end
+
+  UpdateGridSizeSliderState()
+  mod.alignmentGrid.Refresh()
+end
+
+--[[
+  Keep the grid size slider in step with the snap checkbox - a grid spacing is meaningless
+  while nothing snaps to it. Driven from both the checkbox OnShow and its OnClick so the
+  slider is right on the first open as well as after every toggle
+]]--
+UpdateGridSizeSliderState = function()
+  mod.uiHelper.SetSliderEnabled(gridSizeSlider, mod.configuration.IsEnergyBarGridSnapEnabled())
+end
+
+--[[
+  Create a slider for a pixel valued energyBar option (its dimensions, the grid spacing)
 
   @param {table} parentFrame
   @param {string} sliderName
@@ -254,11 +385,16 @@ end
   @param {string} sliderTitle
   @param {string} sliderDescription
   @param {function} onValueChangedCallback
+  @param {number} sliderStep
+    Increment between two slider values
+
+  @return {table}
+    The created slider frame
 ]]--
 CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
-    sliderTitle, sliderDescription, onValueChangedCallback)
+    sliderTitle, sliderDescription, onValueChangedCallback, sliderStep)
 
-  local sliderOptions = CreateSliderOptions(sliderMinValue, sliderMaxValue, sliderTitle)
+  local sliderOptions = CreateSliderOptions(sliderMinValue, sliderMaxValue, sliderTitle, sliderStep)
 
   local sliderFrame = CreateFrame("Frame", sliderName, parentFrame, "MinimalSliderWithSteppersTemplate")
   sliderFrame:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_WIDTH)
@@ -276,4 +412,6 @@ CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, s
   end
 
   CreateSliderDescription(sliderFrame, sliderDescription)
+
+  return sliderFrame
 end

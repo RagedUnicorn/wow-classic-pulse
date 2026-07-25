@@ -46,6 +46,8 @@ describe("Profile", function()
     PulseConfiguration.lockEnergyBar = false
     PulseConfiguration.energyBarWidth = 120
     PulseConfiguration.energyBarHeight = 30
+    PulseConfiguration.snapEnergyBarToGrid = false
+    PulseConfiguration.energyBarGridSize = 10
     PulseConfiguration.frames = {}
 
     rgp.logger.logLevel = rgp.logger.error - 1
@@ -108,12 +110,31 @@ describe("Profile", function()
     assert.are.equal("profile_error_checksum", err)
   end)
 
+  it("snapshots every configurable field, including the grid snap pair", function()
+    PulseConfiguration.snapEnergyBarToGrid = true
+    PulseConfiguration.energyBarGridSize = 25
+
+    local payload = profile.BuildSnapshot()
+
+    assert.is_true(payload.snapEnergyBarToGrid)
+    assert.are.equal(25, payload.energyBarGridSize)
+  end)
+
   it("applies a snapshot onto the live configuration", function()
-    profile.ApplySnapshot({ lockEnergyBar = true, energyBarWidth = 250, energyBarHeight = 50, frames = {} })
+    profile.ApplySnapshot({
+      lockEnergyBar = true,
+      energyBarWidth = 250,
+      energyBarHeight = 50,
+      snapEnergyBarToGrid = true,
+      energyBarGridSize = 25,
+      frames = {}
+    })
 
     assert.is_true(PulseConfiguration.lockEnergyBar)
     assert.are.equal(250, PulseConfiguration.energyBarWidth)
     assert.are.equal(50, PulseConfiguration.energyBarHeight)
+    assert.is_true(PulseConfiguration.snapEnergyBarToGrid)
+    assert.are.equal(25, PulseConfiguration.energyBarGridSize)
   end)
 
   it("does not share table references between profile and live config", function()
@@ -163,6 +184,8 @@ describe("Profile", function()
       assert.is_false(payload.lockEnergyBar)
       assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH, payload.energyBarWidth)
       assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT, payload.energyBarHeight)
+      assert.is_false(payload.snapEnergyBarToGrid)
+      assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_GRID_SIZE, payload.energyBarGridSize)
       assert.are.same({}, payload.frames)
     end)
 

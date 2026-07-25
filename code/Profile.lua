@@ -62,6 +62,8 @@ me.PROFILE_FIELDS = {
   "lockEnergyBar",
   "energyBarWidth",
   "energyBarHeight",
+  "snapEnergyBarToGrid",
+  "energyBarGridSize",
   "frames"
 }
 

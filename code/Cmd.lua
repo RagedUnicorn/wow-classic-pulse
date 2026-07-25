@@ -66,6 +66,8 @@ HandleSlashCommand = function(msg)
     ReloadUI()
   elseif args[1] == "opt" then
     mod.addonConfiguration.OpenMainCategory()
+  elseif args[1] == "move" then
+    mod.positioningMode.Toggle()
   else
     mod.logger.PrintUserError(rgp.L["invalid_argument"])
   end
@@ -78,4 +80,5 @@ ShowInfoMessage = function()
   print(rgp.L["info_title"])
   print(rgp.L["reload"])
   print(rgp.L["opt"])
+  print(rgp.L["move"])
 end

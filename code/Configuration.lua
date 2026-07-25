@@ -57,6 +57,14 @@ local DEFAULTS = {
   ["energyBarHeight"] = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT,
 
   --[[
+    Whether a dropped energyBar is rounded onto the addon's own alignment grid.
+    Opt-in - existing placements stay exactly where they are until the bar is moved
+    again. energyBarGridSize is the spacing of that grid in pixels
+  ]]--
+  ["snapEnergyBarToGrid"] = false,
+  ["energyBarGridSize"] = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_GRID_SIZE,
+
+  --[[
     Framepositions for user draggable Frames
     frames = {
       -- should match the actual frame name
@@ -304,4 +312,45 @@ end
 ]]--
 function me.GetEnergyBarHeight()
   return PulseConfiguration.energyBarHeight
+end
+
+--[[
+  Enable snapping the energyBar onto the alignment grid when it is dropped
+]]--
+function me.EnableEnergyBarGridSnap()
+  PulseConfiguration.snapEnergyBarToGrid = true
+end
+
+--[[
+  Disable snapping the energyBar onto the alignment grid when it is dropped
+]]--
+function me.DisableEnergyBarGridSnap()
+  PulseConfiguration.snapEnergyBarToGrid = false
+end
+
+--[[
+  @return {boolean}
+    true - if a dropped energyBar is snapped onto the alignment grid
+    false - if the energyBar can be placed freely
+]]--
+function me.IsEnergyBarGridSnapEnabled()
+  return PulseConfiguration.snapEnergyBarToGrid
+end
+
+--[[
+  Set the spacing of the alignment grid in pixels
+
+  @param {number} gridSize
+]]--
+function me.SetEnergyBarGridSize(gridSize)
+  PulseConfiguration.energyBarGridSize = gridSize
+end
+
+--[[
+  Get the spacing of the alignment grid in pixels
+
+  @return {number}
+]]--
+function me.GetEnergyBarGridSize()
+  return PulseConfiguration.energyBarGridSize
 end

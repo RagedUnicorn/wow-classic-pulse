@@ -131,6 +131,20 @@ BuildCategory = function(frameName, parent, panelText, onShowCallback)
 end
 
 --[[
+  Open the addon configuration on one of its panels
+
+  @param {string} key
+    One of "main", "general", "profile"
+]]--
+function me.OpenCategory(key)
+  local categoryId = me.GetCategoryId(key)
+
+  if categoryId ~= nil then
+    Settings.OpenToCategory(categoryId)
+  end
+end
+
+--[[
   Open the Blizzard addon configurations panel for the addon
 ]]--
 function me.OpenMainCategory()

@@ -90,6 +90,8 @@ describe("Configuration", function()
       assert.are.same({}, PulseConfiguration.profiles)
       assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH, PulseConfiguration.energyBarWidth)
       assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT, PulseConfiguration.energyBarHeight)
+      assert.is_false(PulseConfiguration.snapEnergyBarToGrid)
+      assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_GRID_SIZE, PulseConfiguration.energyBarGridSize)
       assert.are.equal("1.2.3", PulseConfiguration.addonVersion)
     end)
 
@@ -235,6 +237,32 @@ describe("Configuration", function()
     it("round-trips height through set / get", function()
       configuration.SetEnergyBarHeight(60)
       assert.are.equal(60, configuration.GetEnergyBarHeight())
+    end)
+  end)
+
+  describe("energy bar grid snap", function()
+    it("round-trips enable / disable through IsEnergyBarGridSnapEnabled", function()
+      configuration.EnableEnergyBarGridSnap()
+      assert.is_true(configuration.IsEnergyBarGridSnapEnabled())
+
+      configuration.DisableEnergyBarGridSnap()
+      assert.is_false(configuration.IsEnergyBarGridSnapEnabled())
+    end)
+
+    it("round-trips the grid size through set / get", function()
+      configuration.SetEnergyBarGridSize(25)
+      assert.are.equal(25, configuration.GetEnergyBarGridSize())
+    end)
+
+    it("keeps an enabled grid snap across a defaults merge", function()
+      -- the default is false; an opted-in user must not be reset on the next login
+      configuration.EnableEnergyBarGridSnap()
+      configuration.SetEnergyBarGridSize(25)
+
+      configuration.SetupConfiguration()
+
+      assert.is_true(configuration.IsEnergyBarGridSnapEnabled())
+      assert.are.equal(25, configuration.GetEnergyBarGridSize())
     end)
   end)
 

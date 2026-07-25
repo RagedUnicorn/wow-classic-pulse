@@ -74,6 +74,8 @@ PulseConfiguration = {
   lockEnergyBar = false,
   energyBarWidth = 120,
   energyBarHeight = 30,
+  snapEnergyBarToGrid = false,
+  energyBarGridSize = 10,
   frames = {},
   profiles = {}
 }
@@ -89,6 +91,8 @@ rgp.configuration = {
       lockEnergyBar = false,
       energyBarWidth = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH,
       energyBarHeight = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT,
+      snapEnergyBarToGrid = false,
+      energyBarGridSize = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_GRID_SIZE,
       frames = {},
       profiles = {},
       lastNotifiedVersion = ""

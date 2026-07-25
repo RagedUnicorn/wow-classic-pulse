@@ -60,6 +60,56 @@ function me.ApplyBorderBackdrop(frame)
 end
 
 --[[
+  Create a standard panel button
+
+  @param {table} parent
+  @param {string} frameName
+  @param {table} position
+    An object containing configuration parameters for a SetPoint function call
+  @param {number} width
+  @param {number} height
+  @param {string} text
+  @param {function} onClickCallback
+
+  @return {table}
+    The created button
+]]--
+function me.CreateButton(parent, frameName, position, width, height, text, onClickCallback)
+  local button = CreateFrame("Button", frameName, parent, "UIPanelButtonTemplate")
+  button:SetSize(width, height)
+  button:SetPoint(unpack(position))
+  button:SetText(text)
+  button:SetScript("OnClick", onClickCallback)
+
+  return button
+end
+
+--[[
+  Enable or disable a slider control built from MinimalSliderWithSteppersTemplate.
+
+  MinimalSliderWithSteppersMixin carries its own SetEnabled, which dims the thumb, greys
+  the template's value labels and stops the slider and both stepper buttons from
+  responding - this is exactly how Blizzard's own settings controls disable such a slider.
+  Only the description below it belongs to the addon, so that is the one label recolored
+  here.
+
+  @param {table} sliderFrame
+  @param {boolean} enabled
+]]--
+function me.SetSliderEnabled(sliderFrame, enabled)
+  if sliderFrame == nil then return end
+
+  sliderFrame:SetEnabled(enabled)
+
+  if sliderFrame.description ~= nil then
+    me.SetColor(
+      sliderFrame.description,
+      enabled and RGP_CONSTANTS.COLOR.SUBNOTE or RGP_CONSTANTS.COLOR.DISABLED
+    )
+  end
+end
+
+--[[
   Create a configuration checkbox
 
   @param {string} frameName

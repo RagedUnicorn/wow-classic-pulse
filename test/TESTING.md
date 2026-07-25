@@ -74,12 +74,14 @@ One file per test case under [test/manual/](manual/). Case IDs follow `TC-<AREA>
 
 ### EnergyBar
 
-| ID                                                        | Case                                  |
-|-----------------------------------------------------------|---------------------------------------|
-| [TC-EB-01](manual/TC-EB-01-bar-appears-and-ticks.md)      | Bar appears and the tick sweep runs   |
-| [TC-EB-02](manual/TC-EB-02-drag-and-position-persists.md) | Drag repositions the bar and persists |
-| [TC-EB-03](manual/TC-EB-03-lock-prevents-drag.md)         | Lock prevents dragging                |
-| [TC-EB-04](manual/TC-EB-04-size-sliders.md)               | Width and height sliders resize live  |
+| ID                                                        | Case                                    |
+|-----------------------------------------------------------|-----------------------------------------|
+| [TC-EB-01](manual/TC-EB-01-bar-appears-and-ticks.md)      | Bar appears and the tick sweep runs     |
+| [TC-EB-02](manual/TC-EB-02-drag-and-position-persists.md) | Drag repositions the bar and persists   |
+| [TC-EB-03](manual/TC-EB-03-lock-prevents-drag.md)         | Lock prevents dragging                  |
+| [TC-EB-04](manual/TC-EB-04-size-sliders.md)               | Width and height sliders resize live    |
+| [TC-EB-05](manual/TC-EB-05-grid-snap.md)                  | Snap to grid aligns the dropped bar     |
+| [TC-EB-06](manual/TC-EB-06-grid-overlay.md)               | Positioning mode and the grid overlay   |
 
 ### Slash commands
 

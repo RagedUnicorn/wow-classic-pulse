@@ -35,6 +35,8 @@ code/Comm.lua
 gui/Frame.xml
 gui/UiHelper.lua
 gui/EnergyBar.lua
+gui/AlignmentGrid.lua
+gui/PositioningMode.lua
 gui/AddonConfiguration.lua
 gui/AboutContent.lua
 gui/GeneralMenu.lua

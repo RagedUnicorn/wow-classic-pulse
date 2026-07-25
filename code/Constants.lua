@@ -89,6 +89,7 @@ RGP_CONSTANTS = {
   ELEMENT_GENERAL_OPT = "P_Opt",
   ELEMENT_GENERAL_TITLE = "P_GeneralTitle",
   ELEMENT_GENERAL_OPT_WINDOW_LOCK_ENERGY_BAR = "P_OptWindowLockEnergyBar",
+  ELEMENT_GENERAL_OPT_SNAP_ENERGY_BAR_TO_GRID = "P_OptSnapEnergyBarToGrid",
 
   --[[
     Energy Bar Size Configuration
@@ -101,6 +102,47 @@ RGP_CONSTANTS = {
   ELEMENT_ENERGY_BAR_MAX_WIDTH = 300,
   ELEMENT_ENERGY_BAR_MIN_HEIGHT = 15,
   ELEMENT_ENERGY_BAR_MAX_HEIGHT = 60,
+
+  --[[
+    Energy Bar Grid Snap Configuration
+
+    Spacing of the addon's own alignment grid in pixels. Purely geometric - the mover
+    rounds the dropped bar onto multiples of it (see gui/EnergyBar.lua). Unrelated to
+    Blizzard's Edit Mode grid, which addons cannot register with.
+  ]]--
+  ELEMENT_ENERGY_BAR_GRID_SIZE_SLIDER = "P_EnergyBarGridSizeSlider",
+  ELEMENT_ENERGY_BAR_GRID_SIZE_SLIDER_STEP = 5,
+  ELEMENT_ENERGY_BAR_GRID_SIZE = 10,
+  ELEMENT_ENERGY_BAR_MIN_GRID_SIZE = 5,
+  ELEMENT_ENERGY_BAR_MAX_GRID_SIZE = 50,
+
+  --[[
+    Alignment grid overlay
+
+    Drawn while the user is positioning the bar with snapping on. Lines are plain colour
+    textures - deliberately dim so the grid reads as a guide over game content. The two
+    lines closest to the screen center are drawn brighter as an orientation aid
+  ]]--
+  ELEMENT_ALIGNMENT_GRID_FRAME = "P_AlignmentGrid",
+  --[[
+    Positioning mode
+
+    The hud is anchored to the screen rather than to the energyBar, so dragging the bar
+    into a corner can never push the Done button out of reach
+  ]]--
+  ELEMENT_POSITIONING_HUD_FRAME = "P_PositioningHud",
+  ELEMENT_POSITIONING_HUD_DONE_BUTTON = "P_PositioningHudDoneButton",
+  ELEMENT_POSITIONING_HUD_WIDTH = 340,
+  -- room for a two line instruction, which the longer locales need
+  ELEMENT_POSITIONING_HUD_HEIGHT = 96,
+  ELEMENT_POSITIONING_HUD_TEXT_INSET = 24,
+  ELEMENT_POSITIONING_HUD_OFFSET_Y = 200,
+  ELEMENT_POSITIONING_HUD_BUTTON_WIDTH = 110,
+  ELEMENT_POSITIONING_HUD_BUTTON_HEIGHT = 24,
+  ELEMENT_GENERAL_MOVE_BAR_BUTTON = "P_GeneralMoveBarButton",
+  ELEMENT_ALIGNMENT_GRID_LINE_THICKNESS = 1,
+  ELEMENT_ALIGNMENT_GRID_LINE_COLOR = { 1, 1, 1, 0.15 },
+  ELEMENT_ALIGNMENT_GRID_AXIS_COLOR = { 1, 1, 1, 0.4 },
 
   --[[
     Profile (import/export and named profiles)
