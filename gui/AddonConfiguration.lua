@@ -61,7 +61,7 @@ function me.SetupAddonConfiguration()
   local generalCategory = BuildCategory(
     RGP_CONSTANTS.ELEMENT_GENERAL_SUB_OPTION_FRAME,
     category,
-    rgp.L["general_category_name"],
+    rgp.L["options_category_name"],
     mod.generalMenu.BuildUi
   )
   categoryIds.general = generalCategory.ID

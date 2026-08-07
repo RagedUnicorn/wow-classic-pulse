@@ -20,9 +20,9 @@ rgp.L["email"] = "E-Mail: michael.wiesendanger@gmail.com"
 rgp.L["version"] = "Version: " .. C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
 rgp.L["issues"] = "Issues: https://github.com/RagedUnicorn/wow-classic-pulse/issues"
 
--- general
-rgp.L["general_category_name"] = "Options"
-rgp.L["general_title"] = "Options"
+-- options
+rgp.L["options_category_name"] = "Options"
+rgp.L["options_title"] = "Options"
 rgp.L["window_lock_energy_bar"] = "Lock EnergyBar"
 rgp.L["window_lock_energy_bar_tooltip"] = "Prevents EnergyBar from being moved"
 rgp.L["energy_bar_width"] = "Energy Bar Width"

@@ -22,9 +22,9 @@ if (GetLocale() == "deDE") then
   rgp.L["version"] = "Version: " .. C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
   rgp.L["issues"] = "Probleme: https://github.com/RagedUnicorn/wow-classic-pulse/issues"
 
-  -- general
-  rgp.L["general_category_name"] = "Optionen"
-  rgp.L["general_title"] = "Optionen"
+  -- options
+  rgp.L["options_category_name"] = "Optionen"
+  rgp.L["options_title"] = "Optionen"
   rgp.L["window_lock_energy_bar"] = "Sperre Energiebalken"
   rgp.L["window_lock_energy_bar_tooltip"] = "Verhindert das bewegen des Energiebalken"
   rgp.L["energy_bar_width"] = "Energiebalken Breite"
