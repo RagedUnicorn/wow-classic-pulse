@@ -6,6 +6,7 @@
 ## SavedVariablesPerCharacter: ${addon.savedVariablesPerCharacter}
 ## SavedVariables: PulseShotLog
 ## IconTexture: Interface\AddOns\Pulse\assets\pulse_icon
+## Category: RagedUnicorn
 ${addon.comment.generated.toc}
 
 # constant values

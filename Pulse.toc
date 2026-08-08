@@ -6,6 +6,7 @@
 ## SavedVariablesPerCharacter: PulseConfiguration
 ## SavedVariables: PulseShotLog
 ## IconTexture: Interface\AddOns\Pulse\assets\pulse_icon
+## Category: RagedUnicorn
 # THIS FILE IS AUTO-GENERATED. ALL CHANGES ARE OVERWRITTEN
 
 # constant values
