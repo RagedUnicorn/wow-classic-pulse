@@ -40,9 +40,11 @@ me.selectedProfile = nil
 local builtMenu = false
 
 --[[
-  Scroll child holding the profile rows and the reusable row button pool
+  Scroll child holding the profile rows, the scrollbar driving it and the reusable
+  row button pool
 ]]--
 local profileListContent
+local profileListScrollBar
 local rows = {}
 
 --[[
@@ -134,13 +136,31 @@ function me.BuildProfileList(frame)
   scrollFrame:SetPoint("TOPLEFT", 6, -6)
   scrollFrame:SetPoint("BOTTOMRIGHT", -22, 6)
 
-  local scrollBar = CreateFrame("EventFrame", nil, listContainer, "MinimalScrollBar")
-  scrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 8, 0)
-  scrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 8, 0)
-  ScrollUtil.InitScrollFrameWithScrollBar(scrollFrame, scrollBar)
+  profileListScrollBar = CreateFrame("EventFrame", nil, listContainer, "MinimalScrollBar")
+  profileListScrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 6, 0)
+  profileListScrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 6, 0)
+  ScrollUtil.InitScrollFrameWithScrollBar(scrollFrame, profileListScrollBar)
+
+  if profileListScrollBar.SetHideIfUnscrollable then
+    profileListScrollBar:SetHideIfUnscrollable(true)
+  else
+    --[[
+      Classic Era did not backport ScrollBarMixin:SetHideIfUnscrollable - track the scroll
+      range manually instead
+    ]]--
+    scrollFrame:HookScript("OnScrollRangeChanged", function(_, _, yRange)
+      profileListScrollBar:SetShown(yRange > 0)
+    end)
+    profileListScrollBar:Hide()
+  end
 
   profileListContent = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_PROFILE_LIST_CONTENT_FRAME, scrollFrame)
-  profileListContent:SetSize(listWidth - 28, listHeight)
+  --[[
+    Seed the content with no scrollable extent - RefreshList sets the real height once it
+    knows its row count. Seeding the full listHeight would leave the list scrollable by the
+    viewport insets alone and keep the scrollbar visible on an empty list
+  ]]--
+  profileListContent:SetSize(listWidth - 28, 1)
   scrollFrame:SetScrollChild(profileListContent)
 end
 
