@@ -17,6 +17,14 @@
   "automerge": false,
   "packageRules": [
     {
+      "matchDatasources": [
+        "custom.wow-game-versions-classic",
+        "custom.wow-game-versions-tbcc"
+      ],
+      "maxMajorIncrement": 0,
+      "description": "CurseForge game version IDs are opaque IDs, not semver majors - disable the max major increment guard"
+    },
+    {
       "matchManagers": [
         "maven"
       ],
