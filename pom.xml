@@ -27,9 +27,9 @@
       Anniversary TBC - covers: TBC Anniversary Edition
     -->
     <!-- renovate: datasource=custom.wow-game-versions-classic depName=wow-gameversion-classic versioning=loose -->
-    <addon.curseforge.gameVersionClassic>14029</addon.curseforge.gameVersionClassic>
+    <addon.curseforge.gameVersionClassic>16630</addon.curseforge.gameVersionClassic>
     <!-- renovate: datasource=custom.wow-game-versions-tbcc depName=wow-gameversion-tbcc versioning=loose -->
-    <addon.curseforge.gameVersionTbcc>14300</addon.curseforge.gameVersionTbcc>
+    <addon.curseforge.gameVersionTbcc>16533</addon.curseforge.gameVersionTbcc>
     <addon.wago.projectId>LvNAj96o</addon.wago.projectId>
     <addon.name.short>P</addon.name.short>
     <addon.tag.version>v${project.version}</addon.tag.version>
