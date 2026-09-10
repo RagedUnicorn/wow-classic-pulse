@@ -212,13 +212,27 @@ describe("Profile", function()
       assert.are.same({}, payload.frames)
     end)
 
-    it("leaves an already seeded default untouched on a second call", function()
-      profile.EnsureDefaultProfile()
-      local seeded = profile.GetProfile(defaultName)
+    it("re-seeds a stale default so newer profile fields are covered again", function()
+      -- a default frozen at an older shape (seeded before newer PROFILE_FIELDS
+      -- members existed) breaks "reset to factory settings": ApplySnapshot
+      -- skips fields the payload lacks, so the newer fields kept the player's
+      -- values. EnsureDefaultProfile therefore overwrites on every call.
+      PulseConfiguration.profiles = {
+        [defaultName] = {
+          lockEnergyBar = true,
+          energyBarWidth = 250
+        }
+      }
 
       profile.EnsureDefaultProfile()
 
-      assert.is_true(rawequal(seeded, profile.GetProfile(defaultName)))
+      local payload = profile.GetProfile(defaultName)
+
+      assert.are.same(profile.BuildDefaultSnapshot(), payload)
+      assert.is_false(payload.lockEnergyBar)
+      assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH, payload.energyBarWidth)
+      assert.is_false(payload.snapEnergyBarToGrid)
+      assert.are.same({}, payload.frames)
     end)
 
     it("refuses to delete the default profile", function()
