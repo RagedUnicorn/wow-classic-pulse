@@ -159,6 +159,16 @@ describe("Profile", function()
     assert.are.same({ "gamma" }, profile.ListProfiles())
   end)
 
+  it("renaming a profile to its own name keeps it", function()
+    PulseConfiguration.energyBarWidth = 250
+    profile.SaveProfile("alpha", profile.BuildSnapshot())
+
+    assert.is_true(profile.RenameProfile("alpha", "alpha"))
+
+    assert.are.same({ "alpha" }, profile.ListProfiles())
+    assert.are.equal(250, profile.GetProfile("alpha").energyBarWidth)
+  end)
+
   describe("name length", function()
     local maxLength = RGP_CONSTANTS.PROFILE_NAME_MAX_LENGTH
 
