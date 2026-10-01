@@ -53,19 +53,144 @@ local EXPORT_PREFIX = "Pulse1:"
 local ADDON_TAG = "Pulse"
 
 --[[
-  The single source of truth for what a profile contains. Snapshot and apply
-  both iterate this list, so adding a new configurable option is a one-line
+  @param {any} value
+  @return {boolean}
+    true - if value is a number that is neither NaN nor infinite
+]]--
+local function IsFiniteNumber(value)
+  return type(value) == "number"
+    and value == value -- NaN is the only value not equal to itself
+    and value ~= math.huge
+    and value ~= -math.huge
+end
+
+--[[
+  @param {number} min
+  @param {number} max
+  @return {function}
+    a validator accepting a finite number within [min, max] - the range of the
+    options slider that is the only other producer of the value
+]]--
+local function IsNumberInRange(min, max)
+  return function(value)
+    return IsFiniteNumber(value) and value >= min and value <= max
+  end
+end
+
+--[[
+  @param {any} value
+  @return {boolean}
+]]--
+local function IsBoolean(value)
+  return type(value) == "boolean"
+end
+
+-- the anchor points SetPoint accepts
+local VALID_ANCHOR_POINTS = {
+  ["TOPLEFT"] = true,
+  ["TOP"] = true,
+  ["TOPRIGHT"] = true,
+  ["LEFT"] = true,
+  ["CENTER"] = true,
+  ["RIGHT"] = true,
+  ["BOTTOMLEFT"] = true,
+  ["BOTTOM"] = true,
+  ["BOTTOMRIGHT"] = true
+}
+
+--[[
+  The saved frame positions: frameName -> the SetPoint arguments a drag stored.
+  relativeTo is nil (relative to the parent) or a frame name, a missing
+  relativePoint defaults to point in SetPoint.
+
+  @param {any} value
+  @return {boolean}
+]]--
+local function IsValidFrames(value)
+  if type(value) ~= "table" then
+    return false
+  end
+
+  for _, position in pairs(value) do
+    if type(position) ~= "table"
+        or VALID_ANCHOR_POINTS[position.point] ~= true
+        or (position.relativePoint ~= nil and VALID_ANCHOR_POINTS[position.relativePoint] ~= true)
+        or (position.relativeTo ~= nil and type(position.relativeTo) ~= "string")
+        or not IsFiniteNumber(position.posX)
+        or not IsFiniteNumber(position.posY) then
+      return false
+    end
+  end
+
+  return true
+end
+
+--[[
+  The single source of truth for what a profile contains: every configurable field
+  with the validator an imported value must pass. Snapshot and apply iterate the
+  names, import rejects a string whose payload carries a field that fails its
+  validator - a crafted or corrupt value would otherwise flow straight into
+  SetWidth / SetHeight / SetPoint, and a tiny grid size would make the alignment
+  grid build millions of lines. Adding a new configurable option is a one-line
   change here. Deliberately excludes bookkeeping (addonVersion) and the profile
   store itself (profiles).
 ]]--
-me.PROFILE_FIELDS = {
-  "lockEnergyBar",
-  "energyBarWidth",
-  "energyBarHeight",
-  "snapEnergyBarToGrid",
-  "energyBarGridSize",
-  "frames"
+local PROFILE_FIELD_SPEC = {
+  { ["name"] = "lockEnergyBar", ["isValid"] = IsBoolean },
+  {
+    ["name"] = "energyBarWidth",
+    ["isValid"] = IsNumberInRange(
+      RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_WIDTH,
+      RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_WIDTH
+    )
+  },
+  {
+    ["name"] = "energyBarHeight",
+    ["isValid"] = IsNumberInRange(
+      RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_HEIGHT,
+      RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_HEIGHT
+    )
+  },
+  { ["name"] = "snapEnergyBarToGrid", ["isValid"] = IsBoolean },
+  {
+    ["name"] = "energyBarGridSize",
+    ["isValid"] = IsNumberInRange(
+      RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_GRID_SIZE,
+      RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_GRID_SIZE
+    )
+  },
+  { ["name"] = "frames", ["isValid"] = IsValidFrames }
 }
+
+--[[
+  Ordered list of profile field names, derived from PROFILE_FIELD_SPEC. Public so
+  BuildSnapshot / ApplySnapshot and the specs can iterate it.
+]]--
+me.PROFILE_FIELDS = {}
+
+for _, spec in ipairs(PROFILE_FIELD_SPEC) do
+  me.PROFILE_FIELDS[#me.PROFILE_FIELDS + 1] = spec.name
+end
+
+--[[
+  @param {table} payload
+  @return {boolean}
+    true - if every profile field the payload carries passes its validator
+    (an absent field is fine, SetupConfiguration backfills it on apply)
+]]--
+local function IsValidPayload(payload)
+  for _, spec in ipairs(PROFILE_FIELD_SPEC) do
+    local value = payload[spec.name]
+
+    if value ~= nil and not spec.isValid(value) then
+      mod.logger.LogWarn(me.tag, "Rejected imported profile - invalid field: " .. spec.name)
+
+      return false
+    end
+  end
+
+  return true
+end
 
 --[[
   Recursively copy a value so a profile and the live config never share table
@@ -305,6 +430,10 @@ function me.ImportString(encoded)
   end
 
   envelope.payload = ProjectPayload(envelope.payload)
+
+  if not IsValidPayload(envelope.payload) then
+    return nil, "profile_error_invalid"
+  end
 
   -- the name only prefills the import popup's edit box; anything but a string would
   -- raise in SetText, so it is dropped and the player types a name instead

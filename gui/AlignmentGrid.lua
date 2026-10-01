@@ -104,7 +104,15 @@ end
 function me.CalculateGridLines(width, height, gridSize)
   local lines = { vertical = {}, horizontal = {} }
 
-  if type(gridSize) ~= "number" or gridSize <= 0 then return lines end
+  --[[
+    The slider never goes below the minimum grid size; a smaller one (a crafted value)
+    would loop extent / gridSize times and stall the client. NaN is the only value not
+    equal to itself
+  ]]--
+  if type(gridSize) ~= "number" or gridSize ~= gridSize
+      or gridSize < RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_GRID_SIZE then
+    return lines
+  end
   if type(width) ~= "number" or type(height) ~= "number" then return lines end
   if width <= 0 or height <= 0 then return lines end
 

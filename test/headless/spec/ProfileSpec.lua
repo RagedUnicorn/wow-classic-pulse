@@ -116,7 +116,7 @@ describe("Profile", function()
       schemaVersion = 1,
       payload = {
         lockEnergyBar = true,
-        frames = { P_EnergyBar = { posX = 1 } },
+        frames = { P_EnergyBar = { point = "CENTER", posX = 1, posY = 2 } },
         junk = string.rep("x", 64),
         profiles = { Other = {} },
         addonVersion = "v9.9.9"
@@ -128,8 +128,71 @@ describe("Profile", function()
     assert.is_nil(err)
     assert.are.same({
       lockEnergyBar = true,
-      frames = { P_EnergyBar = { posX = 1 } }
+      frames = { P_EnergyBar = { point = "CENTER", posX = 1, posY = 2 } }
     }, envelope.payload)
+  end)
+
+  describe("import value validation", function()
+    local function ImportPayload(payload)
+      local serialized = rgp.serializer.Serialize({ addon = "Pulse", schemaVersion = 1, payload = payload })
+
+      return profile.ImportString("Pulse1:" .. rgp.encoder.Encode(serialized))
+    end
+
+    it("accepts a payload whose every field is in range", function()
+      local envelope, err = ImportPayload({
+        lockEnergyBar = true,
+        energyBarWidth = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_WIDTH,
+        energyBarHeight = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_HEIGHT,
+        snapEnergyBarToGrid = false,
+        energyBarGridSize = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_GRID_SIZE,
+        frames = {
+          P_EnergyBar = {
+            point = "TOPLEFT",
+            relativeTo = "UIParent",
+            relativePoint = "BOTTOMLEFT",
+            posX = 12.5,
+            posY = -40
+          }
+        }
+      })
+
+      assert.is_nil(err)
+      assert.is_table(envelope)
+    end)
+
+    it("accepts a payload that lacks fields, SetupConfiguration backfills them", function()
+      local envelope, err = ImportPayload({ lockEnergyBar = true })
+
+      assert.is_nil(err)
+      assert.is_table(envelope)
+    end)
+
+    it("rejects a field that fails its validator", function()
+      local invalidPayloads = {
+        { lockEnergyBar = "yes" },
+        { snapEnergyBarToGrid = 1 },
+        { energyBarWidth = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_WIDTH + 1 },
+        { energyBarWidth = "wide" },
+        { energyBarHeight = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_HEIGHT - 1 },
+        { energyBarGridSize = 0.000001 },
+        { energyBarGridSize = RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_GRID_SIZE + 1 },
+        { frames = "P_EnergyBar" },
+        { frames = { P_EnergyBar = "CENTER" } },
+        { frames = { P_EnergyBar = { point = "NOWHERE", posX = 0, posY = 0 } } },
+        { frames = { P_EnergyBar = { point = "CENTER", relativePoint = "NOWHERE", posX = 0, posY = 0 } } },
+        { frames = { P_EnergyBar = { point = "CENTER", relativeTo = {}, posX = 0, posY = 0 } } },
+        { frames = { P_EnergyBar = { point = "CENTER", posX = "0", posY = 0 } } },
+        { frames = { P_EnergyBar = { point = "CENTER", posX = 0 } } }
+      }
+
+      for _, payload in ipairs(invalidPayloads) do
+        local envelope, err = ImportPayload(payload)
+
+        assert.is_nil(envelope)
+        assert.are.equal("profile_error_invalid", err)
+      end
+    end)
   end)
 
   it("drops an envelope name that is not a string on import", function()

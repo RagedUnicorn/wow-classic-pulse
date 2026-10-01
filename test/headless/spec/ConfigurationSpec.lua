@@ -238,6 +238,24 @@ describe("Configuration", function()
       configuration.SetEnergyBarHeight(60)
       assert.are.equal(60, configuration.GetEnergyBarHeight())
     end)
+
+    it("clamps a stored size outside the slider range into it", function()
+      PulseConfiguration.energyBarWidth = 100000
+      PulseConfiguration.energyBarHeight = 1
+
+      assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_WIDTH, configuration.GetEnergyBarWidth())
+      assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_HEIGHT, configuration.GetEnergyBarHeight())
+    end)
+
+    it("falls back to the default for a stored size that is not a finite number", function()
+      for _, invalid in ipairs({ "wide", 0 / 0, math.huge, -math.huge }) do
+        PulseConfiguration.energyBarWidth = invalid
+        PulseConfiguration.energyBarHeight = invalid
+
+        assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH, configuration.GetEnergyBarWidth())
+        assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT, configuration.GetEnergyBarHeight())
+      end
+    end)
   end)
 
   describe("energy bar grid snap", function()
@@ -252,6 +270,14 @@ describe("Configuration", function()
     it("round-trips the grid size through set / get", function()
       configuration.SetEnergyBarGridSize(25)
       assert.are.equal(25, configuration.GetEnergyBarGridSize())
+    end)
+
+    it("never returns a grid size below the slider minimum", function()
+      PulseConfiguration.energyBarGridSize = 0.000001
+      assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_GRID_SIZE, configuration.GetEnergyBarGridSize())
+
+      PulseConfiguration.energyBarGridSize = 0 / 0
+      assert.are.equal(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_GRID_SIZE, configuration.GetEnergyBarGridSize())
     end)
 
     it("keeps an enabled grid snap across a defaults merge", function()

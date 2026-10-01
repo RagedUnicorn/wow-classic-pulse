@@ -34,6 +34,7 @@ me.tag = "Configuration"
 -- forward declarations for local functions
 local ApplyDefaults
 local SetAddonVersion
+local ClampToRange
 -- upgrade steps are forward-declared here as schema changes ship, e.g.:
 -- local UpgradeToV1_3_0
 
@@ -293,7 +294,12 @@ end
   @return {number}
 ]]--
 function me.GetEnergyBarWidth()
-  return PulseConfiguration.energyBarWidth
+  return ClampToRange(
+    PulseConfiguration.energyBarWidth,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_WIDTH,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_WIDTH,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_WIDTH
+  )
 end
 
 --[[
@@ -311,7 +317,12 @@ end
   @return {number}
 ]]--
 function me.GetEnergyBarHeight()
-  return PulseConfiguration.energyBarHeight
+  return ClampToRange(
+    PulseConfiguration.energyBarHeight,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_HEIGHT,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_HEIGHT,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_HEIGHT
+  )
 end
 
 --[[
@@ -352,5 +363,33 @@ end
   @return {number}
 ]]--
 function me.GetEnergyBarGridSize()
-  return PulseConfiguration.energyBarGridSize
+  return ClampToRange(
+    PulseConfiguration.energyBarGridSize,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_GRID_SIZE,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_GRID_SIZE,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_GRID_SIZE
+  )
+end
+
+--[[
+  Backstop for the size getters: a stored value outside its slider range (a
+  hand-edited SavedVariables file) is clamped into it, and anything that is not a
+  finite number resolves to the shipped default, so it never reaches SetWidth /
+  SetHeight or the alignment grid.
+
+  @param {any} value
+  @param {number} min
+  @param {number} max
+  @param {number} default
+  @return {number}
+]]--
+ClampToRange = function(value, min, max, default)
+  if type(value) ~= "number"
+      or value ~= value -- NaN is the only value not equal to itself
+      or value == math.huge
+      or value == -math.huge then
+    return default
+  end
+
+  return math.max(min, math.min(max, value))
 end

@@ -109,7 +109,8 @@ describe("AlignmentGrid", function()
     end)
 
     it("returns no lines for a grid size that cannot be gridded", function()
-      for _, gridSize in ipairs({ 0, -10 }) do
+      -- below the slider minimum a crafted grid size would build millions of lines
+      for _, gridSize in ipairs({ 0, -10, 0.000001, RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MIN_GRID_SIZE - 1, 0 / 0 }) do
         local lines = alignmentGrid.CalculateGridLines(100, 50, gridSize)
 
         assert.are.same({}, lines.vertical)
