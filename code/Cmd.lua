@@ -31,18 +31,14 @@ mod.cmd = me
 
 me.tag = "Cmd"
 
--- forward declarations for functions
-local ShowInfoMessage
-local HandleSlashCommand
-
 --[[
-  Setup slash command handler
+  Print cmd options for addon
 ]]--
-function me.SetupSlashCmdList()
-  SLASH_PULSE1 = "/rgp"
-  SLASH_PULSE2 = "/pulse"
-
-  SlashCmdList["PULSE"] = HandleSlashCommand
+local function ShowInfoMessage()
+  print(rgp.L["info_title"])
+  print(rgp.L["reload"])
+  print(rgp.L["opt"])
+  print(rgp.L["move"])
 end
 
 --[[
@@ -51,7 +47,7 @@ end
   @param {string} msg
     The message passed to the slash command
 ]]--
-HandleSlashCommand = function(msg)
+local function HandleSlashCommand(msg)
   local args = {}
 
   mod.logger.LogDebug(me.tag, "/rgp passed argument: " .. msg)
@@ -75,11 +71,11 @@ HandleSlashCommand = function(msg)
 end
 
 --[[
-  Print cmd options for addon
+  Setup slash command handler
 ]]--
-ShowInfoMessage = function()
-  print(rgp.L["info_title"])
-  print(rgp.L["reload"])
-  print(rgp.L["opt"])
-  print(rgp.L["move"])
+function me.SetupSlashCmdList()
+  SLASH_PULSE1 = "/rgp"
+  SLASH_PULSE2 = "/pulse"
+
+  SlashCmdList["PULSE"] = HandleSlashCommand
 end
