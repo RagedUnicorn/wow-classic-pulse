@@ -9,6 +9,9 @@ permissions:
 
 jobs:
   generate-sources:
+    # The job pushes the regenerated files back to the PR branch; GITHUB_TOKEN
+    # cannot write to a fork, so fork PRs skip it instead of failing on the push.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
