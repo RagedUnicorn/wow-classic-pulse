@@ -67,9 +67,7 @@ RGP_CONSTANTS = {
   ]]--
   COLOR = {
     TITLE_GOLD = { 1.0, 0.819, 0.0 },       -- #ffd100 panel titles
-    SECTION_GOLD = { 0.851, 0.647, 0.129 }, -- #d9a521 section headers
     BODY = { 0.91, 0.87, 0.80 },            -- #e8decc body text / option labels (warm near-white)
-    MUTED = { 0.541, 0.486, 0.392 },        -- #8a7c64 idle / dim text
     DISABLED = { 0.45, 0.41, 0.35 },        -- disabled control labels (QM stepper disabled-glyph tone)
     SUBNOTE = { 0.66, 0.60, 0.50 }          -- #a89980 option descriptions (warm mid gray)
   },
@@ -178,14 +176,12 @@ RGP_CONSTANTS = {
   ELEMENT_PROFILE_EXPORT_BUTTON = "P_ProfileExportButton",
   ELEMENT_PROFILE_IMPORT_BUTTON = "P_ProfileImportButton",
   ELEMENT_PROFILE_STRING_SCROLL_FRAME = "P_ProfileStringScrollFrame",
-  ELEMENT_PROFILE_STRING_EDIT_BOX = "P_ProfileStringEditBox",
   --[[
     Profile layout sizing
   ]]--
   ELEMENT_PROFILE_LIST_WIDTH = 280,
   ELEMENT_PROFILE_LIST_HEIGHT = 160,
   ELEMENT_PROFILE_LIST_ROW_HEIGHT = 20,
-  ELEMENT_PROFILE_BUTTON_WIDTH = 110,
   ELEMENT_PROFILE_BUTTON_HEIGHT = 24,
   ELEMENT_PROFILE_STRING_WIDTH = 540,
   ELEMENT_PROFILE_STRING_HEIGHT = 90,
