@@ -45,8 +45,47 @@ local mainCategoryId
 ]]--
 local categoryIds = {}
 
--- forward declarations for local functions
-local BuildCategory
+--[[
+  Builds main and subcategories
+
+  @param {string} frameName
+  @param {table} parent
+  @param {string} panelText
+  @param {function} onShowCallback
+
+  @return {table}, {table}
+    category, menu
+]]--
+local function BuildCategory(frameName, parent, panelText, onShowCallback)
+  local category
+  local menu
+
+  if parent == nil then
+    menu = CreateFrame("Frame", frameName)
+    category = Settings.RegisterCanvasLayoutCategory(menu, panelText)
+    mainCategoryId = category.ID
+    Settings.RegisterAddOnCategory(category)
+  else
+    menu = CreateFrame("Frame", frameName, nil)
+    menu.parent = parent.name
+    local subcategory = Settings.RegisterCanvasLayoutSubcategory(parent, menu, frameName)
+    subcategory.name = panelText
+    category = subcategory
+    Settings.RegisterAddOnCategory(subcategory)
+  end
+
+  if onShowCallback ~= nil then
+    menu:SetScript("OnShow", onShowCallback)
+  end
+
+  --[[
+   Important to hide panel initially. Interface addon options will take care of showing the menu.
+   If this is not done OnShow callbacks will not be invoked correctly.
+  ]]--
+  menu:Hide()
+
+  return category, menu
+end
 
 --[[
   Create addon configuration menu(s)
@@ -86,48 +125,6 @@ end
 ]]--
 function me.GetCategoryId(key)
   return categoryIds[key]
-end
-
---[[
-  Builds main and subcategories
-
-  @param {string} frameName
-  @param {table} parent
-  @param {string} panelText
-  @param {function} onShowCallback
-
-  @return {table}, {table}
-    category, menu
-]]--
-BuildCategory = function(frameName, parent, panelText, onShowCallback)
-  local category
-  local menu
-
-  if parent == nil then
-    menu = CreateFrame("Frame", frameName)
-    category = Settings.RegisterCanvasLayoutCategory(menu, panelText)
-    mainCategoryId = category.ID
-    Settings.RegisterAddOnCategory(category)
-  else
-    menu = CreateFrame("Frame", frameName, nil)
-    menu.parent = parent.name
-    local subcategory = Settings.RegisterCanvasLayoutSubcategory(parent, menu, frameName)
-    subcategory.name = panelText
-    category = subcategory
-    Settings.RegisterAddOnCategory(subcategory)
-  end
-
-  if onShowCallback ~= nil then
-    menu:SetScript("OnShow", onShowCallback)
-  end
-
-  --[[
-   Important to hide panel initially. Interface addon options will take care of showing the menu.
-   If this is not done OnShow callbacks will not be invoked correctly.
-  ]]--
-  menu:Hide()
-
-  return category, menu
 end
 
 --[[
