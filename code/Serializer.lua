@@ -58,6 +58,34 @@ local EncodeValue
 local ReadValue
 
 --[[
+  @param {number} number
+  @return {boolean}
+    true unless the number is NaN or an infinity
+]]--
+local function IsFinite(number)
+  return number == number and number ~= math.huge and number ~= -math.huge
+end
+
+--[[
+  Whether a number payload has the shape the encoder writes ("%.14g"): an optional
+  minus, digits, an optional fraction and an optional exponent. Rejects what tonumber
+  would additionally accept - hex, surrounding whitespace, "inf" / "nan" text.
+
+  @param {string} text
+  @return {boolean}
+]]--
+local function IsDecimalText(text)
+  local rest = string.match(text, "^%-?%d+(.*)$")
+
+  if rest == nil then return false end
+
+  rest = string.match(rest, "^%.%d+(.*)$") or rest
+  rest = string.match(rest, "^[eE][%+%-]?%d+(.*)$") or rest
+
+  return rest == ""
+end
+
+--[[
   Serialize an arbitrary Lua value (nil/boolean/number/string/table) to a
   compact string.
 
@@ -90,6 +118,10 @@ EncodeValue = function(value, out, depth)
   elseif valueType == "boolean" then
     out[#out + 1] = value and "T" or "F"
   elseif valueType == "number" then
+    if not IsFinite(value) then
+      error("serializer: cannot serialize a non-finite number")
+    end
+
     local text = string.format("%.14g", value)
     out[#out + 1] = "n" .. #text .. ":" .. text
   elseif valueType == "string" then
@@ -196,10 +228,12 @@ ReadValue = function(input, pos, depth)
     local text, nextPos = ReadLengthPrefixed(input, pos)
 
     if not text then return nil, nil, "malformed number" end
+    if not IsDecimalText(text) then return nil, nil, "invalid number value" end
 
     local number = tonumber(text)
 
-    if not number then return nil, nil, "invalid number value" end
+    -- "1e999" is well-formed but overflows to an infinity; a NaN key would raise
+    if not number or not IsFinite(number) then return nil, nil, "invalid number value" end
 
     return nextPos, number
   elseif tag == "s" then
