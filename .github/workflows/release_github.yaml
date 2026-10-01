@@ -2,7 +2,14 @@ name: Release GitHub
 on: [workflow_dispatch]
 
 jobs:
+  # A release never publishes from a red ref: both gates are the PR workflows,
+  # called as reusable workflows so the steps live in one place.
+  lint:
+    uses: ./.github/workflows/lint.yaml
+  test:
+    uses: ./.github/workflows/test.yaml
   github-release-job:
+    needs: [lint, test]
     name: GitHub Release
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -24,6 +31,23 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Package Production
         run: mvn generate-resources -D generate.sources.overwrite=true -P release
+      # Builds the zip the publish step uploads (same profile, same tree) without
+      # publishing it, and fails when the AddOn could not load from it.
+      - name: Verify Package Contents
+        run: |
+          mvn --batch-mode --no-transfer-progress assembly:single -P deploy-github
+          contents=$(unzip -Z1 target/Pulse.zip)
+          root=""
+          if ! grep -qx "${root}Pulse.toc" <<< "$contents"; then
+            echo "::error::package is missing ${root}Pulse.toc"
+            exit 1
+          fi
+          for folder in code gui localization; do
+            if ! grep -q "^${root}${folder}/.*\.lua$" <<< "$contents"; then
+              echo "::error::package is missing the ${root}${folder}/ folder"
+              exit 1
+            fi
+          done
       - name: Publish Package to GitHub
         run: |
           mvn --batch-mode --no-transfer-progress \
