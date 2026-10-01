@@ -132,6 +132,23 @@ describe("Profile", function()
     }, envelope.payload)
   end)
 
+  it("drops an envelope name that is not a string on import", function()
+    for _, craftedName in ipairs({ { nested = "table" }, 42, true }) do
+      local serialized = rgp.serializer.Serialize({
+        addon = "Pulse",
+        schemaVersion = 1,
+        name = craftedName,
+        payload = { lockEnergyBar = true }
+      })
+
+      local envelope, err = profile.ImportString("Pulse1:" .. rgp.encoder.Encode(serialized))
+
+      assert.is_nil(err)
+      assert.is_nil(envelope.name)
+      assert.are.same({ lockEnergyBar = true }, envelope.payload)
+    end
+  end)
+
   it("rejects an input longer than the import limit before decoding", function()
     local oversized = "Pulse1:" .. string.rep("A", RGP_CONSTANTS.PROFILE_IMPORT_MAX_LENGTH)
 

@@ -306,6 +306,12 @@ function me.ImportString(encoded)
 
   envelope.payload = ProjectPayload(envelope.payload)
 
+  -- the name only prefills the import popup's edit box; anything but a string would
+  -- raise in SetText, so it is dropped and the player types a name instead
+  if type(envelope.name) ~= "string" then
+    envelope.name = nil
+  end
+
   return envelope
 end
 
