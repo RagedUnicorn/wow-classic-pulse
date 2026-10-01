@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_ChatInfo C_AddOns UnitName IsInGuild IsInGroup IsInRaid GetTime
+-- luacheck: globals C_ChatInfo C_AddOns C_Timer UnitName IsInGuild IsInGroup IsInRaid GetTime
 
 local mod = rgp
 local me = {}
@@ -67,6 +67,10 @@ local MAX_VERSION_LENGTH = 16
 
 -- time of the last version broadcast
 local lastBroadcastTime = 0
+-- whether a trailing broadcast is scheduled for the end of the cooldown
+local broadcastPending = false
+-- whether the scheduled trailing broadcast includes the guild channel
+local pendingIncludesGuild = false
 -- whether the update notice was already shown this session
 local notifiedThisSession = false
 
@@ -81,24 +85,47 @@ function me.Initialize()
 end
 
 --[[
-  Broadcast the running addon version to guild and group members. Invoked on
-  roster edges only (PLAYER_ENTERING_WORLD and GROUP_ROSTER_UPDATE), never in a
-  loop, so the native throttle is never exhausted
+  Broadcast the running addon version to group members, and to the guild when
+  includeGuild is set. Invoked on roster edges only (PLAYER_ENTERING_WORLD and
+  GROUP_ROSTER_UPDATE), never in a loop, so the native throttle is never exhausted.
+  The guild roster does not change with the group, so only the login / reload edge
+  asks for the guild - a group change would otherwise repeat the guild message.
+
+  A call inside the cooldown is not dropped: one trailing broadcast is scheduled for
+  the end of the cooldown, so a player who joins right after another roster change
+  still receives the version. Calls while it is pending fold into it.
+
+  @param {boolean} includeGuild
+    true to also send on the guild channel
 ]]--
-function me.BroadcastVersion()
+function me.BroadcastVersion(includeGuild)
   local version = C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
 
   if version == nil then return end
 
-  if GetTime() - lastBroadcastTime < BROADCAST_COOLDOWN then
-    mod.logger.LogDebug(me.tag, "Skipping version broadcast - cooldown active")
+  local remaining = BROADCAST_COOLDOWN - (GetTime() - lastBroadcastTime)
+
+  if remaining > 0 then
+    pendingIncludesGuild = pendingIncludesGuild or includeGuild == true
+
+    if broadcastPending then return end
+
+    mod.logger.LogDebug(me.tag, "Deferring version broadcast - cooldown active")
+    broadcastPending = true
+    C_Timer.After(remaining, function()
+      local withGuild = pendingIncludesGuild
+
+      broadcastPending = false
+      pendingIncludesGuild = false
+      me.BroadcastVersion(withGuild)
+    end)
 
     return
   end
 
   lastBroadcastTime = GetTime()
 
-  if IsInGuild() then
+  if includeGuild and IsInGuild() then
     C_ChatInfo.SendAddonMessage(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, version, "GUILD")
   end
 

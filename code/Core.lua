@@ -33,6 +33,8 @@ me.tag = "Core"
 -- forward declarations for local functions
 local OnPlayerLogin
 local OnUnitPowerUpdate
+local OnEnteringWorld
+local OnRosterChanged
 local OnDisplaySizeChanged
 local Initialize
 local ShowWelcomeMessage
@@ -61,6 +63,25 @@ OnUnitPowerUpdate = function(unitTarget, powerType)
 end
 
 --[[
+  Announce the version on PLAYER_ENTERING_WORLD. The guild is announced to only on
+  login and reload - a loading screen changes no guild.
+
+  @param {boolean} isInitialLogin
+  @param {boolean} isReloadingUi
+]]--
+OnEnteringWorld = function(isInitialLogin, isReloadingUi)
+  me.comm.BroadcastVersion(isInitialLogin == true or isReloadingUi == true)
+end
+
+--[[
+  Announce the version on GROUP_ROSTER_UPDATE. A group change announces to the group
+  only - the guild already got the version at login.
+]]--
+OnRosterChanged = function()
+  me.comm.BroadcastVersion(false)
+end
+
+--[[
   Re-lay the alignment grid when the drawable area changes. Referenced through the module
   table at call time - gui/AlignmentGrid.lua is loaded after gui/Frame.xml runs OnLoad
 ]]--
@@ -85,11 +106,8 @@ function me.OnLoad(self)
     { gated = true, unit = RGP_CONSTANTS.UNIT_ID_PLAYER }
   )
   me.event.Register("CHAT_MSG_ADDON", me.comm.OnChatMsgAddon, { gated = true })
-  me.event.Register(
-    { "PLAYER_ENTERING_WORLD", "GROUP_ROSTER_UPDATE" },
-    me.comm.BroadcastVersion,
-    { gated = true }
-  )
+  me.event.Register("PLAYER_ENTERING_WORLD", OnEnteringWorld, { gated = true })
+  me.event.Register("GROUP_ROSTER_UPDATE", OnRosterChanged, { gated = true })
   -- the alignment grid spans the whole screen and has to be re-laid when that changes
   me.event.Register(
     { "DISPLAY_SIZE_CHANGED", "UI_SCALE_CHANGED" },
