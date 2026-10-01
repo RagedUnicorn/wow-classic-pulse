@@ -111,22 +111,24 @@ end
 
 - Use local functions for internal module functions
 - Only expose functions that need to be accessed from other modules
-- Always use forward declarations for local functions
+- Define a file-private helper as a plain `local function Name()` above its first caller, so a module reads bottom-up:
+  helpers first, then the public `me.X` functions that use them. Self-recursion needs nothing extra - the name is in
+  scope inside its own body (the serializer's `EncodeValue` / `ReadValue`)
+- Forward-declare a local (`local Name` and later `Name = function()`) only for mutual recursion; group those
+  declarations in one commented block at the top of the file. A local function referenced before its definition reads
+  an undefined global, which `luacheck` reports
 
 Example:
 
 ```lua
--- forward declarations
-local InternalHelper
+-- Local function, defined above its first caller
+local function InternalHelper()
+  -- implementation
+end
 
 -- Public function
 function module.PublicFunction()
   InternalHelper()
-end
-
--- Local function
-InternalHelper = function()
-  -- implementation
 end
 ```
 
