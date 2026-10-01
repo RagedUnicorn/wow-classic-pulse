@@ -40,11 +40,6 @@ me.tag = "Comm"
   third-party comm library.
 ]]--
 
--- forward declarations for local functions
-local IsSelfSent
-local NormalizeVersion
-local ShouldNotify
-
 --[[
   Minimum time in seconds between two version broadcasts. GROUP_ROSTER_UPDATE fires
   in bursts while a group forms; the cooldown keeps the broadcasts well within the
@@ -147,6 +142,70 @@ function me.BroadcastVersion(includeGuild)
 end
 
 --[[
+  Whether an addon message was sent by the player themself. Defense-in-depth -
+  the player's own version is never strictly newer than itself.
+
+  @param {string} sender
+    sender name, possibly realm-qualified ("Name-Realm")
+  @return {boolean}
+    true - if the sender is the player
+    false - otherwise
+]]--
+local function IsSelfSent(sender)
+  return string.match(sender or "", "^([^-]+)") == UnitName("player")
+end
+
+--[[
+  Reduce a received version to its canonical "vMAJOR.MINOR.PATCH" form. Anything else -
+  a non-string, an oversized message, trailing or leading text - is rejected.
+
+  @param {string} message
+  @return {string | nil}
+    the normalized version, or nil if the message is not a well-formed version
+]]--
+local function NormalizeVersion(message)
+  if type(message) ~= "string" or #message > MAX_VERSION_LENGTH then return nil end
+
+  local major, minor, patch = string.match(message, "^v?(%d+)%.(%d+)%.(%d+)$")
+
+  if major == nil then return nil end
+
+  return string.format("v%d.%d.%d", tonumber(major), tonumber(minor), tonumber(patch))
+end
+
+--[[
+  Whether a received version warrants the update notice: strictly newer than the
+  running version, not yet announced this session and newer than the persisted
+  lastNotifiedVersion.
+
+  @param {string} receivedVersion
+  @return {boolean}
+    true - if the update notice should be shown
+    false - otherwise
+]]--
+local function ShouldNotify(receivedVersion)
+  if notifiedThisSession then return false end
+
+  local version = C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
+
+  if not mod.configuration.IsVersionBefore(version, receivedVersion) then return false end
+
+  --[[
+    An empty lastNotifiedVersion means nothing was announced yet. IsVersionBefore
+    treats an unparseable version as "not before", which would otherwise suppress
+    the very first notice
+  ]]--
+  local lastNotifiedVersion = PulseConfiguration.lastNotifiedVersion
+
+  if lastNotifiedVersion ~= nil and lastNotifiedVersion ~= ""
+      and not mod.configuration.IsVersionBefore(lastNotifiedVersion, receivedVersion) then
+    return false
+  end
+
+  return true
+end
+
+--[[
   Handle an incoming addon message. Foreign prefixes, messages outside the broadcast
   channels and self-sent messages are dropped. The message is untrusted input from
   another player: only a well-formed version is accepted, and only its normalized form
@@ -174,68 +233,4 @@ function me.OnChatMsgAddon(prefix, message, channel, sender)
   notifiedThisSession = true
   PulseConfiguration.lastNotifiedVersion = version
   mod.logger.PrintUserMessage(string.format(rgp.L["update_available"], version))
-end
-
---[[
-  Reduce a received version to its canonical "vMAJOR.MINOR.PATCH" form. Anything else -
-  a non-string, an oversized message, trailing or leading text - is rejected.
-
-  @param {string} message
-  @return {string | nil}
-    the normalized version, or nil if the message is not a well-formed version
-]]--
-NormalizeVersion = function(message)
-  if type(message) ~= "string" or #message > MAX_VERSION_LENGTH then return nil end
-
-  local major, minor, patch = string.match(message, "^v?(%d+)%.(%d+)%.(%d+)$")
-
-  if major == nil then return nil end
-
-  return string.format("v%d.%d.%d", tonumber(major), tonumber(minor), tonumber(patch))
-end
-
---[[
-  Whether an addon message was sent by the player themself. Defense-in-depth -
-  the player's own version is never strictly newer than itself.
-
-  @param {string} sender
-    sender name, possibly realm-qualified ("Name-Realm")
-  @return {boolean}
-    true - if the sender is the player
-    false - otherwise
-]]--
-IsSelfSent = function(sender)
-  return string.match(sender or "", "^([^-]+)") == UnitName("player")
-end
-
---[[
-  Whether a received version warrants the update notice: strictly newer than the
-  running version, not yet announced this session and newer than the persisted
-  lastNotifiedVersion.
-
-  @param {string} receivedVersion
-  @return {boolean}
-    true - if the update notice should be shown
-    false - otherwise
-]]--
-ShouldNotify = function(receivedVersion)
-  if notifiedThisSession then return false end
-
-  local version = C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
-
-  if not mod.configuration.IsVersionBefore(version, receivedVersion) then return false end
-
-  --[[
-    An empty lastNotifiedVersion means nothing was announced yet. IsVersionBefore
-    treats an unparseable version as "not before", which would otherwise suppress
-    the very first notice
-  ]]--
-  local lastNotifiedVersion = PulseConfiguration.lastNotifiedVersion
-
-  if lastNotifiedVersion ~= nil and lastNotifiedVersion ~= ""
-      and not mod.configuration.IsVersionBefore(lastNotifiedVersion, receivedVersion) then
-    return false
-  end
-
-  return true
 end
