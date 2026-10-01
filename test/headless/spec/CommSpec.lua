@@ -183,8 +183,8 @@ describe("Comm", function()
     it("notifies once for a strictly newer version and persists it", function()
       comm.OnChatMsgAddon(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, "1.3.0", "GUILD", "Otherplayer")
 
-      assert.are.same({ "New version 1.3.0 is available" }, notices)
-      assert.are.equal("1.3.0", PulseConfiguration.lastNotifiedVersion)
+      assert.are.same({ "New version v1.3.0 is available" }, notices)
+      assert.are.equal("v1.3.0", PulseConfiguration.lastNotifiedVersion)
 
       -- even a newer version stays silent for the rest of the session
       comm.OnChatMsgAddon(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, "1.4.0", "GUILD", "Otherplayer")
@@ -239,7 +239,53 @@ describe("Comm", function()
 
       -- a version newer than the announced one notifies again
       comm.OnChatMsgAddon(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, "1.4.0", "GUILD", "Otherplayer")
-      assert.are.same({ "New version 1.4.0 is available" }, notices)
+      assert.are.same({ "New version v1.4.0 is available" }, notices)
+    end)
+
+    it("accepts a version on every broadcast channel", function()
+      for _, channel in ipairs({ "GUILD", "RAID", "PARTY", "INSTANCE_CHAT" }) do
+        dofile("code/Comm.lua")
+        comm = rgp.comm
+        PulseConfiguration.lastNotifiedVersion = ""
+
+        comm.OnChatMsgAddon(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, "v1.3.0", channel, "Otherplayer")
+      end
+
+      assert.are.equal(4, #notices)
+    end)
+
+    it("ignores a version whispered by another player", function()
+      comm.OnChatMsgAddon(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, "v1.3.0", "WHISPER", "Otherplayer")
+
+      assert.are.same({}, notices)
+      assert.are.equal("", PulseConfiguration.lastNotifiedVersion)
+    end)
+
+    it("ignores a version followed by trailing text and persists nothing", function()
+      comm.OnChatMsgAddon(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, "v99.0.0 |cFFFF0000click", "GUILD", "Otherplayer")
+
+      assert.are.same({}, notices)
+      assert.are.equal("", PulseConfiguration.lastNotifiedVersion)
+    end)
+
+    it("ignores an oversized message even when it is all digits", function()
+      comm.OnChatMsgAddon(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, "v99999999999999.0.0", "GUILD", "Otherplayer")
+
+      assert.are.same({}, notices)
+      assert.are.equal("", PulseConfiguration.lastNotifiedVersion)
+    end)
+
+    it("ignores a message that is not a string", function()
+      comm.OnChatMsgAddon(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, nil, "GUILD", "Otherplayer")
+
+      assert.are.same({}, notices)
+    end)
+
+    it("persists and prints the normalized version only", function()
+      comm.OnChatMsgAddon(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, "1.03.0", "GUILD", "Otherplayer")
+
+      assert.are.same({ "New version v1.3.0 is available" }, notices)
+      assert.are.equal("v1.3.0", PulseConfiguration.lastNotifiedVersion)
     end)
   end)
 end)
