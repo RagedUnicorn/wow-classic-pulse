@@ -30,14 +30,35 @@ local me = rgp
 
 me.tag = "Core"
 
--- forward declarations for local functions
-local OnPlayerLogin
-local OnUnitPowerUpdate
-local OnEnteringWorld
-local OnRosterChanged
-local OnDisplaySizeChanged
-local Initialize
-local ShowWelcomeMessage
+--[[
+  Show welcome message to user
+]]--
+local function ShowWelcomeMessage()
+  print(
+    string.format("|cFF00FFB0" .. RGP_CONSTANTS.ADDON_NAME .. rgp.L["help"],
+    C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version"))
+  )
+end
+
+--[[
+  Initialize addon
+]]--
+local function Initialize()
+  me.logger.LogDebug(me.tag, "Initialize addon")
+  -- setup slash commands
+  me.cmd.SetupSlashCmdList()
+  -- load addon variables
+  me.configuration.SetupConfiguration()
+  -- guarantee the undeletable default profile exists (needs the defaults applied above)
+  me.profile.EnsureDefaultProfile()
+  -- setup addon configuration ui
+  me.addonConfiguration.SetupAddonConfiguration()
+  me.energyBar.BuildUi()
+  -- register addon message prefix for the version broadcast
+  me.comm.Initialize()
+
+  ShowWelcomeMessage()
+end
 
 --[[
   Run the bootstrap sequence on login, then mark the event bus ready so gated
@@ -46,7 +67,7 @@ local ShowWelcomeMessage
   error is logged and handed to the client's error handler (the script error frame,
   BugSack) and the gate opens regardless.
 ]]--
-OnPlayerLogin = function()
+local function OnPlayerLogin()
   xpcall(Initialize, function(err)
     me.logger.LogError(me.tag, "Initialization failed: " .. tostring(err))
 
@@ -63,7 +84,7 @@ end
   @param {string} unitTarget
   @param {string} powerType
 ]]--
-OnUnitPowerUpdate = function(unitTarget, powerType)
+local function OnUnitPowerUpdate(unitTarget, powerType)
   if unitTarget == RGP_CONSTANTS.UNIT_ID_PLAYER and powerType == RGP_CONSTANTS.POWERTYPE_ENERGY[1] then
     me.ticker.StartTickerEnergy()
     me.energyBar.ShowEnergyBarFrame()
@@ -77,7 +98,7 @@ end
   @param {boolean} isInitialLogin
   @param {boolean} isReloadingUi
 ]]--
-OnEnteringWorld = function(isInitialLogin, isReloadingUi)
+local function OnEnteringWorld(isInitialLogin, isReloadingUi)
   me.comm.BroadcastVersion(isInitialLogin == true or isReloadingUi == true)
 end
 
@@ -85,7 +106,7 @@ end
   Announce the version on GROUP_ROSTER_UPDATE. A group change announces to the group
   only - the guild already got the version at login.
 ]]--
-OnRosterChanged = function()
+local function OnRosterChanged()
   me.comm.BroadcastVersion(false)
 end
 
@@ -93,7 +114,7 @@ end
   Re-lay the alignment grid when the drawable area changes. Referenced through the module
   table at call time - gui/AlignmentGrid.lua is loaded after gui/Frame.xml runs OnLoad
 ]]--
-OnDisplaySizeChanged = function()
+local function OnDisplaySizeChanged()
   me.alignmentGrid.Refresh()
 end
 
@@ -134,34 +155,4 @@ end
 ]]--
 function me.OnEvent(event, ...)
   me.event.Dispatch(event, ...)
-end
-
---[[
-  Initialize addon
-]]--
-Initialize = function()
-  me.logger.LogDebug(me.tag, "Initialize addon")
-  -- setup slash commands
-  me.cmd.SetupSlashCmdList()
-  -- load addon variables
-  me.configuration.SetupConfiguration()
-  -- guarantee the undeletable default profile exists (needs the defaults applied above)
-  me.profile.EnsureDefaultProfile()
-  -- setup addon configuration ui
-  me.addonConfiguration.SetupAddonConfiguration()
-  me.energyBar.BuildUi()
-  -- register addon message prefix for the version broadcast
-  me.comm.Initialize()
-
-  ShowWelcomeMessage()
-end
-
---[[
-  Show welcome message to user
-]]--
-ShowWelcomeMessage = function()
-  print(
-    string.format("|cFF00FFB0" .. RGP_CONSTANTS.ADDON_NAME .. rgp.L["help"],
-    C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version"))
-  )
 end
