@@ -75,6 +75,10 @@ local HandleRename
 local HandleExport
 local HandleImport
 local FinishImport
+local BuildProfileList
+local BuildActionButtons
+local BuildStringBox
+local SelectProfile
 
 --[[
   Build the ui for the profile menu. Built once (guarded); the list is
@@ -98,15 +102,15 @@ function me.BuildUi(frame)
     listLabel:SetPoint("TOPLEFT", 20, -46)
     listLabel:SetText(rgp.L["profile_list_label"])
 
-    me.BuildProfileList(frame)
-    me.BuildActionButtons(frame)
+    BuildProfileList(frame)
+    BuildActionButtons(frame)
 
     local stringLabel = frame:CreateFontString(nil, "OVERLAY")
     stringLabel:SetFont(STANDARD_TEXT_FONT, 13)
     stringLabel:SetPoint("TOPLEFT", 20, -246)
     stringLabel:SetText(rgp.L["profile_string_label"])
 
-    me.BuildStringBox(frame)
+    BuildStringBox(frame)
 
     builtMenu = true
   end
@@ -119,7 +123,7 @@ end
 
   @param {table} frame
 ]]--
-function me.BuildProfileList(frame)
+BuildProfileList = function(frame)
   local listWidth = RGP_CONSTANTS.ELEMENT_PROFILE_LIST_WIDTH
   local listHeight = RGP_CONSTANTS.ELEMENT_PROFILE_LIST_HEIGHT
 
@@ -170,7 +174,7 @@ end
 
   @param {table} frame
 ]]--
-function me.BuildActionButtons(frame)
+BuildActionButtons = function(frame)
   CreateActionButton(
     frame,
     RGP_CONSTANTS.ELEMENT_PROFILE_SAVE_BUTTON,
@@ -248,7 +252,7 @@ end
 
   @param {table} frame
 ]]--
-function me.BuildStringBox(frame)
+BuildStringBox = function(frame)
   local stringContainer = CreateFrame("Frame", nil, frame, "BackdropTemplate")
   stringContainer:SetSize(RGP_CONSTANTS.ELEMENT_PROFILE_STRING_WIDTH, RGP_CONSTANTS.ELEMENT_PROFILE_STRING_HEIGHT)
   stringContainer:SetPoint("TOPLEFT", 20, -264)
@@ -312,7 +316,7 @@ end
 
   @param {string} name
 ]]--
-function me.SelectProfile(name)
+SelectProfile = function(name)
   me.selectedProfile = name
 
   for _, row in ipairs(rows) do
@@ -381,7 +385,7 @@ CreateProfileRow = function(index)
   row.label = label
 
   row:SetScript("OnClick", function(self)
-    me.SelectProfile(self.profileName)
+    SelectProfile(self.profileName)
   end)
 
   return row

@@ -61,6 +61,7 @@ local enteredFromSettings = false
 local EnsureUi
 local CreateHudFrame
 local CloseSettingsWindow
+local Exit
 
 --[[
   @return {boolean}
@@ -97,7 +98,7 @@ end
 ]]--
 function me.Toggle()
   if isActive then
-    me.Exit()
+    Exit()
   else
     me.Enter()
   end
@@ -145,7 +146,7 @@ end
     user back where they started. Deliberately not set for Escape, where popping a window
     open would be the opposite of what the key is for
 ]]--
-function me.Exit(returnToSettings)
+Exit = function(returnToSettings)
   if not isActive then return end
 
   mod.logger.LogInfo(me.tag, "Leaving positioning mode")
@@ -244,7 +245,7 @@ CreateHudFrame = function()
     RGP_CONSTANTS.ELEMENT_POSITIONING_HUD_BUTTON_HEIGHT,
     rgp.L["positioning_hud_done"],
     function()
-      me.Exit(true)
+      Exit(true)
     end
   )
 
@@ -253,7 +254,7 @@ CreateHudFrame = function()
     through UISpecialFrames. Exiting via the button has already run, so this is a no-op then
   ]]--
   frame:SetScript("OnHide", function()
-    me.Exit()
+    Exit()
   end)
 
   frame:Hide()
