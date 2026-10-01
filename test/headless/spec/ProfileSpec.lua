@@ -110,6 +110,37 @@ describe("Profile", function()
     assert.are.equal("profile_error_checksum", err)
   end)
 
+  it("drops payload keys that are not profile fields on import", function()
+    local serialized = rgp.serializer.Serialize({
+      addon = "Pulse",
+      schemaVersion = 1,
+      payload = {
+        lockEnergyBar = true,
+        frames = { P_EnergyBar = { posX = 1 } },
+        junk = string.rep("x", 64),
+        profiles = { Other = {} },
+        addonVersion = "v9.9.9"
+      }
+    })
+
+    local envelope, err = profile.ImportString("Pulse1:" .. rgp.encoder.Encode(serialized))
+
+    assert.is_nil(err)
+    assert.are.same({
+      lockEnergyBar = true,
+      frames = { P_EnergyBar = { posX = 1 } }
+    }, envelope.payload)
+  end)
+
+  it("rejects an input longer than the import limit before decoding", function()
+    local oversized = "Pulse1:" .. string.rep("A", RGP_CONSTANTS.PROFILE_IMPORT_MAX_LENGTH)
+
+    local envelope, err = profile.ImportString(oversized)
+
+    assert.is_nil(envelope)
+    assert.are.equal("profile_error_invalid", err)
+  end)
+
   it("snapshots every configurable field, including the grid snap pair", function()
     PulseConfiguration.snapEnergyBarToGrid = true
     PulseConfiguration.energyBarGridSize = 25

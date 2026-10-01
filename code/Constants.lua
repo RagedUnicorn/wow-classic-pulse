@@ -159,6 +159,13 @@ RGP_CONSTANTS = {
     the chat messages that quote it
   ]]--
   PROFILE_NAME_MAX_LENGTH = 30,
+  --[[
+    Upper bound for a pasted profile import string, counted in characters. The largest
+    realistic export - every field set, a positioned bar and a maximum length profile
+    name - is about 600 characters, so this leaves ample headroom for new profile fields
+    while keeping an arbitrary paste from being decoded
+  ]]--
+  PROFILE_IMPORT_MAX_LENGTH = 16384,
   ELEMENT_PROFILE_SUB_OPTION_FRAME = "P_ProfileMenuOptionsFrame",
   ELEMENT_PROFILE_TITLE = "P_ProfileTitle",
   ELEMENT_PROFILE_LIST_SCROLL_FRAME = "P_ProfileListScrollFrame",

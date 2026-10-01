@@ -231,6 +231,26 @@ function me.ExportString(payload, name)
 end
 
 --[[
+  Reduce an imported payload to the profile fields. The string is untrusted input:
+  keys outside PROFILE_FIELDS would otherwise be stored with the profile and carried
+  along by every later export. They are inert on apply (ApplySnapshot copies
+  PROFILE_FIELDS only), so dropping them loses nothing.
+
+  @param {table} payload
+  @return {table}
+    a new table holding only the payload's PROFILE_FIELDS entries
+]]--
+local function ProjectPayload(payload)
+  local projected = {}
+
+  for _, field in ipairs(me.PROFILE_FIELDS) do
+    projected[field] = payload[field]
+  end
+
+  return projected
+end
+
+--[[
   Decode and validate a profile string. Never raises - returns a localization
   error key on any failure and leaves all state untouched.
 
@@ -241,7 +261,7 @@ end
     or nil plus a localization key describing the failure
 ]]--
 function me.ImportString(encoded)
-  if type(encoded) ~= "string" then
+  if type(encoded) ~= "string" or #encoded > RGP_CONSTANTS.PROFILE_IMPORT_MAX_LENGTH then
     return nil, "profile_error_invalid"
   end
 
@@ -283,6 +303,8 @@ function me.ImportString(encoded)
   if type(envelope.payload) ~= "table" then
     return nil, "profile_error_invalid"
   end
+
+  envelope.payload = ProjectPayload(envelope.payload)
 
   return envelope
 end
