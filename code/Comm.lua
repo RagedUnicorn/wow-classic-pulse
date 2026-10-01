@@ -24,6 +24,7 @@
 ]]--
 
 -- luacheck: globals C_ChatInfo C_AddOns C_Timer UnitName IsInGuild IsInGroup IsInRaid GetTime
+-- luacheck: globals LE_PARTY_CATEGORY_HOME LE_PARTY_CATEGORY_INSTANCE
 
 local mod = rgp
 local me = {}
@@ -129,10 +130,19 @@ function me.BroadcastVersion(includeGuild)
     C_ChatInfo.SendAddonMessage(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, version, "GUILD")
   end
 
-  if IsInRaid() then
+  --[[
+    Without a category IsInRaid / IsInGroup also count the instance group of a
+    battleground, where RAID / PARTY do not reach it - the home group gets RAID /
+    PARTY, the instance group INSTANCE_CHAT. A premade in a battleground is in both.
+  ]]--
+  if IsInRaid(LE_PARTY_CATEGORY_HOME) then
     C_ChatInfo.SendAddonMessage(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, version, "RAID")
-  elseif IsInGroup() then
+  elseif IsInGroup(LE_PARTY_CATEGORY_HOME) then
     C_ChatInfo.SendAddonMessage(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, version, "PARTY")
+  end
+
+  if LE_PARTY_CATEGORY_INSTANCE ~= nil and IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+    C_ChatInfo.SendAddonMessage(RGP_CONSTANTS.ADDON_MESSAGE_PREFIX, version, "INSTANCE_CHAT")
   end
 end
 

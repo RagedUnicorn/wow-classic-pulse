@@ -25,7 +25,7 @@
 --[[
   Tests for the version broadcast and update notice (code/Comm.lua).
 
-  The module broadcasts the running version over GUILD/RAID/PARTY on roster edges (with a
+  The module broadcasts the running version over GUILD/RAID/PARTY/INSTANCE_CHAT on roster edges (with a
   cooldown so GROUP_ROSTER_UPDATE bursts stay within the native per-prefix throttle) and, on
   CHAT_MSG_ADDON, shows the localized update notice once per session when a strictly newer
   version is seen from another player, persisting it in PulseConfiguration.lastNotifiedVersion.
@@ -58,8 +58,12 @@ describe("Comm", function()
   local inGuild
   local inRaid
   local inGroup
+  local inInstanceGroup
   -- C_Timer.After callbacks captured so the trailing broadcast fires explicitly
   local timers
+  -- the client's party category values
+  local PARTY_CATEGORY_HOME = 1
+  local PARTY_CATEGORY_INSTANCE = 2
 
   -- deep fields of the shared `rgp` table replaced below; busted's file insulation only
   -- snapshots the top-level `rgp` reference, so restore them manually in after_each
@@ -77,6 +81,7 @@ describe("Comm", function()
     inGuild = false
     inRaid = false
     inGroup = false
+    inInstanceGroup = false
     timers = {}
 
     restore = wowStubs.install({
@@ -91,8 +96,21 @@ describe("Comm", function()
       },
       UnitName = function() return "Selfplayer" end,
       IsInGuild = function() return inGuild end,
-      IsInRaid = function() return inRaid end,
-      IsInGroup = function() return inGroup end,
+      LE_PARTY_CATEGORY_HOME = PARTY_CATEGORY_HOME,
+      LE_PARTY_CATEGORY_INSTANCE = PARTY_CATEGORY_INSTANCE,
+      -- inRaid / inGroup describe the home group; without a category the client also
+      -- counts the instance group, which the production code must not rely on
+      IsInRaid = function(category)
+        if category == PARTY_CATEGORY_HOME then return inRaid end
+
+        return inRaid or (category == nil and inInstanceGroup)
+      end,
+      IsInGroup = function(category)
+        if category == PARTY_CATEGORY_HOME then return inGroup or inRaid end
+        if category == PARTY_CATEGORY_INSTANCE then return inInstanceGroup end
+
+        return inGroup or inRaid or inInstanceGroup
+      end,
       GetTime = function() return now end,
       C_Timer = {
         After = function(delay, callback)
@@ -163,6 +181,26 @@ describe("Comm", function()
       assert.are.equal(2, #sentMessages)
       assert.are.equal("GUILD", sentMessages[1].channel)
       assert.are.equal("PARTY", sentMessages[2].channel)
+    end)
+
+    it("broadcasts over INSTANCE_CHAT only when in a battleground instance group", function()
+      inInstanceGroup = true
+
+      comm.BroadcastVersion(false)
+
+      assert.are.equal(1, #sentMessages)
+      assert.are.equal("INSTANCE_CHAT", sentMessages[1].channel)
+    end)
+
+    it("broadcasts over PARTY and INSTANCE_CHAT for a premade party in a battleground", function()
+      inGroup = true
+      inInstanceGroup = true
+
+      comm.BroadcastVersion(false)
+
+      assert.are.equal(2, #sentMessages)
+      assert.are.equal("PARTY", sentMessages[1].channel)
+      assert.are.equal("INSTANCE_CHAT", sentMessages[2].channel)
     end)
 
     it("broadcasts nothing when solo and unguilded", function()
