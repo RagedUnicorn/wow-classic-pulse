@@ -23,6 +23,19 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
+--[[
+  Log-tag filter - a debugging tool, deliberately without a production caller.
+  With event logging on, the event bus logs every UNIT_POWER_UPDATE; mute a
+  module's tag from chat while debugging another one:
+
+    /run rgp.filter.RegisterFilter("event", "^Event$")
+    /run rgp.filter.DeregisterFilter("event")
+
+  Filters live for the session only (a /reload clears them). The Logger checks
+  every line against the list; with no filter registered that is an empty loop.
+  See "Filtering Logs" in DEVELOPMENT.md.
+]]--
+
 local mod = rgp
 local me = {}
 
