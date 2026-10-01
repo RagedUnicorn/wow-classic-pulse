@@ -26,7 +26,11 @@
   Key-set parity across Pulse's localization files (localization/*.lua).
 
   The recurring bug this pins down: a string added to enUS but not mirrored to the other locales.
-  The locale set is glob-discovered (lfs over localization/) rather than hard-coded, so a new locale
+  deDE.lua / ruRU.lua layer their table over the enUS one (an __index fallback), so at runtime such
+  a key shows the English text instead of resolving to nil - but that fallback only hides the gap,
+  so parity is still enforced here: every locale must ship the exact same key set. The key sets
+  are read with pairs, which sees a locale's own keys only, so the fallback cannot mask a missing
+  key. The locale set is glob-discovered (lfs over localization/) rather than hard-coded, so a new locale
   file is picked up automatically.
 
   Loading mechanics: enUS.lua sets rgp.L unconditionally, while deDE.lua / ruRU.lua are wrapped in
@@ -147,6 +151,29 @@ describe("Localization parity", function()
   it("has identical key sets across all shipped locales", function()
     -- assert.are.same gives a readable diff of the offending "locale is missing key" lines
     assert.are.same({}, findParityProblems(shippedKeys))
+  end)
+
+  it("falls back to the enUS table for a key a non-English locale does not ship", function()
+    for _, file in ipairs(localeFiles) do
+      if file.locale ~= "enUS" then
+        local restore = wowStubs.install({
+          GetLocale = wowStubs.stubs.GetLocale(file.locale),
+          C_AddOns = wowStubs.stubs.C_AddOns({ Version = "1.2.3" })
+        })
+
+        rgp.L = { onlyInEnUS = "english text" }
+        dofile(file.path)
+
+        local fallback = rgp.L.onlyInEnUS
+        local own = rawget(rgp.L, "onlyInEnUS")
+
+        restore()
+        rgp.L = originalL
+
+        assert.are.equal("english text", fallback, file.locale)
+        assert.is_nil(own, file.locale)
+      end
+    end
   end)
 
   it("flags a locale that carries a key the others lack", function()

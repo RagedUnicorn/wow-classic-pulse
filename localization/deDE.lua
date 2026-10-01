@@ -2,7 +2,8 @@
 
 if (GetLocale() == "deDE") then
   rgp = rgp or {}
-  rgp.L = {}
+  -- layer over the enUS table (loaded first) so a key missing here falls back to English
+  rgp.L = setmetatable({}, { __index = rgp.L or {} })
 
   rgp.L["addon_name"] = "Pulse"
 
