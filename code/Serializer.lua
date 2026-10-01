@@ -53,10 +53,6 @@ me.tag = "Serializer"
 ]]--
 local MAX_DEPTH = 64
 
--- forward declarations
-local EncodeValue
-local ReadValue
-
 --[[
   @param {number} number
   @return {boolean}
@@ -86,19 +82,6 @@ local function IsDecimalText(text)
 end
 
 --[[
-  Serialize an arbitrary Lua value (nil/boolean/number/string/table) to a
-  compact string.
-
-  @param {any} value
-  @return {string}
-]]--
-function me.Serialize(value)
-  local out = {}
-  EncodeValue(value, out, 0)
-  return table.concat(out)
-end
-
---[[
   Append the encoding of a single value to the output buffer.
 
   @param {any} value
@@ -106,7 +89,7 @@ end
     output buffer collected via table.concat
   @param {number} depth
 ]]--
-EncodeValue = function(value, out, depth)
+local function EncodeValue(value, out, depth)
   if depth > MAX_DEPTH then
     error("serializer: maximum nesting depth exceeded")
   end
@@ -141,6 +124,19 @@ EncodeValue = function(value, out, depth)
   else
     error("serializer: cannot serialize value of type " .. valueType)
   end
+end
+
+--[[
+  Serialize an arbitrary Lua value (nil/boolean/number/string/table) to a
+  compact string.
+
+  @param {any} value
+  @return {string}
+]]--
+function me.Serialize(value)
+  local out = {}
+  EncodeValue(value, out, 0)
+  return table.concat(out)
 end
 
 --[[
@@ -206,7 +202,7 @@ end
     even when the parsed value legitimately is nil). On failure returns nil
     plus an error message.
 ]]--
-ReadValue = function(input, pos, depth)
+local function ReadValue(input, pos, depth)
   if depth > MAX_DEPTH then
     return nil, nil, "maximum nesting depth exceeded"
   end
