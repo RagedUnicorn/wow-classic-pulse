@@ -22,8 +22,9 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT StaticPopupDialogs StaticPopup_Show ReloadUI ScrollUtil
--- luacheck: globals ACCEPT CANCEL YES NO
+-- luacheck: read globals CreateFrame STANDARD_TEXT_FONT StaticPopup_Show ReloadUI ScrollUtil
+-- luacheck: globals StaticPopupDialogs
+-- luacheck: read globals ACCEPT CANCEL YES NO
 
 local mod = rgp
 local me = {}

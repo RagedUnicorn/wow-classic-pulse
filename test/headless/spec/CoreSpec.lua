@@ -31,11 +31,6 @@
   top-level `rgp` reference.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each rgp
--- luacheck: ignore 143
-
 local wowStubs = require("WowStubs")
 
 describe("Core", function()

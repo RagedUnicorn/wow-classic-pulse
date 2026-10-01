@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_AddOns
+-- luacheck: read globals C_AddOns
 
 local mod = rgp
 local me = {}

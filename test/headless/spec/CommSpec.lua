@@ -39,11 +39,6 @@
   (broadcast cooldown, notified-this-session flag) per the bootstrap module-state convention.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each rgp RGP_CONSTANTS PulseConfiguration
--- luacheck: ignore 143
-
 local wowStubs = require("WowStubs")
 
 describe("Comm", function()

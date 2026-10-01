@@ -38,8 +38,8 @@
   touched.
 ]]--
 
--- luacheck: globals CreateFrame UIParent STANDARD_TEXT_FONT SettingsPanel HideUIPanel UISpecialFrames
--- luacheck: globals InCombatLockdown
+-- luacheck: read globals CreateFrame UIParent STANDARD_TEXT_FONT SettingsPanel HideUIPanel UISpecialFrames
+-- luacheck: read globals InCombatLockdown
 
 local mod = rgp
 local me = {}

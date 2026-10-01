@@ -1,4 +1,4 @@
--- luacheck: globals C_AddOns
+-- luacheck: read globals C_AddOns
 
 rgp = rgp or {}
 rgp.L = {}

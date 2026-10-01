@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame UIParent Settings
+-- luacheck: read globals CreateFrame UIParent Settings
 
 local mod = rgp
 local me = {}

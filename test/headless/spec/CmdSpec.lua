@@ -40,10 +40,7 @@
   bootstrap module-state convention.
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each after_each rgp SLASH_PULSE1 SLASH_PULSE2 SlashCmdList
--- luacheck: ignore 143
+-- luacheck: read globals SLASH_PULSE1 SLASH_PULSE2 SlashCmdList
 
 local wowStubs = require("WowStubs")
 

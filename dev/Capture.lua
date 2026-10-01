@@ -35,9 +35,9 @@
   See the wow-media-capture skill for the full pipeline.
 ]]--
 
--- luacheck: globals C_Timer Screenshot SetCVar GetPhysicalScreenSize InCombatLockdown
--- luacheck: globals Settings SettingsPanel SlashCmdList SLASH_RGPSHOT1 CreateFrame
--- luacheck: globals UIParent PulseShotLog RGP_SHOTS time
+-- luacheck: read globals C_Timer Screenshot SetCVar GetPhysicalScreenSize InCombatLockdown
+-- luacheck: read globals Settings SettingsPanel CreateFrame UIParent time
+-- luacheck: globals SlashCmdList SLASH_RGPSHOT1
 
 local mod = rgp
 local me = {}

@@ -22,7 +22,7 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame STANDARD_TEXT_FONT
+-- luacheck: read globals CreateFrame STANDARD_TEXT_FONT
 
 local mod = rgp
 local me = {}

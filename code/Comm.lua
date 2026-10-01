@@ -23,8 +23,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals C_ChatInfo C_AddOns C_Timer UnitName IsInGuild IsInGroup IsInRaid GetTime
--- luacheck: globals LE_PARTY_CATEGORY_HOME LE_PARTY_CATEGORY_INSTANCE
+-- luacheck: read globals C_ChatInfo C_AddOns C_Timer UnitName IsInGuild IsInGroup IsInRaid GetTime
+-- luacheck: read globals LE_PARTY_CATEGORY_HOME LE_PARTY_CATEGORY_INSTANCE
 
 local mod = rgp
 local me = {}

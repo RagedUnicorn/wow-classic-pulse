@@ -36,7 +36,7 @@
   addons cannot register a frame with.
 ]]--
 
--- luacheck: globals CreateFrame UIParent PixelUtil
+-- luacheck: read globals CreateFrame UIParent PixelUtil
 
 local mod = rgp
 local me = {}

@@ -30,11 +30,6 @@
   re-dofile'd in before_each to reset the registry (per the bootstrap module-state convention).
 ]]--
 
--- busted extends `assert` with .same / .equal / etc. at runtime; luacheck cannot verify those
--- fields statically. Suppress warning 143 (accessing undefined field of a global variable).
--- luacheck: globals describe it before_each
--- luacheck: ignore 143
-
 describe("Filter", function()
   local filter
 

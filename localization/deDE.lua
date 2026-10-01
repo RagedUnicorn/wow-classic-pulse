@@ -1,4 +1,4 @@
--- luacheck: globals GetLocale C_AddOns
+-- luacheck: read globals GetLocale C_AddOns
 
 if (GetLocale() == "deDE") then
   rgp = rgp or {}

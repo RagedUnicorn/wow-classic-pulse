@@ -23,7 +23,7 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
--- luacheck: globals CreateFrame UIParent STANDARD_TEXT_FONT GetTime UnitPower
+-- luacheck: read globals CreateFrame UIParent STANDARD_TEXT_FONT GetTime UnitPower
 
 local mod = rgp
 local me = {}

@@ -22,7 +22,8 @@
   SOFTWARE.
 ]]--
 
--- luacheck: globals DEFAULT_CHAT_FRAME SLASH_PULSE1 SLASH_PULSE2 SlashCmdList ReloadUI
+-- luacheck: read globals DEFAULT_CHAT_FRAME ReloadUI
+-- luacheck: globals SLASH_PULSE1 SLASH_PULSE2 SlashCmdList
 
 local mod = rgp
 local me = {}
