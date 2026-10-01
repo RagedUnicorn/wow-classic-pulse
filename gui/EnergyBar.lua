@@ -34,15 +34,6 @@ me.tag = "EnergyBar"
 
 local energyBarFrame
 
--- forward declarations
-local CreateStatusBarFrame
-local CreateEnergyAmountFontString
-local SetupDragFrame
-local StartDragFrame
-local StopDragFrame
-local SnapFrameToGrid
-local IsDragAllowed
-
 --[[
   Time when the last energyTick happened
 ]]--
@@ -69,6 +60,152 @@ local previewStartedTicker = false
   the bar would never be restored to hidden
 ]]--
 local previewActive = false
+
+--[[
+  @param {table} frame
+]]--
+local function CreateStatusBarFrame(frame)
+  local energyStatusBar = CreateFrame(
+    "StatusBar",
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR,
+    frame,
+    "BackdropTemplate"
+  )
+  energyStatusBar:SetPoint("CENTER", frame, 0, 0)
+  energyStatusBar:SetWidth(mod.configuration.GetEnergyBarWidth() - 4)
+  energyStatusBar:SetHeight(mod.configuration.GetEnergyBarHeight() - 4)
+  energyStatusBar:SetStatusBarTexture("Interface\\AddOns\\Pulse\\assets\\ui_statusbar")
+  energyStatusBar:SetStatusBarColor(1, 0.95, 0, 1)
+  energyStatusBar:SetFrameLevel(energyStatusBar:GetFrameLevel() - 1)
+  energyStatusBar:SetMinMaxValues(
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MIN,
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MAX
+  )
+
+  energyStatusBar:SetBackdrop({
+    bgFile = "",
+    edgeFile = "",
+    tile = false,
+    edgeSize = 0,
+    insets = { left = 0, right = 0, top = 0, bottom = 0 }
+  })
+
+  return energyStatusBar
+end
+
+--[[
+  @param {table} frame
+]]--
+local function CreateEnergyAmountFontString(frame)
+  local energyAmountFontString = frame:CreateFontString(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT, "OVERLAY")
+  energyAmountFontString:SetFont(STANDARD_TEXT_FONT, 16, "OUTLINE")
+  energyAmountFontString:SetPoint("CENTER", 0, 0)
+  energyAmountFontString:SetSize(
+    mod.configuration.GetEnergyBarWidth(),
+    mod.configuration.GetEnergyBarHeight()
+  )
+
+  return energyAmountFontString
+end
+
+--[[
+  Whether the bar may be dragged right now. The lock keeps the bar from being nudged by a
+  stray click during play, but entering the positioning mode is a deliberate "I want to
+  move this" - so the mode overrides the lock instead of forcing the user to find and
+  toggle a second setting first. The lock setting itself is never changed by the mode.
+
+  @return {boolean}
+]]--
+local function IsDragAllowed()
+  return mod.positioningMode.IsActive() or not mod.configuration.IsEnergyBarLocked()
+end
+
+--[[
+  Frame callback to start moving the passed (self) frame
+
+  @param {table} self
+]]--
+local function StartDragFrame(self)
+  if not IsDragAllowed() then return end
+
+  self:StartMoving()
+end
+
+--[[
+  Re-anchor a dropped frame onto the alignment grid.
+
+  It is the frame's top left corner that lands on an intersection, not its center. With
+  the grid drawn on screen the user aligns what they can see - an edge touching a line -
+  and a centered snap would leave both visible edges half a bar off every line unless the
+  bar's size happened to be a multiple of the grid size.
+
+  The frame is normalized to a TOPLEFT / UIParent BOTTOMLEFT anchor before the offsets are
+  rounded: whatever anchor the drag left behind, the persisted position is then a
+  deterministic, serializable screen coordinate (profiles carry it) and the grid means the
+  same thing no matter where the bar was dragged from.
+
+  @param {table} frame
+]]--
+local function SnapFrameToGrid(frame)
+  local left = frame:GetLeft()
+  local top = frame:GetTop()
+
+  --[[
+    Both return nil for a frame that has no resolved rect yet - nothing to snap
+  ]]--
+  if left == nil or top == nil then return end
+
+  local gridSize = mod.configuration.GetEnergyBarGridSize()
+
+  frame:ClearAllPoints()
+  frame:SetPoint(
+    "TOPLEFT",
+    UIParent,
+    "BOTTOMLEFT",
+    me.SnapValueToGrid(left, gridSize),
+    me.SnapValueToGrid(top, gridSize)
+  )
+end
+
+--[[
+  Frame callback to stop moving the passed (self) frame
+
+  @param {table} self
+]]--
+local function StopDragFrame(self)
+  if not IsDragAllowed() then return end
+
+  self:StopMovingOrSizing()
+
+  if mod.configuration.IsEnergyBarGridSnapEnabled() then
+    SnapFrameToGrid(self)
+  end
+
+  local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
+
+  --[[
+    GetPoint returns relativeTo as a region reference. Only its name (or nil for
+    anonymous regions) may be persisted - PulseConfiguration.frames is exported
+    via profiles and must stay serializable.
+  ]]--
+  mod.configuration.SaveUserPlacedFramePosition(
+    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME,
+    point,
+    relativeTo and relativeTo:GetName() or nil,
+    relativePoint,
+    posX,
+    posY
+  )
+end
+
+--[[
+  @param {table} frame
+    the frame to attach drag handlers
+]]--
+local function SetupDragFrame(frame)
+  frame:SetScript("OnMouseDown", StartDragFrame)
+  frame:SetScript("OnMouseUp", StopDragFrame)
+end
 
 function me.BuildUi()
   energyBarFrame = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME, UIParent, "BackdropTemplate")
@@ -110,53 +247,6 @@ function me.BuildUi()
   energyBarFrame.energyAmount = CreateEnergyAmountFontString(energyBarFrame)
 
   energyBarFrame:Hide()
-end
-
---[[
-  @param {table} frame
-]]--
-CreateStatusBarFrame = function(frame)
-  local energyStatusBar = CreateFrame(
-    "StatusBar",
-    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR,
-    frame,
-    "BackdropTemplate"
-  )
-  energyStatusBar:SetPoint("CENTER", frame, 0, 0)
-  energyStatusBar:SetWidth(mod.configuration.GetEnergyBarWidth() - 4)
-  energyStatusBar:SetHeight(mod.configuration.GetEnergyBarHeight() - 4)
-  energyStatusBar:SetStatusBarTexture("Interface\\AddOns\\Pulse\\assets\\ui_statusbar")
-  energyStatusBar:SetStatusBarColor(1, 0.95, 0, 1)
-  energyStatusBar:SetFrameLevel(energyStatusBar:GetFrameLevel() - 1)
-  energyStatusBar:SetMinMaxValues(
-    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MIN,
-    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_STATUS_BAR_MAX
-  )
-
-  energyStatusBar:SetBackdrop({
-    bgFile = "",
-    edgeFile = "",
-    tile = false,
-    edgeSize = 0,
-    insets = { left = 0, right = 0, top = 0, bottom = 0 }
-  })
-
-  return energyStatusBar
-end
-
---[[
-  @param {table} frame
-]]--
-CreateEnergyAmountFontString = function(frame)
-  local energyAmountFontString = frame:CreateFontString(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_ENERGY_AMOUNT, "OVERLAY")
-  energyAmountFontString:SetFont(STANDARD_TEXT_FONT, 16, "OUTLINE")
-  energyAmountFontString:SetPoint("CENTER", 0, 0)
-  energyAmountFontString:SetSize(
-    mod.configuration.GetEnergyBarWidth(),
-    mod.configuration.GetEnergyBarHeight()
-  )
-
-  return energyAmountFontString
 end
 
 function me.ShowEnergyBarFrame()
@@ -205,69 +295,6 @@ function me.HidePreview()
 end
 
 --[[
-  @param {table} frame
-    the frame to attach drag handlers
-]]--
-SetupDragFrame = function(frame)
-  frame:SetScript("OnMouseDown", StartDragFrame)
-  frame:SetScript("OnMouseUp", StopDragFrame)
-end
-
---[[
-  Whether the bar may be dragged right now. The lock keeps the bar from being nudged by a
-  stray click during play, but entering the positioning mode is a deliberate "I want to
-  move this" - so the mode overrides the lock instead of forcing the user to find and
-  toggle a second setting first. The lock setting itself is never changed by the mode.
-
-  @return {boolean}
-]]--
-IsDragAllowed = function()
-  return mod.positioningMode.IsActive() or not mod.configuration.IsEnergyBarLocked()
-end
-
---[[
-  Frame callback to start moving the passed (self) frame
-
-  @param {table} self
-]]--
-StartDragFrame = function(self)
-  if not IsDragAllowed() then return end
-
-  self:StartMoving()
-end
-
---[[
-  Frame callback to stop moving the passed (self) frame
-
-  @param {table} self
-]]--
-StopDragFrame = function(self)
-  if not IsDragAllowed() then return end
-
-  self:StopMovingOrSizing()
-
-  if mod.configuration.IsEnergyBarGridSnapEnabled() then
-    SnapFrameToGrid(self)
-  end
-
-  local point, relativeTo, relativePoint, posX, posY = self:GetPoint()
-
-  --[[
-    GetPoint returns relativeTo as a region reference. Only its name (or nil for
-    anonymous regions) may be persisted - PulseConfiguration.frames is exported
-    via profiles and must stay serializable.
-  ]]--
-  mod.configuration.SaveUserPlacedFramePosition(
-    RGP_CONSTANTS.ELEMENT_ENERGY_BAR_FRAME,
-    point,
-    relativeTo and relativeTo:GetName() or nil,
-    relativePoint,
-    posX,
-    posY
-  )
-end
-
---[[
   Round a coordinate onto the nearest multiple of the alignment grid. Pure arithmetic -
   exposed on the module so the headless spec can exercise it without a WoW client. A
   gridSize that is not a positive number leaves the value untouched
@@ -281,42 +308,6 @@ function me.SnapValueToGrid(value, gridSize)
   if type(gridSize) ~= "number" or gridSize <= 0 then return value end
 
   return math.floor(value / gridSize + 0.5) * gridSize
-end
-
---[[
-  Re-anchor a dropped frame onto the alignment grid.
-
-  It is the frame's top left corner that lands on an intersection, not its center. With
-  the grid drawn on screen the user aligns what they can see - an edge touching a line -
-  and a centered snap would leave both visible edges half a bar off every line unless the
-  bar's size happened to be a multiple of the grid size.
-
-  The frame is normalized to a TOPLEFT / UIParent BOTTOMLEFT anchor before the offsets are
-  rounded: whatever anchor the drag left behind, the persisted position is then a
-  deterministic, serializable screen coordinate (profiles carry it) and the grid means the
-  same thing no matter where the bar was dragged from.
-
-  @param {table} frame
-]]--
-SnapFrameToGrid = function(frame)
-  local left = frame:GetLeft()
-  local top = frame:GetTop()
-
-  --[[
-    Both return nil for a frame that has no resolved rect yet - nothing to snap
-  ]]--
-  if left == nil or top == nil then return end
-
-  local gridSize = mod.configuration.GetEnergyBarGridSize()
-
-  frame:ClearAllPoints()
-  frame:SetPoint(
-    "TOPLEFT",
-    UIParent,
-    "BOTTOMLEFT",
-    me.SnapValueToGrid(left, gridSize),
-    me.SnapValueToGrid(top, gridSize)
-  )
 end
 
 --[[
