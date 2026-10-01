@@ -87,17 +87,36 @@ local hidden = {}
 -- cursor for the keybind-safe `shot next` driver
 local cursor = 1
 
--- forward declarations
-local FindShot
-local RunSetup
-local HideChrome
-local HideFrames
-local RestoreChrome
-local MeasureFrame
-local MeasureShotRect
-local RecordShot
-local TakeShot
-local HandleSlashCommand
+--[[
+  @param {string} msg
+]]--
+local function HandleSlashCommand(msg)
+  local args = {}
+
+  for arg in string.gmatch(msg, "%S+") do
+    table.insert(args, arg)
+  end
+
+  if args[1] == nil or args[1] == "help" then
+    print("|cFF00FFB0Pulse:|r media capture (development only)")
+    print("  |cFFFFC300list|r - show the shot manifest")
+    print("  |cFFFFC300all|r - capture every shot")
+    print("  |cFFFFC300next|r - capture the next shot (bind this if `all` does not work)")
+    print("  |cFFFFC300clear|r - reset the shot log")
+    print("  |cFFFFC300<name>|r - capture a single shot")
+  elseif args[1] == "list" then
+    me.List()
+  elseif args[1] == "all" then
+    me.ShotAll()
+  elseif args[1] == "next" then
+    me.Next()
+  elseif args[1] == "clear" then
+    me.Clear()
+    print("|cFF00FFB0Pulse:|r shot log cleared")
+  else
+    me.Shot(args[1])
+  end
+end
 
 --[[
   Register the dev-only slash command.
@@ -190,7 +209,7 @@ local setupVerbs = {
   @return {table}, {number}
     The manifest entry and its index, or nil
 ]]--
-FindShot = function(name)
+local function FindShot(name)
   for i = 1, #RGP_SHOTS do
     if RGP_SHOTS[i].name == name or RGP_SHOTS[i].shot == name then
       return RGP_SHOTS[i], i
@@ -203,7 +222,7 @@ end
 --[[
   @param {table} entry
 ]]--
-RunSetup = function(entry)
+local function RunSetup(entry)
   for _, step in ipairs(entry.setup) do
     local verb, argument = string.match(step, "^(%w+):?(.*)$")
     local handler = setupVerbs[verb]
@@ -224,7 +243,7 @@ end
   @param {table | nil} keepFrames
     Array of frame names to leave visible
 ]]--
-HideChrome = function(keepFrames)
+local function HideChrome(keepFrames)
   local keep = {}
 
   if keepFrames ~= nil then
@@ -245,7 +264,7 @@ HideChrome = function(keepFrames)
   end
 end
 
-RestoreChrome = function()
+local function RestoreChrome()
   for _, frame in ipairs(hidden) do
     frame:Show()
   end
@@ -262,7 +281,7 @@ end
   @param {table | nil} names
     Array of frame names to hide
 ]]--
-HideFrames = function(names)
+local function HideFrames(names)
   if names == nil then return end
 
   for _, name in ipairs(names) do
@@ -293,7 +312,7 @@ end
   @return {number}, {number}, {number}, {number}, {number}, {number}
     x, y, width, height, screenWidth, screenHeight
 ]]--
-MeasureFrame = function(frame)
+local function MeasureFrame(frame)
   local screenWidth, screenHeight = GetPhysicalScreenSize()
 
   -- referenceHeight is 768; derived live rather than hardcoded so it survives any future
@@ -322,7 +341,7 @@ end
   @return {number}, {number}, {number}, {number}, {number}, {number}
     x, y, width, height, screenWidth, screenHeight
 ]]--
-MeasureShotRect = function(entry, frame)
+local function MeasureShotRect(entry, frame)
   local x, y, width, height, screenWidth, screenHeight = MeasureFrame(frame)
   local left, top, right, bottom = x, y, x + width, y + height
 
@@ -351,7 +370,7 @@ end
   @param {table} entry
   @param {table} frame
 ]]--
-RecordShot = function(entry, frame)
+local function RecordShot(entry, frame)
   if PulseShotLog == nil then
     PulseShotLog = {}
   end
@@ -377,7 +396,7 @@ end
 --[[
   @param {table} entry
 ]]--
-TakeShot = function(entry)
+local function TakeShot(entry)
   if InCombatLockdown() then
     mod.logger.PrintUserError("Refusing to capture in combat - hiding protected frames would taint the UI")
     return
@@ -481,37 +500,6 @@ function me.List()
   for i = 1, #RGP_SHOTS do
     local entry = RGP_SHOTS[i]
     print("  |cFFFFC300" .. entry.name .. "|r - " .. entry.shows .. " (" .. entry.frame .. ")")
-  end
-end
-
---[[
-  @param {string} msg
-]]--
-HandleSlashCommand = function(msg)
-  local args = {}
-
-  for arg in string.gmatch(msg, "%S+") do
-    table.insert(args, arg)
-  end
-
-  if args[1] == nil or args[1] == "help" then
-    print("|cFF00FFB0Pulse:|r media capture (development only)")
-    print("  |cFFFFC300list|r - show the shot manifest")
-    print("  |cFFFFC300all|r - capture every shot")
-    print("  |cFFFFC300next|r - capture the next shot (bind this if `all` does not work)")
-    print("  |cFFFFC300clear|r - reset the shot log")
-    print("  |cFFFFC300<name>|r - capture a single shot")
-  elseif args[1] == "list" then
-    me.List()
-  elseif args[1] == "all" then
-    me.ShotAll()
-  elseif args[1] == "next" then
-    me.Next()
-  elseif args[1] == "clear" then
-    me.Clear()
-    print("|cFF00FFB0Pulse:|r shot log cleared")
-  else
-    me.Shot(args[1])
   end
 end
 
