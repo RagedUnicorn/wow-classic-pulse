@@ -31,13 +31,6 @@ mod.configuration = me
 
 me.tag = "Configuration"
 
--- forward declarations for local functions
-local ApplyDefaults
-local SetAddonVersion
-local ClampToRange
--- upgrade steps are forward-declared here as schema changes ship, e.g.:
--- local UpgradeToV1_3_0
-
 PulseConfiguration = {}
 
 --[[
@@ -94,6 +87,40 @@ local DEFAULTS = {
 }
 
 --[[
+  Recursively fill nil keys of target with the values from defaults. Table defaults
+  are materialized by recursing into a fresh (or the existing) table instead of being
+  assigned directly, so DEFAULTS is never shared or mutated and keys the user wrote
+  into existing tables are never touched.
+
+  @param {table} target
+  @param {table} defaults
+]]--
+local function ApplyDefaults(target, defaults)
+  for key, defaultValue in pairs(defaults) do
+    if type(defaultValue) == "table" then
+      if type(target[key]) ~= "table" then
+        mod.logger.LogInfo(me.tag, key .. " has no saved value - applying default")
+        target[key] = {}
+      end
+      ApplyDefaults(target[key], defaultValue)
+    elseif target[key] == nil then
+      mod.logger.LogInfo(me.tag, key .. " has no saved value - applying default")
+      target[key] = defaultValue
+    end
+  end
+end
+
+--[[
+  Set addon version on addon options. Before setting a new version make sure
+  to run through migration paths.
+]]--
+local function SetAddonVersion()
+  me.MigrationPath()
+  -- migration done update addon version to current
+  PulseConfiguration.addonVersion = C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
+end
+
+--[[
   Fill missing configuration values with their defaults
 ]]--
 function me.SetupConfiguration()
@@ -121,44 +148,10 @@ function me.GetDefaults()
 end
 
 --[[
-  Recursively fill nil keys of target with the values from defaults. Table defaults
-  are materialized by recursing into a fresh (or the existing) table instead of being
-  assigned directly, so DEFAULTS is never shared or mutated and keys the user wrote
-  into existing tables are never touched.
-
-  @param {table} target
-  @param {table} defaults
-]]--
-ApplyDefaults = function(target, defaults)
-  for key, defaultValue in pairs(defaults) do
-    if type(defaultValue) == "table" then
-      if type(target[key]) ~= "table" then
-        mod.logger.LogInfo(me.tag, key .. " has no saved value - applying default")
-        target[key] = {}
-      end
-      ApplyDefaults(target[key], defaultValue)
-    elseif target[key] == nil then
-      mod.logger.LogInfo(me.tag, key .. " has no saved value - applying default")
-      target[key] = defaultValue
-    end
-  end
-end
-
---[[
-  Set addon version on addon options. Before setting a new version make sure
-  to run through migration paths.
-]]--
-SetAddonVersion = function()
-  me.MigrationPath()
-  -- migration done update addon version to current
-  PulseConfiguration.addonVersion = C_AddOns.GetAddOnMetadata(RGP_CONSTANTS.ADDON_NAME, "Version")
-end
-
---[[
   Versioned upgrade steps run by MigrationPath in release order. Each entry maps the
   version that introduced a schema change to the UpgradeToVx_y_z function migrating
-  older saved variables to it. When the first schema change ships, forward-declare
-  the step next to the other locals and append it here:
+  older saved variables to it. When the first schema change ships, define the step
+  as a plain local function above this table and append it here:
 
     { version = "v1.3.0", upgrade = UpgradeToV1_3_0 }
 
@@ -289,6 +282,29 @@ function me.SetEnergyBarWidth(width)
 end
 
 --[[
+  Backstop for the size getters: a stored value outside its slider range (a
+  hand-edited SavedVariables file) is clamped into it, and anything that is not a
+  finite number resolves to the shipped default, so it never reaches SetWidth /
+  SetHeight or the alignment grid.
+
+  @param {any} value
+  @param {number} min
+  @param {number} max
+  @param {number} default
+  @return {number}
+]]--
+local function ClampToRange(value, min, max, default)
+  if type(value) ~= "number"
+      or value ~= value -- NaN is the only value not equal to itself
+      or value == math.huge
+      or value == -math.huge then
+    return default
+  end
+
+  return math.max(min, math.min(max, value))
+end
+
+--[[
   Get the energy bar width
 
   @return {number}
@@ -369,27 +385,4 @@ function me.GetEnergyBarGridSize()
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_MAX_GRID_SIZE,
     RGP_CONSTANTS.ELEMENT_ENERGY_BAR_GRID_SIZE
   )
-end
-
---[[
-  Backstop for the size getters: a stored value outside its slider range (a
-  hand-edited SavedVariables file) is clamped into it, and anything that is not a
-  finite number resolves to the shipped default, so it never reaches SetWidth /
-  SetHeight or the alignment grid.
-
-  @param {any} value
-  @param {number} min
-  @param {number} max
-  @param {number} default
-  @return {number}
-]]--
-ClampToRange = function(value, min, max, default)
-  if type(value) ~= "number"
-      or value ~= value -- NaN is the only value not equal to itself
-      or value == math.huge
-      or value == -math.huge then
-    return default
-  end
-
-  return math.max(min, math.min(max, value))
 end
