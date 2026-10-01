@@ -54,13 +54,6 @@ local gridFrame
 ]]--
 local linePool = {}
 
--- forward declarations
-local BuildLineAxis
-local EnsureUi
-local AcquireLine
-local PlaceLine
-local Rebuild
-
 --[[
   Whether the grid should currently be on screen.
 
@@ -82,6 +75,23 @@ function me.ShouldShowGrid(snapEnabled, isPositioning)
   if not isPositioning then return false end
 
   return true
+end
+
+--[[
+  Append the lines of one axis to target. Indices rather than an accumulated offset keep
+  the axis comparison exact for a fractional grid size.
+
+  @param {table} target
+  @param {number} extent
+  @param {number} gridSize
+]]--
+local function BuildLineAxis(target, extent, gridSize)
+  local lastIndex = math.floor(extent / gridSize)
+  local axisIndex = math.floor(extent / 2 / gridSize + 0.5)
+
+  for index = 0, lastIndex do
+    target[#target + 1] = { offset = index * gridSize, axis = index == axisIndex }
+  end
 end
 
 --[[
@@ -123,23 +133,6 @@ function me.CalculateGridLines(width, height, gridSize)
 end
 
 --[[
-  Append the lines of one axis to target. Indices rather than an accumulated offset keep
-  the axis comparison exact for a fractional grid size.
-
-  @param {table} target
-  @param {number} extent
-  @param {number} gridSize
-]]--
-BuildLineAxis = function(target, extent, gridSize)
-  local lastIndex = math.floor(extent / gridSize)
-  local axisIndex = math.floor(extent / 2 / gridSize + 0.5)
-
-  for index = 0, lastIndex do
-    target[#target + 1] = { offset = index * gridSize, axis = index == axisIndex }
-  end
-end
-
---[[
   Create the grid frame on first use. Sits on the lowest strata so it never covers the bar
   it helps align, and takes no mouse input so it cannot swallow a click meant for the game
   world.
@@ -147,7 +140,7 @@ end
   Built lazily rather than at login: most sessions never place the bar, and a grid that is
   never shown should not cost a frame
 ]]--
-EnsureUi = function()
+local function EnsureUi()
   if gridFrame ~= nil then return end
 
   gridFrame = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_ALIGNMENT_GRID_FRAME, UIParent)
@@ -158,34 +151,57 @@ EnsureUi = function()
 end
 
 --[[
-  Bring the grid in line with the current configuration and positioning state. The single
-  entry point for every caller - the options panel, the positioning mode and the display
-  size events all just call this
+  Get the pooled line at index, creating it on first use
+
+  @param {number} index
+
+  @return {table}
 ]]--
-function me.Refresh()
-  local shouldShow = me.ShouldShowGrid(
-    mod.configuration.IsEnergyBarGridSnapEnabled(),
-    mod.positioningMode.IsActive()
-  )
+local function AcquireLine(index)
+  local line = linePool[index]
 
-  if not shouldShow then
-    -- nothing to hide while the grid was never needed in the first place
-    if gridFrame ~= nil then
-      gridFrame:Hide()
-    end
-
-    return
+  if line == nil then
+    line = gridFrame:CreateLine(nil, "BACKGROUND")
+    linePool[index] = line
   end
 
-  EnsureUi()
-  Rebuild()
-  gridFrame:Show()
+  return line
+end
+
+--[[
+  Anchor one line across the full width or height of the grid frame. A Line is defined by
+  its two endpoints, so it needs no size math and follows the frame when the screen
+  changes underneath it
+
+  @param {table} line
+  @param {table} lineSpec
+    one entry as produced by me.CalculateGridLines
+  @param {boolean} isVertical
+  @param {number} thickness
+]]--
+local function PlaceLine(line, lineSpec, isVertical, thickness)
+  local color = lineSpec.axis
+    and RGP_CONSTANTS.ELEMENT_ALIGNMENT_GRID_AXIS_COLOR
+    or RGP_CONSTANTS.ELEMENT_ALIGNMENT_GRID_LINE_COLOR
+
+  line:SetColorTexture(color[1], color[2], color[3], color[4])
+  line:SetThickness(thickness)
+
+  if isVertical then
+    line:SetStartPoint("BOTTOMLEFT", gridFrame, lineSpec.offset, 0)
+    line:SetEndPoint("TOPLEFT", gridFrame, lineSpec.offset, 0)
+  else
+    line:SetStartPoint("BOTTOMLEFT", gridFrame, 0, lineSpec.offset)
+    line:SetEndPoint("BOTTOMRIGHT", gridFrame, 0, lineSpec.offset)
+  end
+
+  line:Show()
 end
 
 --[[
   Lay the line textures out for the current grid size and screen size
 ]]--
-Rebuild = function()
+local function Rebuild()
   --[[
     Measured off UIParent rather than the grid frame itself. The grid is anchored to fill
     UIParent, so the numbers are the same - but UIParent's rect is always resolved, while a
@@ -227,49 +243,26 @@ Rebuild = function()
 end
 
 --[[
-  Get the pooled line at index, creating it on first use
-
-  @param {number} index
-
-  @return {table}
+  Bring the grid in line with the current configuration and positioning state. The single
+  entry point for every caller - the options panel, the positioning mode and the display
+  size events all just call this
 ]]--
-AcquireLine = function(index)
-  local line = linePool[index]
+function me.Refresh()
+  local shouldShow = me.ShouldShowGrid(
+    mod.configuration.IsEnergyBarGridSnapEnabled(),
+    mod.positioningMode.IsActive()
+  )
 
-  if line == nil then
-    line = gridFrame:CreateLine(nil, "BACKGROUND")
-    linePool[index] = line
+  if not shouldShow then
+    -- nothing to hide while the grid was never needed in the first place
+    if gridFrame ~= nil then
+      gridFrame:Hide()
+    end
+
+    return
   end
 
-  return line
-end
-
---[[
-  Anchor one line across the full width or height of the grid frame. A Line is defined by
-  its two endpoints, so it needs no size math and follows the frame when the screen
-  changes underneath it
-
-  @param {table} line
-  @param {table} lineSpec
-    one entry as produced by me.CalculateGridLines
-  @param {boolean} isVertical
-  @param {number} thickness
-]]--
-PlaceLine = function(line, lineSpec, isVertical, thickness)
-  local color = lineSpec.axis
-    and RGP_CONSTANTS.ELEMENT_ALIGNMENT_GRID_AXIS_COLOR
-    or RGP_CONSTANTS.ELEMENT_ALIGNMENT_GRID_LINE_COLOR
-
-  line:SetColorTexture(color[1], color[2], color[3], color[4])
-  line:SetThickness(thickness)
-
-  if isVertical then
-    line:SetStartPoint("BOTTOMLEFT", gridFrame, lineSpec.offset, 0)
-    line:SetEndPoint("TOPLEFT", gridFrame, lineSpec.offset, 0)
-  else
-    line:SetStartPoint("BOTTOMLEFT", gridFrame, 0, lineSpec.offset)
-    line:SetEndPoint("BOTTOMRIGHT", gridFrame, 0, lineSpec.offset)
-  end
-
-  line:Show()
+  EnsureUi()
+  Rebuild()
+  gridFrame:Show()
 end
