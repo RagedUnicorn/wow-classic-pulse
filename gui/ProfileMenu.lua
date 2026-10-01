@@ -60,256 +60,18 @@ local profileEditBox
 local renameButton
 local deleteButton
 
--- forward declarations
-local SetupStaticPopups
-local CreateActionButton
-local CreateProfileRow
-local RefreshList
-local UpdateActionButtonState
-local PrintDefaultProfileError
-local Trim
-local IsNameTooLong
-local HandleSave
-local HandleApply
-local HandleDelete
-local HandleRename
-local HandleExport
-local HandleImport
-local FinishImport
-local BuildProfileList
-local BuildActionButtons
-local BuildStringBox
-local SelectProfile
-
 --[[
-  Build the ui for the profile menu. Built once (guarded); the list is
-  refreshed on every show so external changes are reflected.
-
-  @param {table} frame
-    The addon configuration frame to attach to
+  Grey out Rename and Delete while the immutable default profile is selected. The
+  click handlers guard the same condition - this only makes the refusal visible
+  before the click.
 ]]--
-function me.BuildUi(frame)
-  if not builtMenu then
-    SetupStaticPopups()
+local function UpdateActionButtonState()
+  if not renameButton or not deleteButton then return end
 
-    local titleFontString = frame:CreateFontString(
-      RGP_CONSTANTS.ELEMENT_PROFILE_TITLE, "OVERLAY", "GameFontNormalLarge")
-    titleFontString:SetPoint("TOPLEFT", 16, -16)
-    mod.uiHelper.SetColor(titleFontString, RGP_CONSTANTS.COLOR.TITLE_GOLD)
-    titleFontString:SetText(rgp.L["profile_title"])
+  local isDefault = me.selectedProfile ~= nil and mod.profile.IsDefaultProfile(me.selectedProfile)
 
-    local listLabel = frame:CreateFontString(nil, "OVERLAY")
-    listLabel:SetFont(STANDARD_TEXT_FONT, 13)
-    listLabel:SetPoint("TOPLEFT", 20, -46)
-    listLabel:SetText(rgp.L["profile_list_label"])
-
-    BuildProfileList(frame)
-    BuildActionButtons(frame)
-
-    local stringLabel = frame:CreateFontString(nil, "OVERLAY")
-    stringLabel:SetFont(STANDARD_TEXT_FONT, 13)
-    stringLabel:SetPoint("TOPLEFT", 20, -246)
-    stringLabel:SetText(rgp.L["profile_string_label"])
-
-    BuildStringBox(frame)
-
-    builtMenu = true
-  end
-
-  RefreshList()
-end
-
---[[
-  Build the bordered, scrollable list of saved profiles.
-
-  @param {table} frame
-]]--
-BuildProfileList = function(frame)
-  local listWidth = RGP_CONSTANTS.ELEMENT_PROFILE_LIST_WIDTH
-  local listHeight = RGP_CONSTANTS.ELEMENT_PROFILE_LIST_HEIGHT
-
-  local listContainer = CreateFrame("Frame", nil, frame, "BackdropTemplate")
-  listContainer:SetSize(listWidth, listHeight)
-  listContainer:SetPoint("TOPLEFT", 20, -64)
-  mod.uiHelper.ApplyBorderBackdrop(listContainer)
-
-  local scrollFrame = CreateFrame(
-    "ScrollFrame",
-    RGP_CONSTANTS.ELEMENT_PROFILE_LIST_SCROLL_FRAME,
-    listContainer
-  )
-  scrollFrame:SetPoint("TOPLEFT", 6, -6)
-  scrollFrame:SetPoint("BOTTOMRIGHT", -22, 6)
-
-  profileListScrollBar = CreateFrame("EventFrame", nil, listContainer, "MinimalScrollBar")
-  profileListScrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 6, 0)
-  profileListScrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 6, 0)
-  ScrollUtil.InitScrollFrameWithScrollBar(scrollFrame, profileListScrollBar)
-
-  if profileListScrollBar.SetHideIfUnscrollable then
-    profileListScrollBar:SetHideIfUnscrollable(true)
-  else
-    --[[
-      Classic Era did not backport ScrollBarMixin:SetHideIfUnscrollable - track the scroll
-      range manually instead
-    ]]--
-    scrollFrame:HookScript("OnScrollRangeChanged", function(_, _, yRange)
-      profileListScrollBar:SetShown(yRange > 0)
-    end)
-    profileListScrollBar:Hide()
-  end
-
-  profileListContent = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_PROFILE_LIST_CONTENT_FRAME, scrollFrame)
-  --[[
-    Seed the content with no scrollable extent - RefreshList sets the real height once it
-    knows its row count. Seeding the full listHeight would leave the list scrollable by the
-    viewport insets alone and keep the scrollbar visible on an empty list
-  ]]--
-  profileListContent:SetSize(listWidth - 28, 1)
-  scrollFrame:SetScrollChild(profileListContent)
-end
-
---[[
-  Build the action buttons that operate on the selected profile plus the
-  save-current button.
-
-  @param {table} frame
-]]--
-BuildActionButtons = function(frame)
-  CreateActionButton(
-    frame,
-    RGP_CONSTANTS.ELEMENT_PROFILE_SAVE_BUTTON,
-    150,
-    {"TOPLEFT", 320, -64},
-    rgp.L["profile_save_button"],
-    function()
-      StaticPopup_Show("PULSE_PROFILE_SAVE")
-    end
-  )
-
-  CreateActionButton(
-    frame,
-    RGP_CONSTANTS.ELEMENT_PROFILE_APPLY_BUTTON,
-    150,
-    {"TOPLEFT", 320, -96},
-    rgp.L["profile_apply_button"],
-    function()
-      if not me.selectedProfile then
-        mod.logger.PrintUserError(rgp.L["profile_error_no_selection"])
-        return
-      end
-
-      StaticPopup_Show("PULSE_PROFILE_APPLY", me.selectedProfile, nil, me.selectedProfile)
-    end
-  )
-
-  renameButton = CreateActionButton(
-    frame,
-    RGP_CONSTANTS.ELEMENT_PROFILE_RENAME_BUTTON,
-    150,
-    {"TOPLEFT", 320, -128},
-    rgp.L["profile_rename_button"],
-    function()
-      if not me.selectedProfile then
-        mod.logger.PrintUserError(rgp.L["profile_error_no_selection"])
-        return
-      end
-
-      if mod.profile.IsDefaultProfile(me.selectedProfile) then
-        PrintDefaultProfileError("profile_error_default_cannot_be_renamed")
-        return
-      end
-
-      StaticPopup_Show("PULSE_PROFILE_RENAME", nil, nil, me.selectedProfile)
-    end
-  )
-
-  deleteButton = CreateActionButton(
-    frame,
-    RGP_CONSTANTS.ELEMENT_PROFILE_DELETE_BUTTON,
-    150,
-    {"TOPLEFT", 320, -160},
-    rgp.L["profile_delete_button"],
-    function()
-      if not me.selectedProfile then
-        mod.logger.PrintUserError(rgp.L["profile_error_no_selection"])
-        return
-      end
-
-      if mod.profile.IsDefaultProfile(me.selectedProfile) then
-        PrintDefaultProfileError("profile_error_default_cannot_be_deleted")
-        return
-      end
-
-      StaticPopup_Show("PULSE_PROFILE_DELETE", me.selectedProfile, nil, me.selectedProfile)
-    end
-  )
-
-  UpdateActionButtonState()
-end
-
---[[
-  Build the multiline export/import string box and its Export/Import buttons.
-
-  @param {table} frame
-]]--
-BuildStringBox = function(frame)
-  local stringContainer = CreateFrame("Frame", nil, frame, "BackdropTemplate")
-  stringContainer:SetSize(RGP_CONSTANTS.ELEMENT_PROFILE_STRING_WIDTH, RGP_CONSTANTS.ELEMENT_PROFILE_STRING_HEIGHT)
-  stringContainer:SetPoint("TOPLEFT", 20, -264)
-  mod.uiHelper.ApplyBorderBackdrop(stringContainer)
-
-  local scrollContainer = CreateFrame(
-    "ScrollFrame",
-    RGP_CONSTANTS.ELEMENT_PROFILE_STRING_SCROLL_FRAME,
-    stringContainer,
-    "InputScrollFrameTemplate"
-  )
-  scrollContainer:SetPoint("TOPLEFT", 6, -6)
-  scrollContainer:SetPoint("BOTTOMRIGHT", -6, 6)
-
-  --[[ the template draws its own input-border art outside its rect which does not line
-       up with the profile list's backdrop - hide it, the container draws the border ]]--
-  local artKeys = {
-    "TopLeftTex", "TopRightTex", "BottomLeftTex", "BottomRightTex",
-    "TopTex", "BottomTex", "LeftTex", "RightTex", "MiddleTex"
-  }
-
-  for _, artKey in ipairs(artKeys) do
-    if scrollContainer[artKey] then
-      scrollContainer[artKey]:Hide()
-    end
-  end
-
-  if scrollContainer.CharCount then
-    scrollContainer.CharCount:Hide()
-  end
-
-  profileEditBox = scrollContainer.EditBox
-  profileEditBox:SetMaxLetters(RGP_CONSTANTS.PROFILE_IMPORT_MAX_LENGTH)
-  profileEditBox:SetFontObject("ChatFontNormal")
-  profileEditBox:SetWidth(RGP_CONSTANTS.ELEMENT_PROFILE_STRING_WIDTH - 30)
-  profileEditBox:SetScript("OnEscapePressed", function(self)
-    self:ClearFocus()
-  end)
-
-  CreateActionButton(
-    frame,
-    RGP_CONSTANTS.ELEMENT_PROFILE_EXPORT_BUTTON,
-    110,
-    {"TOPLEFT", 20, -366},
-    rgp.L["profile_export_button"],
-    HandleExport
-  )
-
-  CreateActionButton(
-    frame,
-    RGP_CONSTANTS.ELEMENT_PROFILE_IMPORT_BUTTON,
-    110,
-    {"TOPLEFT", 140, -366},
-    rgp.L["profile_import_button"],
-    HandleImport
-  )
+  renameButton:SetEnabled(not isDefault)
+  deleteButton:SetEnabled(not isDefault)
 end
 
 --[[
@@ -317,7 +79,7 @@ end
 
   @param {string} name
 ]]--
-SelectProfile = function(name)
+local function SelectProfile(name)
   me.selectedProfile = name
 
   for _, row in ipairs(rows) do
@@ -332,37 +94,12 @@ SelectProfile = function(name)
 end
 
 --[[
-  Grey out Rename and Delete while the immutable default profile is selected. The
-  click handlers guard the same condition - this only makes the refusal visible
-  before the click.
-]]--
-UpdateActionButtonState = function()
-  if not renameButton or not deleteButton then return end
-
-  local isDefault = me.selectedProfile ~= nil and mod.profile.IsDefaultProfile(me.selectedProfile)
-
-  renameButton:SetEnabled(not isDefault)
-  deleteButton:SetEnabled(not isDefault)
-end
-
---[[
-  Print one of the profile_error_default_* messages. The reserved profile name is not
-  translated - it is a saved-variable key that also travels inside export strings - so
-  every locale spells it out verbatim instead of naming it in its own words.
-
-  @param {string} errorKey
-]]--
-PrintDefaultProfileError = function(errorKey)
-  mod.logger.PrintUserError(string.format(rgp.L[errorKey], RGP_CONSTANTS.DEFAULT_PROFILE_NAME))
-end
-
---[[
   Create (or reuse) a row button at the given index in the list.
 
   @param {number} index
   @return {table}
 ]]--
-CreateProfileRow = function(index)
+local function CreateProfileRow(index)
   local rowHeight = RGP_CONSTANTS.ELEMENT_PROFILE_LIST_ROW_HEIGHT
 
   local row = CreateFrame("Button", RGP_CONSTANTS.ELEMENT_PROFILE_LIST_ROW .. index, profileListContent)
@@ -395,7 +132,7 @@ end
 --[[
   Rebuild the visible profile rows from the saved profile list.
 ]]--
-RefreshList = function()
+local function RefreshList()
   if not profileListContent then return end
 
   local names = mod.profile.ListProfiles()
@@ -436,25 +173,14 @@ RefreshList = function()
 end
 
 --[[
-  Helper to create a UIPanelButton.
+  Print one of the profile_error_default_* messages. The reserved profile name is not
+  translated - it is a saved-variable key that also travels inside export strings - so
+  every locale spells it out verbatim instead of naming it in its own words.
 
-  @param {table} parent
-  @param {string} name
-  @param {number} width
-  @param {table} point
-    a table that can be unpacked into SetPoint
-  @param {string} text
-  @param {function} onClick
-  @return {table}
+  @param {string} errorKey
 ]]--
-CreateActionButton = function(parent, name, width, point, text, onClick)
-  local button = CreateFrame("Button", name, parent, "UIPanelButtonTemplate")
-  button:SetSize(width, RGP_CONSTANTS.ELEMENT_PROFILE_BUTTON_HEIGHT)
-  button:SetPoint(unpack(point))
-  button:SetText(text)
-  button:SetScript("OnClick", onClick)
-
-  return button
+local function PrintDefaultProfileError(errorKey)
+  mod.logger.PrintUserError(string.format(rgp.L[errorKey], RGP_CONSTANTS.DEFAULT_PROFILE_NAME))
 end
 
 --[[
@@ -463,7 +189,7 @@ end
   @param {string} value
   @return {string}
 ]]--
-Trim = function(value)
+local function Trim(value)
   return (string.match(value, "^%s*(.-)%s*$"))
 end
 
@@ -477,7 +203,7 @@ end
     true - if the name was refused and an error was printed
     false - otherwise
 ]]--
-IsNameTooLong = function(name)
+local function IsNameTooLong(name)
   if not mod.profile.IsNameTooLong(name) then
     return false
   end
@@ -493,7 +219,7 @@ end
 
   @param {string} name
 ]]--
-HandleSave = function(name)
+local function HandleSave(name)
   name = Trim(name)
 
   if name == "" then
@@ -520,7 +246,7 @@ end
 
   @param {string} name
 ]]--
-HandleApply = function(name)
+local function HandleApply(name)
   local payload = mod.profile.GetProfile(name)
 
   if not payload then
@@ -537,7 +263,7 @@ end
 
   @param {string} name
 ]]--
-HandleDelete = function(name)
+local function HandleDelete(name)
   if not mod.profile.DeleteProfile(name) then
     PrintDefaultProfileError("profile_error_default_cannot_be_deleted")
     return
@@ -557,7 +283,7 @@ end
   @param {string} oldName
   @param {string} newName
 ]]--
-HandleRename = function(oldName, newName)
+local function HandleRename(oldName, newName)
   newName = Trim(newName)
 
   if newName == "" then
@@ -593,50 +319,12 @@ HandleRename = function(oldName, newName)
 end
 
 --[[
-  Export the selected profile into the string box and select it for copying.
-]]--
-HandleExport = function()
-  local name = me.selectedProfile
-
-  if not name then
-    mod.logger.PrintUserError(rgp.L["profile_error_no_selection"])
-    return
-  end
-
-  local payload = mod.profile.GetProfile(name)
-
-  if not payload then
-    mod.logger.PrintUserError(rgp.L["profile_error_no_selection"])
-    return
-  end
-
-  profileEditBox:SetText(mod.profile.ExportString(payload, name))
-  profileEditBox:HighlightText()
-  profileEditBox:SetFocus()
-end
-
---[[
-  Decode and validate the string box content, then prompt for a name to store
-  it under.
-]]--
-HandleImport = function()
-  local envelope, errorKey = mod.profile.ImportString(profileEditBox:GetText())
-
-  if not envelope then
-    mod.logger.PrintUserError(rgp.L[errorKey])
-    return
-  end
-
-  StaticPopup_Show("PULSE_PROFILE_IMPORT", nil, nil, envelope)
-end
-
---[[
   Store an imported, already-validated envelope under a user-given name.
 
   @param {string} name
   @param {table} envelope
 ]]--
-FinishImport = function(name, envelope)
+local function FinishImport(name, envelope)
   name = Trim(name)
 
   if name == "" then
@@ -666,7 +354,7 @@ end
 --[[
   Register the StaticPopup dialogs used for naming and destructive confirmation.
 ]]--
-SetupStaticPopups = function()
+local function SetupStaticPopups()
   StaticPopupDialogs["PULSE_PROFILE_SAVE"] = {
     text = rgp.L["profile_name_prompt"],
     button1 = ACCEPT,
@@ -765,4 +453,295 @@ SetupStaticPopups = function()
     hideOnEscape = true,
     preferredIndex = 3
   }
+end
+
+--[[
+  Build the bordered, scrollable list of saved profiles.
+
+  @param {table} frame
+]]--
+local function BuildProfileList(frame)
+  local listWidth = RGP_CONSTANTS.ELEMENT_PROFILE_LIST_WIDTH
+  local listHeight = RGP_CONSTANTS.ELEMENT_PROFILE_LIST_HEIGHT
+
+  local listContainer = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+  listContainer:SetSize(listWidth, listHeight)
+  listContainer:SetPoint("TOPLEFT", 20, -64)
+  mod.uiHelper.ApplyBorderBackdrop(listContainer)
+
+  local scrollFrame = CreateFrame(
+    "ScrollFrame",
+    RGP_CONSTANTS.ELEMENT_PROFILE_LIST_SCROLL_FRAME,
+    listContainer
+  )
+  scrollFrame:SetPoint("TOPLEFT", 6, -6)
+  scrollFrame:SetPoint("BOTTOMRIGHT", -22, 6)
+
+  profileListScrollBar = CreateFrame("EventFrame", nil, listContainer, "MinimalScrollBar")
+  profileListScrollBar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 6, 0)
+  profileListScrollBar:SetPoint("BOTTOMLEFT", scrollFrame, "BOTTOMRIGHT", 6, 0)
+  ScrollUtil.InitScrollFrameWithScrollBar(scrollFrame, profileListScrollBar)
+
+  if profileListScrollBar.SetHideIfUnscrollable then
+    profileListScrollBar:SetHideIfUnscrollable(true)
+  else
+    --[[
+      Classic Era did not backport ScrollBarMixin:SetHideIfUnscrollable - track the scroll
+      range manually instead
+    ]]--
+    scrollFrame:HookScript("OnScrollRangeChanged", function(_, _, yRange)
+      profileListScrollBar:SetShown(yRange > 0)
+    end)
+    profileListScrollBar:Hide()
+  end
+
+  profileListContent = CreateFrame("Frame", RGP_CONSTANTS.ELEMENT_PROFILE_LIST_CONTENT_FRAME, scrollFrame)
+  --[[
+    Seed the content with no scrollable extent - RefreshList sets the real height once it
+    knows its row count. Seeding the full listHeight would leave the list scrollable by the
+    viewport insets alone and keep the scrollbar visible on an empty list
+  ]]--
+  profileListContent:SetSize(listWidth - 28, 1)
+  scrollFrame:SetScrollChild(profileListContent)
+end
+
+--[[
+  Helper to create a UIPanelButton.
+
+  @param {table} parent
+  @param {string} name
+  @param {number} width
+  @param {table} point
+    a table that can be unpacked into SetPoint
+  @param {string} text
+  @param {function} onClick
+  @return {table}
+]]--
+local function CreateActionButton(parent, name, width, point, text, onClick)
+  local button = CreateFrame("Button", name, parent, "UIPanelButtonTemplate")
+  button:SetSize(width, RGP_CONSTANTS.ELEMENT_PROFILE_BUTTON_HEIGHT)
+  button:SetPoint(unpack(point))
+  button:SetText(text)
+  button:SetScript("OnClick", onClick)
+
+  return button
+end
+
+--[[
+  Build the action buttons that operate on the selected profile plus the
+  save-current button.
+
+  @param {table} frame
+]]--
+local function BuildActionButtons(frame)
+  CreateActionButton(
+    frame,
+    RGP_CONSTANTS.ELEMENT_PROFILE_SAVE_BUTTON,
+    150,
+    {"TOPLEFT", 320, -64},
+    rgp.L["profile_save_button"],
+    function()
+      StaticPopup_Show("PULSE_PROFILE_SAVE")
+    end
+  )
+
+  CreateActionButton(
+    frame,
+    RGP_CONSTANTS.ELEMENT_PROFILE_APPLY_BUTTON,
+    150,
+    {"TOPLEFT", 320, -96},
+    rgp.L["profile_apply_button"],
+    function()
+      if not me.selectedProfile then
+        mod.logger.PrintUserError(rgp.L["profile_error_no_selection"])
+        return
+      end
+
+      StaticPopup_Show("PULSE_PROFILE_APPLY", me.selectedProfile, nil, me.selectedProfile)
+    end
+  )
+
+  renameButton = CreateActionButton(
+    frame,
+    RGP_CONSTANTS.ELEMENT_PROFILE_RENAME_BUTTON,
+    150,
+    {"TOPLEFT", 320, -128},
+    rgp.L["profile_rename_button"],
+    function()
+      if not me.selectedProfile then
+        mod.logger.PrintUserError(rgp.L["profile_error_no_selection"])
+        return
+      end
+
+      if mod.profile.IsDefaultProfile(me.selectedProfile) then
+        PrintDefaultProfileError("profile_error_default_cannot_be_renamed")
+        return
+      end
+
+      StaticPopup_Show("PULSE_PROFILE_RENAME", nil, nil, me.selectedProfile)
+    end
+  )
+
+  deleteButton = CreateActionButton(
+    frame,
+    RGP_CONSTANTS.ELEMENT_PROFILE_DELETE_BUTTON,
+    150,
+    {"TOPLEFT", 320, -160},
+    rgp.L["profile_delete_button"],
+    function()
+      if not me.selectedProfile then
+        mod.logger.PrintUserError(rgp.L["profile_error_no_selection"])
+        return
+      end
+
+      if mod.profile.IsDefaultProfile(me.selectedProfile) then
+        PrintDefaultProfileError("profile_error_default_cannot_be_deleted")
+        return
+      end
+
+      StaticPopup_Show("PULSE_PROFILE_DELETE", me.selectedProfile, nil, me.selectedProfile)
+    end
+  )
+
+  UpdateActionButtonState()
+end
+
+--[[
+  Export the selected profile into the string box and select it for copying.
+]]--
+local function HandleExport()
+  local name = me.selectedProfile
+
+  if not name then
+    mod.logger.PrintUserError(rgp.L["profile_error_no_selection"])
+    return
+  end
+
+  local payload = mod.profile.GetProfile(name)
+
+  if not payload then
+    mod.logger.PrintUserError(rgp.L["profile_error_no_selection"])
+    return
+  end
+
+  profileEditBox:SetText(mod.profile.ExportString(payload, name))
+  profileEditBox:HighlightText()
+  profileEditBox:SetFocus()
+end
+
+--[[
+  Decode and validate the string box content, then prompt for a name to store
+  it under.
+]]--
+local function HandleImport()
+  local envelope, errorKey = mod.profile.ImportString(profileEditBox:GetText())
+
+  if not envelope then
+    mod.logger.PrintUserError(rgp.L[errorKey])
+    return
+  end
+
+  StaticPopup_Show("PULSE_PROFILE_IMPORT", nil, nil, envelope)
+end
+
+--[[
+  Build the multiline export/import string box and its Export/Import buttons.
+
+  @param {table} frame
+]]--
+local function BuildStringBox(frame)
+  local stringContainer = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+  stringContainer:SetSize(RGP_CONSTANTS.ELEMENT_PROFILE_STRING_WIDTH, RGP_CONSTANTS.ELEMENT_PROFILE_STRING_HEIGHT)
+  stringContainer:SetPoint("TOPLEFT", 20, -264)
+  mod.uiHelper.ApplyBorderBackdrop(stringContainer)
+
+  local scrollContainer = CreateFrame(
+    "ScrollFrame",
+    RGP_CONSTANTS.ELEMENT_PROFILE_STRING_SCROLL_FRAME,
+    stringContainer,
+    "InputScrollFrameTemplate"
+  )
+  scrollContainer:SetPoint("TOPLEFT", 6, -6)
+  scrollContainer:SetPoint("BOTTOMRIGHT", -6, 6)
+
+  --[[ the template draws its own input-border art outside its rect which does not line
+       up with the profile list's backdrop - hide it, the container draws the border ]]--
+  local artKeys = {
+    "TopLeftTex", "TopRightTex", "BottomLeftTex", "BottomRightTex",
+    "TopTex", "BottomTex", "LeftTex", "RightTex", "MiddleTex"
+  }
+
+  for _, artKey in ipairs(artKeys) do
+    if scrollContainer[artKey] then
+      scrollContainer[artKey]:Hide()
+    end
+  end
+
+  if scrollContainer.CharCount then
+    scrollContainer.CharCount:Hide()
+  end
+
+  profileEditBox = scrollContainer.EditBox
+  profileEditBox:SetMaxLetters(RGP_CONSTANTS.PROFILE_IMPORT_MAX_LENGTH)
+  profileEditBox:SetFontObject("ChatFontNormal")
+  profileEditBox:SetWidth(RGP_CONSTANTS.ELEMENT_PROFILE_STRING_WIDTH - 30)
+  profileEditBox:SetScript("OnEscapePressed", function(self)
+    self:ClearFocus()
+  end)
+
+  CreateActionButton(
+    frame,
+    RGP_CONSTANTS.ELEMENT_PROFILE_EXPORT_BUTTON,
+    110,
+    {"TOPLEFT", 20, -366},
+    rgp.L["profile_export_button"],
+    HandleExport
+  )
+
+  CreateActionButton(
+    frame,
+    RGP_CONSTANTS.ELEMENT_PROFILE_IMPORT_BUTTON,
+    110,
+    {"TOPLEFT", 140, -366},
+    rgp.L["profile_import_button"],
+    HandleImport
+  )
+end
+
+--[[
+  Build the ui for the profile menu. Built once (guarded); the list is
+  refreshed on every show so external changes are reflected.
+
+  @param {table} frame
+    The addon configuration frame to attach to
+]]--
+function me.BuildUi(frame)
+  if not builtMenu then
+    SetupStaticPopups()
+
+    local titleFontString = frame:CreateFontString(
+      RGP_CONSTANTS.ELEMENT_PROFILE_TITLE, "OVERLAY", "GameFontNormalLarge")
+    titleFontString:SetPoint("TOPLEFT", 16, -16)
+    mod.uiHelper.SetColor(titleFontString, RGP_CONSTANTS.COLOR.TITLE_GOLD)
+    titleFontString:SetText(rgp.L["profile_title"])
+
+    local listLabel = frame:CreateFontString(nil, "OVERLAY")
+    listLabel:SetFont(STANDARD_TEXT_FONT, 13)
+    listLabel:SetPoint("TOPLEFT", 20, -46)
+    listLabel:SetText(rgp.L["profile_list_label"])
+
+    BuildProfileList(frame)
+    BuildActionButtons(frame)
+
+    local stringLabel = frame:CreateFontString(nil, "OVERLAY")
+    stringLabel:SetFont(STANDARD_TEXT_FONT, 13)
+    stringLabel:SetPoint("TOPLEFT", 20, -246)
+    stringLabel:SetText(rgp.L["profile_string_label"])
+
+    BuildStringBox(frame)
+
+    builtMenu = true
+  end
+
+  RefreshList()
 end
