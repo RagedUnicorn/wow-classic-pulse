@@ -63,17 +63,212 @@ local builtMenu = false
 ]]--
 local gridSizeSlider
 
--- forward declarations
-local BuildCheckButtonOption
-local CreateSizeSlider
-local CreateSliderOptions
-local CreateSliderDescription
-local GetOptionData
-local LockWindowEnergyBarOnShow
-local LockWindowEnergyBarOnClick
-local SnapEnergyBarToGridOnShow
-local SnapEnergyBarToGridOnClick
-local UpdateGridSizeSliderState
+--[[
+  Get the option metadata for a checkbutton
+
+  @param {string} frameName
+
+  @return {table | nil}
+    The option data with label and description
+]]--
+local function GetOptionData(frameName)
+  if not frameName then return end
+
+  for optionKey, optionData in pairs(options) do
+    if frameName == RGP_CONSTANTS.ELEMENT_GENERAL_OPT .. optionKey then
+      return optionData
+    end
+  end
+end
+
+--[[
+  Build a checkbutton option
+
+  @param {table} parentFrame
+  @param {string} optionFrameName
+  @param {number} posX
+  @param {number} posY
+  @param {function} onShowCallback
+  @param {function} onClickCallback
+]]--
+local function BuildCheckButtonOption(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
+  local optionData = GetOptionData(optionFrameName)
+  local checkButtonOptionFrame = mod.uiHelper.CreateCheckBox(
+    optionFrameName,
+    parentFrame,
+    {"TOPLEFT", posX, posY},
+    onClickCallback,
+    onShowCallback,
+    optionData and optionData.label,
+    optionData and optionData.description
+  )
+
+  -- load initial state
+  onShowCallback(checkButtonOptionFrame)
+end
+
+--[[
+  Create slider options with label formatters
+
+  @param {number} minValue
+  @param {number} maxValue
+  @param {string} title
+  @param {number} stepSize
+    Increment between two slider values
+
+  @return {table} configured slider options
+]]--
+local function CreateSliderOptions(minValue, maxValue, title, stepSize)
+  local sliderOptions = Settings.CreateSliderOptions(
+    minValue,
+    maxValue,
+    stepSize
+  )
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function() return maxValue end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function() return minValue end)
+  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function() return title end)
+
+  return sliderOptions
+end
+
+--[[
+  Create an always visible description below a slider
+
+  @param {table} sliderFrame
+  @param {string} description
+]]--
+local function CreateSliderDescription(sliderFrame, description)
+  local descriptionFontString = sliderFrame:CreateFontString(nil, "OVERLAY")
+  descriptionFontString:SetFont(STANDARD_TEXT_FONT, 12)
+  mod.uiHelper.SetColor(descriptionFontString, RGP_CONSTANTS.COLOR.SUBNOTE)
+  -- the template renders its min/max value labels below the frame - clear them
+  descriptionFontString:SetPoint("TOPLEFT", sliderFrame, "BOTTOMLEFT", 4, -16)
+  descriptionFontString:SetJustifyH("LEFT")
+  descriptionFontString:SetText(description)
+  sliderFrame.description = descriptionFontString
+end
+
+--[[
+  Create a slider for a pixel valued energyBar option (its dimensions, the grid spacing)
+
+  @param {table} parentFrame
+  @param {string} sliderName
+  @param {table} position
+    An object that can be unpacked into SetPoint
+  @param {number} sliderMinValue
+  @param {number} sliderMaxValue
+  @param {number} defaultValue
+  @param {string} sliderTitle
+  @param {string} sliderDescription
+  @param {function} onValueChangedCallback
+  @param {number} sliderStep
+    Increment between two slider values
+
+  @return {table}
+    The created slider frame
+]]--
+local function CreateSizeSlider(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
+    sliderTitle, sliderDescription, onValueChangedCallback, sliderStep)
+
+  local sliderOptions = CreateSliderOptions(sliderMinValue, sliderMaxValue, sliderTitle, sliderStep)
+
+  local sliderFrame = CreateFrame("Frame", sliderName, parentFrame, "MinimalSliderWithSteppersTemplate")
+  sliderFrame:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_WIDTH)
+  sliderFrame:SetPoint(unpack(position))
+  sliderFrame:Init(
+    defaultValue,
+    sliderOptions.minValue,
+    sliderOptions.maxValue,
+    sliderOptions.steps,
+    sliderOptions.formatters
+  )
+
+  if onValueChangedCallback then
+    sliderFrame:RegisterCallback("OnValueChanged", onValueChangedCallback, sliderFrame)
+  end
+
+  CreateSliderDescription(sliderFrame, sliderDescription)
+
+  return sliderFrame
+end
+
+--[[
+  OnShow callback for checkbuttons - window lock energyBar
+
+  @param {table} self
+]]--
+local function LockWindowEnergyBarOnShow(self)
+  if mod.configuration.IsEnergyBarLocked() then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+end
+
+--[[
+  OnClick callback for checkbuttons - window lock energyBar
+
+  @param {table} self
+]]--
+local function LockWindowEnergyBarOnClick(self)
+  local enabled = self:GetChecked()
+
+  if enabled then
+    mod.configuration.LockEnergyBar()
+  else
+    mod.configuration.UnlockEnergyBar()
+  end
+
+  -- a locked bar cannot be moved, so the grid has nothing left to guide
+  mod.alignmentGrid.Refresh()
+end
+
+--[[
+  Keep the grid size slider in step with the snap checkbox - a grid spacing is meaningless
+  while nothing snaps to it. Driven from both the checkbox OnShow and its OnClick so the
+  slider is right on the first open as well as after every toggle
+]]--
+local function UpdateGridSizeSliderState()
+  mod.uiHelper.SetSliderEnabled(gridSizeSlider, mod.configuration.IsEnergyBarGridSnapEnabled())
+end
+
+--[[
+  OnShow callback for checkbuttons - snap energyBar to grid
+
+  @param {table} self
+]]--
+local function SnapEnergyBarToGridOnShow(self)
+  if mod.configuration.IsEnergyBarGridSnapEnabled() then
+    self:SetChecked(true)
+  else
+    self:SetChecked(false)
+  end
+
+  --[[
+    Guarded against the slider not existing yet - the checkbox is built (and its OnShow
+    run once) before the slider below it
+  ]]--
+  UpdateGridSizeSliderState()
+end
+
+--[[
+  OnClick callback for checkbuttons - snap energyBar to grid
+
+  @param {table} self
+]]--
+local function SnapEnergyBarToGridOnClick(self)
+  local enabled = self:GetChecked()
+
+  if enabled then
+    mod.configuration.EnableEnergyBarGridSnap()
+  else
+    mod.configuration.DisableEnergyBarGridSnap()
+  end
+
+  UpdateGridSizeSliderState()
+  mod.alignmentGrid.Refresh()
+end
 
 --[[
   Build the ui for the general menu
@@ -207,211 +402,4 @@ function me.BuildUi(frame)
   moveBarDescription:SetText(rgp.L["move_bar_description"])
 
   builtMenu = true
-end
-
---[[
-  Create slider options with label formatters
-
-  @param {number} minValue
-  @param {number} maxValue
-  @param {string} title
-  @param {number} stepSize
-    Increment between two slider values
-
-  @return {table} configured slider options
-]]--
-CreateSliderOptions = function(minValue, maxValue, title, stepSize)
-  local sliderOptions = Settings.CreateSliderOptions(
-    minValue,
-    maxValue,
-    stepSize
-  )
-  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value end)
-  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Max, function() return maxValue end)
-  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Min, function() return minValue end)
-  sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Top, function() return title end)
-
-  return sliderOptions
-end
-
---[[
-  Create an always visible description below a slider
-
-  @param {table} sliderFrame
-  @param {string} description
-]]--
-CreateSliderDescription = function(sliderFrame, description)
-  local descriptionFontString = sliderFrame:CreateFontString(nil, "OVERLAY")
-  descriptionFontString:SetFont(STANDARD_TEXT_FONT, 12)
-  mod.uiHelper.SetColor(descriptionFontString, RGP_CONSTANTS.COLOR.SUBNOTE)
-  -- the template renders its min/max value labels below the frame - clear them
-  descriptionFontString:SetPoint("TOPLEFT", sliderFrame, "BOTTOMLEFT", 4, -16)
-  descriptionFontString:SetJustifyH("LEFT")
-  descriptionFontString:SetText(description)
-  sliderFrame.description = descriptionFontString
-end
-
---[[
-  Build a checkbutton option
-
-  @param {table} parentFrame
-  @param {string} optionFrameName
-  @param {number} posX
-  @param {number} posY
-  @param {function} onShowCallback
-  @param {function} onClickCallback
-]]--
-BuildCheckButtonOption = function(parentFrame, optionFrameName, posX, posY, onShowCallback, onClickCallback)
-  local optionData = GetOptionData(optionFrameName)
-  local checkButtonOptionFrame = mod.uiHelper.CreateCheckBox(
-    optionFrameName,
-    parentFrame,
-    {"TOPLEFT", posX, posY},
-    onClickCallback,
-    onShowCallback,
-    optionData and optionData.label,
-    optionData and optionData.description
-  )
-
-  -- load initial state
-  onShowCallback(checkButtonOptionFrame)
-end
-
---[[
-  Get the option metadata for a checkbutton
-
-  @param {string} frameName
-
-  @return {table | nil}
-    The option data with label and description
-]]--
-GetOptionData = function(frameName)
-  if not frameName then return end
-
-  for optionKey, optionData in pairs(options) do
-    if frameName == RGP_CONSTANTS.ELEMENT_GENERAL_OPT .. optionKey then
-      return optionData
-    end
-  end
-end
-
---[[
-  OnShow callback for checkbuttons - window lock energyBar
-
-  @param {table} self
-]]--
-LockWindowEnergyBarOnShow = function(self)
-  if mod.configuration.IsEnergyBarLocked() then
-    self:SetChecked(true)
-  else
-    self:SetChecked(false)
-  end
-end
-
---[[
-  OnClick callback for checkbuttons - window lock energyBar
-
-  @param {table} self
-]]--
-LockWindowEnergyBarOnClick = function(self)
-  local enabled = self:GetChecked()
-
-  if enabled then
-    mod.configuration.LockEnergyBar()
-  else
-    mod.configuration.UnlockEnergyBar()
-  end
-
-  -- a locked bar cannot be moved, so the grid has nothing left to guide
-  mod.alignmentGrid.Refresh()
-end
-
---[[
-  OnShow callback for checkbuttons - snap energyBar to grid
-
-  @param {table} self
-]]--
-SnapEnergyBarToGridOnShow = function(self)
-  if mod.configuration.IsEnergyBarGridSnapEnabled() then
-    self:SetChecked(true)
-  else
-    self:SetChecked(false)
-  end
-
-  --[[
-    Guarded against the slider not existing yet - the checkbox is built (and its OnShow
-    run once) before the slider below it
-  ]]--
-  UpdateGridSizeSliderState()
-end
-
---[[
-  OnClick callback for checkbuttons - snap energyBar to grid
-
-  @param {table} self
-]]--
-SnapEnergyBarToGridOnClick = function(self)
-  local enabled = self:GetChecked()
-
-  if enabled then
-    mod.configuration.EnableEnergyBarGridSnap()
-  else
-    mod.configuration.DisableEnergyBarGridSnap()
-  end
-
-  UpdateGridSizeSliderState()
-  mod.alignmentGrid.Refresh()
-end
-
---[[
-  Keep the grid size slider in step with the snap checkbox - a grid spacing is meaningless
-  while nothing snaps to it. Driven from both the checkbox OnShow and its OnClick so the
-  slider is right on the first open as well as after every toggle
-]]--
-UpdateGridSizeSliderState = function()
-  mod.uiHelper.SetSliderEnabled(gridSizeSlider, mod.configuration.IsEnergyBarGridSnapEnabled())
-end
-
---[[
-  Create a slider for a pixel valued energyBar option (its dimensions, the grid spacing)
-
-  @param {table} parentFrame
-  @param {string} sliderName
-  @param {table} position
-    An object that can be unpacked into SetPoint
-  @param {number} sliderMinValue
-  @param {number} sliderMaxValue
-  @param {number} defaultValue
-  @param {string} sliderTitle
-  @param {string} sliderDescription
-  @param {function} onValueChangedCallback
-  @param {number} sliderStep
-    Increment between two slider values
-
-  @return {table}
-    The created slider frame
-]]--
-CreateSizeSlider = function(parentFrame, sliderName, position, sliderMinValue, sliderMaxValue, defaultValue,
-    sliderTitle, sliderDescription, onValueChangedCallback, sliderStep)
-
-  local sliderOptions = CreateSliderOptions(sliderMinValue, sliderMaxValue, sliderTitle, sliderStep)
-
-  local sliderFrame = CreateFrame("Frame", sliderName, parentFrame, "MinimalSliderWithSteppersTemplate")
-  sliderFrame:SetWidth(RGP_CONSTANTS.ELEMENT_ENERGY_BAR_SIZE_SLIDER_WIDTH)
-  sliderFrame:SetPoint(unpack(position))
-  sliderFrame:Init(
-    defaultValue,
-    sliderOptions.minValue,
-    sliderOptions.maxValue,
-    sliderOptions.steps,
-    sliderOptions.formatters
-  )
-
-  if onValueChangedCallback then
-    sliderFrame:RegisterCallback("OnValueChanged", onValueChangedCallback, sliderFrame)
-  end
-
-  CreateSliderDescription(sliderFrame, sliderDescription)
-
-  return sliderFrame
 end
