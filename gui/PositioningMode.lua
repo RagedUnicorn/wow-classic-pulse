@@ -57,12 +57,6 @@ local isActive = false
 ]]--
 local enteredFromSettings = false
 
--- forward declarations
-local EnsureUi
-local CreateHudFrame
-local CloseSettingsWindow
-local Exit
-
 --[[
   @return {boolean}
     true - while the user is placing the bar
@@ -73,72 +67,6 @@ function me.IsActive()
 end
 
 --[[
-  Create the positioning hud on first use.
-
-  Built lazily rather than at login: placing the bar is something a user does once and then
-  never again for the life of the character, so a frame, a button and a backdrop should not
-  be paid for by every session that never enters the mode
-]]--
-EnsureUi = function()
-  if hudFrame ~= nil then return end
-
-  hudFrame = CreateHudFrame()
-
-  --[[
-    Escape closes the hud, and its OnHide leaves the mode - so the usual "get me out of
-    here" key works without a separate keybinding. UISpecialFrames holds frame names, which
-    is why the hud is created with one. Inserted alongside the frame so the name can never
-    be registered twice
-  ]]--
-  table.insert(UISpecialFrames, RGP_CONSTANTS.ELEMENT_POSITIONING_HUD_FRAME)
-end
-
---[[
-  Enter or leave the mode depending on where it currently is. Used by the slash command
-]]--
-function me.Toggle()
-  if isActive then
-    Exit()
-  else
-    me.Enter()
-  end
-end
-
---[[
-  Start placing the bar
-]]--
-function me.Enter()
-  if isActive then return end
-
-  EnsureUi()
-
-  mod.logger.LogInfo(me.tag, "Entering positioning mode")
-  isActive = true
-  enteredFromSettings = SettingsPanel ~= nil and SettingsPanel:IsShown()
-
-  --[[
-    Order matters. Closing the settings window fires the general panel's OnHide, which runs
-    energyBar.HidePreview and can hide the bar again - so the window has to go away first
-    and the bar be force-shown afterwards, never the other way around
-  ]]--
-  CloseSettingsWindow()
-  mod.energyBar.ShowPreview()
-  mod.alignmentGrid.Refresh()
-
-  --[[
-    Only promise the corner alignment when snapping is actually on - without it the bar
-    lands wherever it is dropped and the grid is not even drawn
-  ]]--
-  if mod.configuration.IsEnergyBarGridSnapEnabled() then
-    hudFrame.instruction:SetText(rgp.L["positioning_hud_instruction_snap"])
-  else
-    hudFrame.instruction:SetText(rgp.L["positioning_hud_instruction"])
-  end
-
-  hudFrame:Show()
-end
-
---[[
   Stop placing the bar and restore the state it was in beforehand
 
   @param {boolean} returnToSettings
@@ -146,7 +74,7 @@ end
     user back where they started. Deliberately not set for Escape, where popping a window
     open would be the opposite of what the key is for
 ]]--
-Exit = function(returnToSettings)
+local function Exit(returnToSettings)
   if not isActive then return end
 
   mod.logger.LogInfo(me.tag, "Leaving positioning mode")
@@ -175,33 +103,13 @@ Exit = function(returnToSettings)
 end
 
 --[[
-  Hide the Blizzard settings window so it stops covering the bar being placed.
-
-  Routed through HideUIPanel rather than a direct Hide - that is what Blizzard's own close
-  button ends up calling, and it keeps working should the settings window ever gain a
-  UIPanelWindows entry. Note that SettingsPanel:Close() is deliberately not used: without
-  its skip argument it falls through to ToggleGameMenu, which would pop the game menu open
-  on top of the hud whenever the panel was reached from a slash command.
-
-  HideUIPanel is protected, so in combat an insecure caller only earns a blocked-action
-  message. The mode is still perfectly usable then - the window just stays open and can be
-  closed by hand
-]]--
-CloseSettingsWindow = function()
-  if SettingsPanel == nil or not SettingsPanel:IsShown() then return end
-  if InCombatLockdown() then return end
-
-  HideUIPanel(SettingsPanel)
-end
-
---[[
   Build the hud: one line telling the user what to do plus a Done button. Anchored to the
   screen rather than to the energyBar so dragging the bar into a corner can never push the
   Done button out of reach
 
   @return {table}
 ]]--
-CreateHudFrame = function()
+local function CreateHudFrame()
   local frame = CreateFrame(
     "Frame",
     RGP_CONSTANTS.ELEMENT_POSITIONING_HUD_FRAME,
@@ -260,4 +168,90 @@ CreateHudFrame = function()
   frame:Hide()
 
   return frame
+end
+
+--[[
+  Create the positioning hud on first use.
+
+  Built lazily rather than at login: placing the bar is something a user does once and then
+  never again for the life of the character, so a frame, a button and a backdrop should not
+  be paid for by every session that never enters the mode
+]]--
+local function EnsureUi()
+  if hudFrame ~= nil then return end
+
+  hudFrame = CreateHudFrame()
+
+  --[[
+    Escape closes the hud, and its OnHide leaves the mode - so the usual "get me out of
+    here" key works without a separate keybinding. UISpecialFrames holds frame names, which
+    is why the hud is created with one. Inserted alongside the frame so the name can never
+    be registered twice
+  ]]--
+  table.insert(UISpecialFrames, RGP_CONSTANTS.ELEMENT_POSITIONING_HUD_FRAME)
+end
+
+--[[
+  Enter or leave the mode depending on where it currently is. Used by the slash command
+]]--
+function me.Toggle()
+  if isActive then
+    Exit()
+  else
+    me.Enter()
+  end
+end
+
+--[[
+  Hide the Blizzard settings window so it stops covering the bar being placed.
+
+  Routed through HideUIPanel rather than a direct Hide - that is what Blizzard's own close
+  button ends up calling, and it keeps working should the settings window ever gain a
+  UIPanelWindows entry. Note that SettingsPanel:Close() is deliberately not used: without
+  its skip argument it falls through to ToggleGameMenu, which would pop the game menu open
+  on top of the hud whenever the panel was reached from a slash command.
+
+  HideUIPanel is protected, so in combat an insecure caller only earns a blocked-action
+  message. The mode is still perfectly usable then - the window just stays open and can be
+  closed by hand
+]]--
+local function CloseSettingsWindow()
+  if SettingsPanel == nil or not SettingsPanel:IsShown() then return end
+  if InCombatLockdown() then return end
+
+  HideUIPanel(SettingsPanel)
+end
+
+--[[
+  Start placing the bar
+]]--
+function me.Enter()
+  if isActive then return end
+
+  EnsureUi()
+
+  mod.logger.LogInfo(me.tag, "Entering positioning mode")
+  isActive = true
+  enteredFromSettings = SettingsPanel ~= nil and SettingsPanel:IsShown()
+
+  --[[
+    Order matters. Closing the settings window fires the general panel's OnHide, which runs
+    energyBar.HidePreview and can hide the bar again - so the window has to go away first
+    and the bar be force-shown afterwards, never the other way around
+  ]]--
+  CloseSettingsWindow()
+  mod.energyBar.ShowPreview()
+  mod.alignmentGrid.Refresh()
+
+  --[[
+    Only promise the corner alignment when snapping is actually on - without it the bar
+    lands wherever it is dropped and the grid is not even drawn
+  ]]--
+  if mod.configuration.IsEnergyBarGridSnapEnabled() then
+    hudFrame.instruction:SetText(rgp.L["positioning_hud_instruction_snap"])
+  else
+    hudFrame.instruction:SetText(rgp.L["positioning_hud_instruction"])
+  end
+
+  hudFrame:Show()
 end
