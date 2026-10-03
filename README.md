@@ -12,8 +12,8 @@
 
 ## Providers
 
-[![](docs/curseforge.svg)](https://www.curseforge.com/wow/addons/pulse)
-[![](docs/wago.svg)](https://addons.wago.io/addons/pulse)
+[![](docs/curseforge.svg)](https://www.curseforge.com/wow/addons/pulse-rg)
+[![](docs/wago.svg)](https://addons.wago.io/addons/pulse-rg)
 
 ## Installation
 
