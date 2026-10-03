@@ -1,60 +1,46 @@
-## New Features
+## Improvements
 
-### Profiles
-
-* Save your current settings as a named profile and switch between them from the new Profiles
-  page in the addon options
-* Share profiles with other players - export a profile to a chat-safe string and import strings
-  from others. Corrupt, truncated or foreign strings are rejected with a clear message instead
-  of being applied
-* Every install ships with a reserved "Default" profile holding the factory settings - applying
-  it is the way back to a clean slate. It cannot be renamed, deleted or overwritten
-* Profile names are limited to 30 characters
-
-### Positioning the energy bar
-
-* New "Move Bar" button in the options, and the `/pulse move` command, open a positioning mode:
-  the options close, the bar stays visible and draggable, and an on-screen HUD with a Done button
-  guides you through it. It works right after login before any energy has been spent, and on a
-  locked bar without changing the lock
-* New "Snap to Grid" option aligns the bar to an alignment grid when you drop it, with an
-  adjustable grid size. The grid is drawn on screen while positioning so you can see what you are
-  snapping to
-* Snapping is opt-in - existing bar placements stay exactly where they are until the bar is moved
-  again
-
-### Other
-
-* The width and height sliders now preview the change on the bar live while you drag them
-* Pulse lets you know when a newer version is available, based on version broadcasts from other
-  players running the addon
-* The addon now shows its icon in the in-game addon list
-* Refreshed settings UI
-* All new text is available in English, German and Russian
-* Updated for WoW Classic Era 1.15.9 (Interface 11509) and TBC Anniversary 2.5.6 (Interface 20506)
+* The Profiles page now has a slim scrollbar, so long profile lists stay usable
+* Pulse now appears under the RagedUnicorn category in the in-game addon list
+* Updated the supported game versions for WoW Classic Era and TBC Anniversary
 
 ## Bug Fixes
 
-* The energy amount is only redrawn when it actually changes, and the bar refreshes at a saner
-  interval - the same smooth tick visualization at a fraction of the work per frame
-* The energy amount is now always drawn on the first update instead of briefly showing a stale
-  value
+### Profiles
+
+* The reserved "Default" profile is now refreshed on every login. Previously it was saved once, so
+  settings added in later versions were missing from it and applying "Default" kept your
+  customized value for them instead of resetting them
+* Renaming a profile to its own name no longer deletes it
+* Imported profile strings are checked much more strictly: only known profile settings are kept,
+  overly long pastes are rejected, a broken profile name is dropped, and every value (bar size,
+  grid size, position) must be in range before anything is stored. A crafted string can no longer
+  place the bar off screen or freeze the client with a tiny grid size
+* Profile strings containing invalid numbers (infinity, NaN, non-decimal notation) are rejected
+  instead of causing an error
+
+### Version check
+
+* The update notice only reacts to well-formed version numbers
+* The version is broadcast over the instance channel in battleground groups
+* The version is announced to the guild only once at login instead of on every group change, and
+  a broadcast that hits the cooldown is sent shortly afterwards instead of being dropped
+
+### Other
+
+* Strings that are not yet translated in German or Russian now fall back to English instead of
+  showing nothing
+* An error during login initialization no longer leaves the energy bar permanently unresponsive
 
 ## Development
 
-* New central event bus replaces the dispatch chain in the addon entry point. Handlers can be
-  gated until the login sequence has finished and subscribed per unit, so high-frequency events
-  such as `UNIT_POWER_UPDATE` are filtered by the client instead of by the addon
-* Configuration defaults are now applied recursively from a single `DEFAULTS` table that serves
-  both fresh installs and upgrades, backed by a versioned migration path for future schema changes
-* Profile export/import is built on two new dependency-free modules: a length-prefixed serializer
-  with a hand-written data-only parser (imported strings are never executed) and a base64 encoder
-  with an Adler-32 checksum
-* Added a headless test suite running under busted in CI, covering the configuration, profile,
-  serializer, encoder, event bus, ticker, filter, command, energy bar, alignment grid and version
-  broadcast modules, plus a localization parity check across all three locales
-* Added a manual test case catalog under `test/manual/` and documented the procedure in
-  `test/TESTING.md` and `RELEASE.md`
-* Added a development-only media capture module for recreating the documentation screenshots
-* Updated GitHub Actions workflows to Java 21 and normalized them across the project
-* Updated the RagedUnicorn Maven plugins, Docker images and Alpine base versions
+* Private helpers across all modules are now plain local functions defined above their first
+  caller, and the convention is documented in `DEVELOPMENT.md`
+* Removed unused colour and profile constants; read-only globals are declared as `read_globals`
+  in the luacheck setup
+* The release workflows are gated on luacheck, the busted suite and a package contents check
+* Added `timeout-minutes` to all GitHub Actions jobs and skip the generate-sources job for fork
+  pull requests
+* Packaging now uses the addon folder name, and the build tooling is aligned with the other
+  RagedUnicorn AddOns
+* Documented the log-tag filter as a debugging tool and updated the store links
